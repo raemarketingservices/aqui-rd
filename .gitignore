@@ -7,3 +7,4 @@ dist/
 server.log
 server-error.log
 vite.log
+deploy.zip
