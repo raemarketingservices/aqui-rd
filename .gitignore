@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.convex/
+.env.local
+.DS_Store
+*.log
+server.log
+server-error.log
+vite.log
