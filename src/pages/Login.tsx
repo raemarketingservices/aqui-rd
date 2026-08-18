@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { FiArrowLeft, FiEye, FiEyeOff } from "react-icons/fi";
@@ -9,47 +9,41 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, user, isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
+
+  // Navigate after user data is loaded
+  useEffect(() => {
+    if (isAuthenticated && user && !isLoading) {
+      if (user.role === "ADMIN") {
+        navigate("/admin");
+      } else if (user.role === "VENDOR") {
+        navigate("/vendor/dashboard");
+      } else {
+        navigate("/customer/dashboard");
+      }
+    }
+  }, [isAuthenticated, user, isLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const result = await login(email, password);
-      // Wait for Convex to sync user data
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      if (result.role === "ADMIN") {
-        navigate("/admin");
-      } else if (result.role === "VENDOR") {
-        navigate("/vendor/dashboard");
-      } else {
-        navigate("/customer/dashboard");
-      }
+      await login(email, password);
     } catch (error: any) {
       toast.error(error.message || "Credenciales inválidas");
-    } finally {
       setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-[#0A1929] flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Tech background */}
       <div className="absolute inset-0 z-0">
-        <img
-          src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=1920&q=80"
-          alt=""
-          className="w-full h-full object-cover opacity-20"
-        />
+        <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=1920&q=80" alt="" className="w-full h-full object-cover opacity-20" />
         <div className="absolute inset-0 bg-[#0A1929]/80 backdrop-blur-sm"></div>
       </div>
 
-      {/* Volver button */}
-      <Link
-        to="/"
-        className="absolute top-6 left-6 z-10 flex items-center gap-2 text-gray-400 hover:text-white transition-colors group"
-      >
+      <Link to="/" className="absolute top-6 left-6 z-10 flex items-center gap-2 text-gray-400 hover:text-white transition-colors group">
         <FiArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
         <span className="text-sm font-medium">Volver a la web</span>
       </Link>
@@ -76,8 +70,8 @@ export default function Login() {
               </button>
             </div>
           </div>
-          <button type="submit" disabled={loading} className="w-full bg-[#FF6B35] hover:bg-[#E85A28] text-white font-semibold py-3 rounded-lg transition-colors disabled:opacity-50">
-            {loading ? "Ingresando..." : "Iniciar Sesión"}
+          <button type="submit" disabled={loading || isLoading} className="w-full bg-[#FF6B35] hover:bg-[#E85A28] text-white font-semibold py-3 rounded-lg transition-colors disabled:opacity-50">
+            {loading || isLoading ? "Ingresando..." : "Iniciar Sesión"}
           </button>
         </form>
         <p className="text-center mt-6 text-gray-400">¿No tienes cuenta? <Link to="/registro" className="text-[#FF6B35] hover:underline font-medium">Regístrate aquí</Link></p>

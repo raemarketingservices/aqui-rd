@@ -61,12 +61,21 @@ export default function Shop() {
         <main className="flex-1">
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-gray-900">{currentSearch ? `Resultados para "${currentSearch}"` : currentCategory ? categories?.find((c: any) => c.slug === currentCategory)?.name || "Productos" : "Todos los Productos"}</h1>
-            <p className="text-gray-500 text-sm mt-1">{filteredProducts.length} productos</p>
+            <p className="text-gray-500 text-sm mt-1">{products === undefined ? "Cargando..." : `${filteredProducts.length} productos`}</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProducts.map((product: any) => <ProductCard key={product._id} product={product} />)}
-          </div>
-          {filteredProducts.length === 0 && <p className="text-center text-gray-500 py-12">No se encontraron productos</p>}
+          {products === undefined ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-aqui-blue"></div>
+              <span className="ml-3 text-gray-500">Cargando productos...</span>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredProducts.map((product: any) => <ProductCard key={product._id} product={product} />)}
+              </div>
+              {filteredProducts.length === 0 && <p className="text-center text-gray-500 py-12">No se encontraron productos</p>}
+            </>
+          )}
         </main>
       </div>
     </div>

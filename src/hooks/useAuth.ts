@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
@@ -20,6 +20,7 @@ export function useAuth() {
     const saved = localStorage.getItem("aqui_user_id");
     return saved ? (saved as Id<"users">) : null;
   });
+  const [authLoading, setAuthLoading] = useState(false);
 
   const user = useQuery(api.users.getMe, userId ? { userId } : "skip");
 
@@ -27,19 +28,31 @@ export function useAuth() {
   const registerMutation = useMutation(api.users.register);
 
   const login = useCallback(async (email: string, password: string) => {
-    const result = await loginMutation({ email, password });
-    localStorage.setItem("aqui_user_id", result._id);
-    setUserId(result._id);
-    toast.success(`Bienvenido, ${result.name}!`);
-    return result;
+    setAuthLoading(true);
+    try {
+      const result = await loginMutation({ email, password });
+      localStorage.setItem("aqui_user_id", result._id);
+      setUserId(result._id);
+      toast.success(`Bienvenido, ${result.name}!`);
+      return result;
+    } catch (error) {
+      setAuthLoading(false);
+      throw error;
+    }
   }, [loginMutation]);
 
   const register = useCallback(async (data: { name: string; email: string; password: string; role: string; phone?: string }) => {
-    const id = await registerMutation(data as any);
-    localStorage.setItem("aqui_user_id", id);
-    setUserId(id);
-    toast.success("Cuenta creada exitosamente!");
-    return { id, role: data.role };
+    setAuthLoading(true);
+    try {
+      const id = await registerMutation(data as any);
+      localStorage.setItem("aqui_user_id", id);
+      setUserId(id);
+      toast.success("Cuenta creada exitosamente!");
+      return { id, role: data.role };
+    } catch (error) {
+      setAuthLoading(false);
+      throw error;
+    }
   }, [registerMutation]);
 
   const logout = useCallback(() => {
@@ -48,10 +61,17 @@ export function useAuth() {
     toast.success("Sesión cerrada");
   }, []);
 
+  // When user data loads, clear auth loading
+  useEffect(() => {
+    if (user !== undefined) {
+      setAuthLoading(false);
+    }
+  }, [user]);
+
   return {
     user: user as User | null | undefined,
     isAuthenticated: !!userId && user !== null && user !== undefined,
-    isLoading: user === undefined && !!userId,
+    isLoading: authLoading || (user === undefined && !!userId),
     login,
     register,
     logout,
