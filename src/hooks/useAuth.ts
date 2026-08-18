@@ -23,12 +23,11 @@ export function useAuth() {
 
   const user = useQuery(api.users.getMe, userId ? { userId } : "skip");
 
-  const loginMutation = useMutation(api.users.login as any);
+  const loginMutation = useMutation(api.users.login);
   const registerMutation = useMutation(api.users.register);
 
   const login = useCallback(async (email: string, password: string) => {
     const result = await loginMutation({ email, password });
-    if (!result) throw new Error("Credenciales inválidas");
     localStorage.setItem("aqui_user_id", result._id);
     setUserId(result._id);
     toast.success(`Bienvenido, ${result.name}!`);

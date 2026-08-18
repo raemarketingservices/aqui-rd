@@ -41,15 +41,15 @@ export const register = mutation({
   },
 });
 
-export const login = query({
+export const login = mutation({
   args: { email: v.string(), password: v.string() },
   handler: async (ctx, args) => {
     const user = await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", args.email))
       .unique();
-    if (!user) return null;
-    if (user.password !== args.password) return null;
+    if (!user) throw new Error("Credenciales inválidas");
+    if (user.password !== args.password) throw new Error("Credenciales inválidas");
     return {
       _id: user._id,
       name: user.name,
