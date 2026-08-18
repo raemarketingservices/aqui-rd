@@ -8,3 +8,4 @@ server.log
 server-error.log
 vite.log
 deploy.zip
+tsconfig.tsbuildinfo

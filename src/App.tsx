@@ -19,6 +19,7 @@ import Vendors from "./pages/Vendors";
 import VendorStore from "./pages/VendorStore";
 import VendorDashboard from "./pages/vendor/VendorDashboard";
 import VendorProductForm from "./pages/vendor/VendorProductForm";
+import VendorProductEdit from "./pages/vendor/VendorProductEdit";
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -68,6 +69,7 @@ function AppRoutes() {
       <Route path="/customer/dashboard" element={<Layout><RequireRole role="CUSTOMER"><CustomerDashboard /></RequireRole></Layout>} />
       <Route path="/vendor/dashboard" element={<Layout><RequireRole role="VENDOR"><VendorDashboard /></RequireRole></Layout>} />
       <Route path="/vendor/nuevo-producto" element={<Layout><RequireRole role="VENDOR"><VendorProductForm /></RequireRole></Layout>} />
+      <Route path="/vendor/editar-producto/:id" element={<Layout><RequireRole role="VENDOR"><VendorProductEdit /></RequireRole></Layout>} />
       <Route path="/admin/dashboard" element={<Layout><RequireRole role="ADMIN"><AdminDashboard /></RequireRole></Layout>} />
       <Route path="/admin/usuarios" element={<Layout><RequireRole role="ADMIN"><AdminUsers /></RequireRole></Layout>} />
       <Route path="/admin" element={<AdminPanel />} />

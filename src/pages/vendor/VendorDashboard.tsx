@@ -33,6 +33,8 @@ export default function VendorDashboard() {
   const updateVendor = useMutation(api.vendors.update);
   const updateSocials = useMutation(api.vendors.updateSocials);
   const deleteProduct = useMutation(api.products.remove);
+  const updateProduct = useMutation(api.products.update);
+  const [stockLoadingId, setStockLoadingId] = useState<string | null>(null);
 
   const [editingInfo, setEditingInfo] = useState(false);
   const [editingSocials, setEditingSocials] = useState(false);
@@ -158,6 +160,19 @@ export default function VendorDashboard() {
       toast.success("Producto eliminado");
     } catch (e: any) {
       toast.error(e.message);
+    }
+  };
+
+  const handleStockChange = async (productId: string, currentStock: number, delta: number) => {
+    const newStock = Math.max(0, currentStock + delta);
+    setStockLoadingId(productId);
+    try {
+      await updateProduct({ productId: productId as any, stock: newStock });
+      toast.success(`Stock actualizado a ${newStock}`);
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setStockLoadingId(null);
     }
   };
 
@@ -728,6 +743,127 @@ export default function VendorDashboard() {
                   No hay métodos de pago configurados
                 </p>
               )}
+          </div>
+        )}
+      </div>
+
+      {/* Inventario */}
+      <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-aqui-orange/10 rounded-lg flex items-center justify-center">
+              <FiPackage size={20} className="text-aqui-orange" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold">Inventario</h2>
+              <p className="text-sm text-gray-500">
+                Controla el stock de tus productos
+              </p>
+            </div>
+          </div>
+          <Link
+            to="/vendor/nuevo-producto"
+            className="bg-aqui-blue hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          >
+            + Nuevo Producto
+          </Link>
+        </div>
+
+        {productList.length === 0 ? (
+          <div className="text-center py-10">
+            <FiPackage size={40} className="mx-auto text-gray-300 mb-3" />
+            <p className="text-gray-500 mb-3">No tienes productos en inventario</p>
+            <Link
+              to="/vendor/nuevo-producto"
+              className="text-aqui-orange hover:underline text-sm font-medium"
+            >
+              Crear tu primer producto
+            </Link>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs text-gray-400 uppercase tracking-wide border-b border-gray-100">
+                  <th className="px-3 py-2">Producto</th>
+                  <th className="px-3 py-2">Precio</th>
+                  <th className="px-3 py-2">Stock</th>
+                  <th className="px-3 py-2">Vendidos</th>
+                  <th className="px-3 py-2 text-right">Ajustar</th>
+                </tr>
+              </thead>
+              <tbody>
+                {productList.map((p: any) => (
+                  <tr key={p._id} className="border-b border-gray-50 hover:bg-gray-50/50">
+                    <td className="px-3 py-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        {p.images && p.images[0] ? (
+                          <img
+                            src={p.images[0]}
+                            alt={p.name}
+                            className="w-10 h-10 rounded-lg object-cover border"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400">
+                            <FiPackage size={16} />
+                          </div>
+                        )}
+                        <Link
+                          to={`/vendor/editar-producto/${p._id}`}
+                          className="font-medium text-gray-900 hover:text-aqui-blue truncate"
+                        >
+                          {p.name}
+                        </Link>
+                      </div>
+                    </td>
+                    <td className="px-3 py-3 text-gray-700">
+                      RD${(p.price / 100).toLocaleString()}
+                    </td>
+                    <td className="px-3 py-3">
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
+                          p.stock <= 0
+                            ? "bg-red-50 text-red-600"
+                            : p.stock < 10
+                            ? "bg-yellow-50 text-yellow-700"
+                            : "bg-green-50 text-green-600"
+                        }`}
+                      >
+                        {p.stock <= 0
+                          ? "Agotado"
+                          : p.stock < 10
+                          ? `Bajo: ${p.stock}`
+                          : `${p.stock} disponibles`}
+                      </span>
+                    </td>
+                    <td className="px-3 py-3 text-gray-500">
+                      {p.salesCount || 0}
+                    </td>
+                    <td className="px-3 py-3">
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => handleStockChange(p._id, p.stock, -1)}
+                          disabled={stockLoadingId === p._id || p.stock <= 0}
+                          className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-100 disabled:opacity-40"
+                        >
+                          −
+                        </button>
+                        <span className="w-10 text-center font-bold">
+                          {stockLoadingId === p._id ? "..." : p.stock}
+                        </span>
+                        <button
+                          onClick={() => handleStockChange(p._id, p.stock, 1)}
+                          disabled={stockLoadingId === p._id}
+                          className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-100 disabled:opacity-40"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>

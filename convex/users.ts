@@ -78,6 +78,7 @@ export const getMe = query({
       role: user.role,
       phone: user.phone,
       avatar: user.avatar,
+      vendorId: user.vendorId,
       vendor,
     };
   },
