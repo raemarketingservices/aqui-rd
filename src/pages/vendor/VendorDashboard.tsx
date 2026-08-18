@@ -14,6 +14,7 @@ import {
   FiTwitter,
   FiYoutube,
   FiExternalLink,
+  FiCreditCard,
 } from "react-icons/fi";
 import toast from "react-hot-toast";
 
@@ -35,6 +36,15 @@ export default function VendorDashboard() {
 
   const [editingInfo, setEditingInfo] = useState(false);
   const [editingSocials, setEditingSocials] = useState(false);
+  const [editingPayment, setEditingPayment] = useState(false);
+  const [paymentForm, setPaymentForm] = useState({
+    banco: "",
+    cuenta: "",
+    tipoCuenta: "Ahorro",
+    telefonoPagos: "",
+    paypalEmail: "",
+    linkPago: "",
+  });
   const [infoForm, setInfoForm] = useState({
     businessName: "",
     description: "",
@@ -110,6 +120,32 @@ export default function VendorDashboard() {
       });
       toast.success("Redes sociales actualizadas");
       setEditingSocials(false);
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  };
+
+  const startEditPayment = () => {
+    setPaymentForm({
+      banco: vendorData?.paymentMethods?.banco || "",
+      cuenta: vendorData?.paymentMethods?.cuenta || "",
+      tipoCuenta: vendorData?.paymentMethods?.tipoCuenta || "Ahorro",
+      telefonoPagos: vendorData?.paymentMethods?.telefonoPagos || "",
+      paypalEmail: vendorData?.paymentMethods?.paypalEmail || "",
+      linkPago: vendorData?.paymentMethods?.linkPago || "",
+    });
+    setEditingPayment(true);
+  };
+
+  const savePayment = async () => {
+    if (!user.vendorId) return;
+    try {
+      await updateVendor({
+        userId: user._id,
+        paymentMethods: { ...paymentForm },
+      });
+      toast.success("Métodos de pago guardados");
+      setEditingPayment(false);
     } catch (e: any) {
       toast.error(e.message);
     }
@@ -500,6 +536,200 @@ export default function VendorDashboard() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Payment Methods */}
+      <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold flex items-center gap-2">
+            <FiCreditCard size={20} /> Métodos de Pago y Cuentas Bancarias
+          </h2>
+          {!editingPayment && (
+            <button
+              onClick={startEditPayment}
+              className="text-aqui-blue hover:text-blue-700 text-sm font-medium"
+            >
+              Editar
+            </button>
+          )}
+        </div>
+
+        {editingPayment ? (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Banco principal
+                </label>
+                <input
+                  type="text"
+                  value={paymentForm.banco}
+                  onChange={(e) =>
+                    setPaymentForm({ ...paymentForm, banco: e.target.value })
+                  }
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                  placeholder="BanReservas, BHD, etc."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Número de cuenta bancaria
+                </label>
+                <input
+                  type="text"
+                  value={paymentForm.cuenta}
+                  onChange={(e) =>
+                    setPaymentForm({ ...paymentForm, cuenta: e.target.value })
+                  }
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                  placeholder="000-000000-00"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Tipo de cuenta
+                </label>
+                <select
+                  value={paymentForm.tipoCuenta}
+                  onChange={(e) =>
+                    setPaymentForm({ ...paymentForm, tipoCuenta: e.target.value })
+                  }
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                >
+                  <option value="Ahorro">Ahorro</option>
+                  <option value="Corriente">Corriente</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Teléfono para pagos móviles
+                </label>
+                <input
+                  type="tel"
+                  value={paymentForm.telefonoPagos}
+                  onChange={(e) =>
+                    setPaymentForm({
+                      ...paymentForm,
+                      telefonoPagos: e.target.value,
+                    })
+                  }
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                  placeholder="809-555-0000"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  PayPal email <span className="text-gray-400">(opcional)</span>
+                </label>
+                <input
+                  type="email"
+                  value={paymentForm.paypalEmail}
+                  onChange={(e) =>
+                    setPaymentForm({
+                      ...paymentForm,
+                      paypalEmail: e.target.value,
+                    })
+                  }
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                  placeholder="correo@paypal.com"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Link de pago
+                </label>
+                <input
+                  type="url"
+                  value={paymentForm.linkPago}
+                  onChange={(e) =>
+                    setPaymentForm({ ...paymentForm, linkPago: e.target.value })
+                  }
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                  placeholder="https://..."
+                />
+              </div>
+            </div>
+            <div className="flex gap-2 pt-2">
+              <button
+                onClick={savePayment}
+                className="bg-aqui-blue hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg"
+              >
+                Guardar Métodos de Pago
+              </button>
+              <button
+                onClick={() => setEditingPayment(false)}
+                className="text-gray-500 hover:text-gray-700 text-sm font-medium px-4 py-2"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {vendorData?.paymentMethods?.banco && (
+              <div>
+                <p className="text-xs text-gray-400 uppercase tracking-wide">Banco</p>
+                <p className="font-medium">{vendorData.paymentMethods.banco}</p>
+              </div>
+            )}
+            {vendorData?.paymentMethods?.cuenta && (
+              <div>
+                <p className="text-xs text-gray-400 uppercase tracking-wide">
+                  Cuenta
+                </p>
+                <p className="font-medium">{vendorData.paymentMethods.cuenta}</p>
+              </div>
+            )}
+            {vendorData?.paymentMethods?.tipoCuenta && (
+              <div>
+                <p className="text-xs text-gray-400 uppercase tracking-wide">
+                  Tipo
+                </p>
+                <p className="font-medium">{vendorData.paymentMethods.tipoCuenta}</p>
+              </div>
+            )}
+            {vendorData?.paymentMethods?.telefonoPagos && (
+              <div>
+                <p className="text-xs text-gray-400 uppercase tracking-wide">
+                  Pagos móviles
+                </p>
+                <p className="font-medium">{vendorData.paymentMethods.telefonoPagos}</p>
+              </div>
+            )}
+            {vendorData?.paymentMethods?.paypalEmail && (
+              <div>
+                <p className="text-xs text-gray-400 uppercase tracking-wide">
+                  PayPal
+                </p>
+                <p className="font-medium">{vendorData.paymentMethods.paypalEmail}</p>
+              </div>
+            )}
+            {vendorData?.paymentMethods?.linkPago && (
+              <div>
+                <p className="text-xs text-gray-400 uppercase tracking-wide">
+                  Link de pago
+                </p>
+                <a
+                  href={vendorData.paymentMethods.linkPago}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-aqui-blue hover:underline text-sm"
+                >
+                  {vendorData.paymentMethods.linkPago}
+                </a>
+              </div>
+            )}
+            {!vendorData?.paymentMethods?.banco &&
+              !vendorData?.paymentMethods?.cuenta &&
+              !vendorData?.paymentMethods?.telefonoPagos &&
+              !vendorData?.paymentMethods?.paypalEmail &&
+              !vendorData?.paymentMethods?.linkPago && (
+                <p className="text-gray-400 text-sm">
+                  No hay métodos de pago configurados
+                </p>
+              )}
+          </div>
+        )}
       </div>
 
       {/* Products */}

@@ -18,6 +18,7 @@ import Vendors from "./pages/Vendors";
 import VendorStore from "./pages/VendorStore";
 import VendorDashboard from "./pages/vendor/VendorDashboard";
 import VendorProductForm from "./pages/vendor/VendorProductForm";
+import CustomerDashboard from "./pages/customer/CustomerDashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminVendors from "./pages/admin/AdminVendors";
@@ -63,6 +64,7 @@ function AppRoutes() {
       <Route path="/checkout" element={<Layout><RequireAuth><Checkout /></RequireAuth></Layout>} />
       <Route path="/mis-ordenes" element={<Layout><RequireAuth><Orders /></RequireAuth></Layout>} />
       <Route path="/perfil" element={<Layout><RequireAuth><Profile /></RequireAuth></Layout>} />
+      <Route path="/customer/dashboard" element={<Layout><RequireRole role="CUSTOMER"><CustomerDashboard /></RequireRole></Layout>} />
       <Route path="/vendor/dashboard" element={<Layout><RequireRole role="VENDOR"><VendorDashboard /></RequireRole></Layout>} />
       <Route path="/vendor/nuevo-producto" element={<Layout><RequireRole role="VENDOR"><VendorProductForm /></RequireRole></Layout>} />
       <Route path="/admin/dashboard" element={<Layout><RequireRole role="ADMIN"><AdminDashboard /></RequireRole></Layout>} />

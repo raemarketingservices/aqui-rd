@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
@@ -12,6 +12,7 @@ interface User {
   phone?: string;
   avatar?: string;
   vendor?: any;
+  vendorId?: Id<"vendors">;
 }
 
 export function useAuth() {
@@ -39,7 +40,7 @@ export function useAuth() {
     localStorage.setItem("aqui_user_id", id);
     setUserId(id);
     toast.success("Cuenta creada exitosamente!");
-    return id;
+    return { id, role: data.role };
   }, [registerMutation]);
 
   const logout = useCallback(() => {

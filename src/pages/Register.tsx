@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { FiArrowLeft, FiEye, FiEyeOff } from "react-icons/fi";
+import toast from "react-hot-toast";
 
 export default function Register() {
   const [form, setForm] = useState({ name: "", email: "", password: "", phone: "", role: "CUSTOMER" });
@@ -14,9 +15,19 @@ export default function Register() {
     e.preventDefault();
     setLoading(true);
     try {
-      await register(form);
-      navigate(form.role === "VENDOR" ? "/vendor/dashboard" : "/");
-    } catch (error) {} finally { setLoading(false); }
+      const result = await register(form);
+      // Wait a moment for Convex to sync the user data
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      if (result.role === "VENDOR") {
+        navigate("/vendor/dashboard");
+      } else {
+        navigate("/customer/dashboard");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Error al crear cuenta");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

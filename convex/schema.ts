@@ -31,6 +31,7 @@ export default defineSchema({
       tiktok: v.optional(v.string()),
       youtube: v.optional(v.string()),
     })),
+    paymentMethods: v.optional(v.any()),
   })
     .index("by_userId", ["userId"])
     .index("by_slug", ["slug"])

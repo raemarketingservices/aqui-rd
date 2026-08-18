@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { FiArrowLeft, FiEye, FiEyeOff } from "react-icons/fi";
+import toast from "react-hot-toast";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -15,10 +16,18 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     try {
-      await login(email, password);
-      navigate("/");
+      const result = await login(email, password);
+      // Wait for Convex to sync user data
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (result.role === "ADMIN") {
+        navigate("/admin");
+      } else if (result.role === "VENDOR") {
+        navigate("/vendor/dashboard");
+      } else {
+        navigate("/customer/dashboard");
+      }
     } catch (error: any) {
-      // toast handles
+      toast.error(error.message || "Credenciales inválidas");
     } finally {
       setLoading(false);
     }
