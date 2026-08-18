@@ -50,6 +50,7 @@ export const update = mutation({
     businessName: v.optional(v.string()),
     description: v.optional(v.string()),
     logo: v.optional(v.string()),
+    paymentMethods: v.optional(v.any()),
   },
   handler: async (ctx, args) => {
     const user = await ctx.db.get(args.userId);
@@ -58,6 +59,7 @@ export const update = mutation({
     if (args.businessName !== undefined) updates.businessName = args.businessName;
     if (args.description !== undefined) updates.description = args.description;
     if (args.logo !== undefined) updates.logo = args.logo;
+    if (args.paymentMethods !== undefined) updates.paymentMethods = args.paymentMethods;
     await ctx.db.patch(user.vendorId, updates);
     return "ok";
   },

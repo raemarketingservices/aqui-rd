@@ -25,7 +25,7 @@ export const create = mutation({
     const orderItems: any[] = [];
 
     for (const item of items) {
-      const product = await ctx.db.get(item.productId);
+      const product = await ctx.db.get(item.productId) as any;
       if (!product) continue;
       if (product.stock < item.quantity) throw new Error(`Stock insuficiente para ${product.name}`);
 
@@ -61,7 +61,7 @@ export const create = mutation({
 
     for (const oi of orderItems) {
       await ctx.db.insert("orderItems", { orderId, ...oi });
-      const product = await ctx.db.get(oi.productId);
+      const product = (await ctx.db.get(oi.productId)) as any;
       if (product) {
         await ctx.db.patch(oi.productId, {
           stock: Math.max(0, product.stock - oi.quantity),

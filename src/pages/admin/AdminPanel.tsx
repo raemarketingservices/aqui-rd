@@ -734,7 +734,7 @@ function LandingContentTab() {
               return Promise.resolve();
             }
           }
-          return upsert({ key: field.key, value: val });
+          return upsert({ section: section.key, key: field.key, value: val });
         })
       );
       toast.success(`${section.label} guardado`);

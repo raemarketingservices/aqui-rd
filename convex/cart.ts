@@ -4,19 +4,18 @@ import { query, mutation } from "./_generated/server";
 export const getCart = query({
   args: { userId: v.id("users") },
   handler: async (ctx, args) => {
-    let cart = await ctx.db
+    const cart = await ctx.db
       .query("carts")
       .withIndex("by_userId", (q) => q.eq("userId", args.userId))
       .unique();
 
     if (!cart) {
-      const cartId = await ctx.db.insert("carts", { userId: args.userId });
-      cart = await ctx.db.get(cartId);
+      return { _id: null, _creationTime: 0, userId: args.userId, items: [], total: 0 };
     }
 
     const items = await ctx.db
       .query("cartItems")
-      .withIndex("by_cartId", (q) => q.eq("cartId", cart!._id))
+      .withIndex("by_cartId", (q) => q.eq("cartId", cart._id))
       .collect();
 
     const enriched = await Promise.all(
@@ -52,6 +51,7 @@ export const addItem = mutation({
       const cartId = await ctx.db.insert("carts", { userId: args.userId });
       cart = await ctx.db.get(cartId);
     }
+    if (!cart) throw new Error("No se pudo crear el carrito");
 
     const existing = await ctx.db
       .query("cartItems")

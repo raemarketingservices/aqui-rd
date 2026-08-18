@@ -3,6 +3,7 @@ import { Toaster } from "react-hot-toast";
 import { useAuth } from "./hooks/useAuth";
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 import Landing from "./pages/Landing";
 import Home from "./pages/Home";
@@ -79,8 +80,10 @@ function AppRoutes() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AppRoutes />
-      <Chatbot />
+      <ErrorBoundary>
+        <AppRoutes />
+        <Chatbot />
+      </ErrorBoundary>
       <Toaster position="top-right" />
     </BrowserRouter>
   );

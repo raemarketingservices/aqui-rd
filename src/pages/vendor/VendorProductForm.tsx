@@ -46,7 +46,7 @@ export default function VendorProductForm() {
           : undefined,
         stock: parseInt(form.stock) || 0,
         images: form.images.filter((i) => i.trim()),
-        vendorId: user.vendorId,
+        vendorId: user.vendorId!,
         categoryId: form.categoryId ? (form.categoryId as any) : undefined,
         whatsapp: form.whatsapp || undefined,
       });
