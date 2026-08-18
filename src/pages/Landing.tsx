@@ -181,6 +181,7 @@ export default function Landing() {
           <div className="flex flex-wrap gap-4">
             <Link to="/productos" className="bg-aqui-orange hover:bg-orange-600 text-white font-bold px-8 py-3.5 rounded-lg text-sm transition shadow-lg">Explorar Productos</Link>
             <Link to="/registro" className="border-2 border-aqui-dark text-aqui-dark hover:bg-aqui-dark hover:text-white font-bold px-8 py-3.5 rounded-lg text-sm transition">Vender en AQUÍ</Link>
+            <Link to="/login" className="bg-aqui-blue hover:bg-blue-700 text-white font-bold px-8 py-3.5 rounded-lg text-sm transition shadow-lg">Iniciar Sesión</Link>
           </div>
         </div>
         <div className="bg-aqui-dark text-white px-8 py-16 md:px-12 md:py-16 flex flex-col justify-center">

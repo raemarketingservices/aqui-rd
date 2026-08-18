@@ -56,8 +56,9 @@ export default function Header() {
                     <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl py-2 z-50">
                       <div className="px-4 py-2 border-b"><p className="font-semibold text-gray-900">{user?.name}</p><p className="text-xs text-gray-500">{user?.email}</p></div>
                       <Link to="/perfil" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100"><FiSettings size={16} /> Mi Perfil</Link>
+                      {user?.role === "CUSTOMER" && <Link to="/customer/dashboard" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100"><FiGrid size={16} /> Mi Panel</Link>}
                       {user?.role === "VENDOR" && <Link to="/vendor/dashboard" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100"><FiPackage size={16} /> Mi Tienda</Link>}
-                      {user?.role === "ADMIN" && <Link to="/admin/dashboard" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100"><FiGrid size={16} /> Panel Admin</Link>}
+                      {user?.role === "ADMIN" && <Link to="/admin" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100"><FiGrid size={16} /> Panel Admin</Link>}
                       <Link to="/mis-ordenes" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100"><FiPackage size={16} /> Mis Órdenes</Link>
                       <hr className="my-1" />
                       <button onClick={() => { logout(); setUserMenuOpen(false); }} className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 w-full"><FiLogOut size={16} /> Cerrar Sesión</button>
@@ -88,8 +89,9 @@ export default function Header() {
                 <>
                   <Link to="/carrito" onClick={() => setMobileOpen(false)} className="hover:text-aqui-orange">Carrito ({itemCount})</Link>
                   <Link to="/perfil" onClick={() => setMobileOpen(false)} className="hover:text-aqui-orange">Mi Perfil</Link>
+                  {user?.role === "CUSTOMER" && <Link to="/customer/dashboard" onClick={() => setMobileOpen(false)} className="hover:text-aqui-orange">Mi Panel</Link>}
                   {user?.role === "VENDOR" && <Link to="/vendor/dashboard" onClick={() => setMobileOpen(false)} className="hover:text-aqui-orange">Mi Tienda</Link>}
-                  {user?.role === "ADMIN" && <Link to="/admin/dashboard" onClick={() => setMobileOpen(false)} className="hover:text-aqui-orange">Panel Admin</Link>}
+                  {user?.role === "ADMIN" && <Link to="/admin" onClick={() => setMobileOpen(false)} className="hover:text-aqui-orange">Panel Admin</Link>}
                   <button onClick={() => { logout(); setMobileOpen(false); }} className="text-left text-red-400">Cerrar Sesión</button>
                 </>
               ) : (

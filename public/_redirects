@@ -1,0 +1,10 @@
+/assets/*  /assets/:splat  200
+/*.js      /:splat         200
+/*.css     /:splat         200
+/*.png     /:splat         200
+/*.svg     /:splat         200
+/*.json    /:splat         200
+/*.woff    /:splat         200
+/*.woff2   /:splat         200
+/*.ttf     /:splat         200
+/*         /index.html     200
