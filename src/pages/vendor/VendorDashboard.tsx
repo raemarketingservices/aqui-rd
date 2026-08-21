@@ -17,6 +17,10 @@ import {
   FiCreditCard,
 } from "react-icons/fi";
 import toast from "react-hot-toast";
+import SupportChat from "../../components/support/SupportChat";
+import TicketsSection from "../../components/support/TicketsSection";
+import NotificationsBell from "../../components/support/NotificationsBell";
+import VendorFacebookImport from "../../components/vendor/VendorFacebookImport";
 
 export default function VendorDashboard() {
   const { user } = useAuth();
@@ -178,6 +182,8 @@ export default function VendorDashboard() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
+      <NotificationsBell userId={user._id} />
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
@@ -925,6 +931,26 @@ export default function VendorDashboard() {
             </Link>
           </div>
         )}
+      </div>
+
+      {/* Importar de Facebook */}
+      <div className="mb-8">
+        <VendorFacebookImport onSaved={() => {}} />
+      </div>
+
+      {/* Soporte Técnico - Tickets */}
+      <div className="mb-8">
+        <TicketsSection
+          userId={user._id}
+          role="VENDOR"
+          vendorId={user.vendorId}
+          vendorName={vendorData?.businessName || user.name}
+        />
+      </div>
+
+      {/* Chat con Soporte */}
+      <div>
+        <SupportChat userId={user._id} role="VENDOR" vendorId={user.vendorId} />
       </div>
     </div>
   );

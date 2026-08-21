@@ -62,6 +62,19 @@ export default defineSchema({
     reviewCount: v.number(),
     salesCount: v.number(),
     whatsapp: v.optional(v.string()),
+    condition: v.optional(v.union(
+      v.literal("NEW"),
+      v.literal("USED_LIKE_NEW"),
+      v.literal("USED_GOOD"),
+      v.literal("USED_ACCEPTABLE")
+    )),
+    brand: v.optional(v.string()),
+    color: v.optional(v.string()),
+    sku: v.optional(v.string()),
+    tags: v.optional(v.array(v.string())),
+    location: v.optional(v.string()),
+    availability: v.optional(v.union(v.literal("SINGLE"), v.literal("MULTIPLE"))),
+    videoUrl: v.optional(v.string()),
   })
     .index("by_slug", ["slug"])
     .index("by_vendorId", ["vendorId"])
@@ -147,4 +160,66 @@ export default defineSchema({
     key: v.string(),
     value: v.string(),
   }).index("by_section", ["section", "key"]),
+
+  conversations: defineTable({
+    vendorId: v.id("vendors"),
+    lastMessage: v.optional(v.string()),
+    lastMessageAt: v.number(),
+  })
+    .index("by_vendorId", ["vendorId"]),
+
+  messages: defineTable({
+    conversationId: v.id("conversations"),
+    senderId: v.id("users"),
+    senderRole: v.union(v.literal("ADMIN"), v.literal("VENDOR")),
+    text: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_conversationId", ["conversationId"]),
+
+  tickets: defineTable({
+    vendorId: v.id("vendors"),
+    vendorName: v.string(),
+    subject: v.string(),
+    description: v.string(),
+    status: v.union(
+      v.literal("PENDING"),
+      v.literal("IN_PROGRESS"),
+      v.literal("COMPLETED")
+    ),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_vendorId", ["vendorId"])
+    .index("by_status", ["status"]),
+
+  ticketComments: defineTable({
+    ticketId: v.id("tickets"),
+    senderId: v.id("users"),
+    senderRole: v.union(v.literal("ADMIN"), v.literal("VENDOR")),
+    text: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_ticketId", ["ticketId"]),
+
+  notifications: defineTable({
+    userId: v.id("users"),
+    type: v.string(),
+    title: v.string(),
+    message: v.string(),
+    read: v.boolean(),
+    createdAt: v.number(),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_userId_read", ["userId", "read"]),
+
+  vendorReviews: defineTable({
+    vendorId: v.id("vendors"),
+    userId: v.id("users"),
+    rating: v.number(),
+    comment: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_vendorId", ["vendorId"])
+    .index("by_userId", ["userId"]),
 });

@@ -97,10 +97,25 @@ export const create = mutation({
     vendorId: v.id("vendors"),
     categoryId: v.optional(v.id("categories")),
     whatsapp: v.optional(v.string()),
+    condition: v.optional(v.union(
+      v.literal("NEW"),
+      v.literal("USED_LIKE_NEW"),
+      v.literal("USED_GOOD"),
+      v.literal("USED_ACCEPTABLE")
+    )),
+    brand: v.optional(v.string()),
+    color: v.optional(v.string()),
+    sku: v.optional(v.string()),
+    tags: v.optional(v.array(v.string())),
+    location: v.optional(v.string()),
+    availability: v.optional(v.union(v.literal("SINGLE"), v.literal("MULTIPLE"))),
+    videoUrl: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    const sku = args.sku || `AQUI-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
     return await ctx.db.insert("products", {
       ...args,
+      sku,
       status: "ACTIVE",
       rating: 0,
       reviewCount: 0,
@@ -121,6 +136,19 @@ export const update = mutation({
     categoryId: v.optional(v.id("categories")),
     status: v.optional(v.union(v.literal("DRAFT"), v.literal("ACTIVE"), v.literal("INACTIVE"))),
     whatsapp: v.optional(v.string()),
+    condition: v.optional(v.union(
+      v.literal("NEW"),
+      v.literal("USED_LIKE_NEW"),
+      v.literal("USED_GOOD"),
+      v.literal("USED_ACCEPTABLE")
+    )),
+    brand: v.optional(v.string()),
+    color: v.optional(v.string()),
+    sku: v.optional(v.string()),
+    tags: v.optional(v.array(v.string())),
+    location: v.optional(v.string()),
+    availability: v.optional(v.union(v.literal("SINGLE"), v.literal("MULTIPLE"))),
+    videoUrl: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const { productId, ...data } = args;

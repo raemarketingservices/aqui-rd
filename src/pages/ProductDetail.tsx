@@ -3,8 +3,15 @@ import { useParams, Link } from "react-router-dom";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { useAuth } from "../hooks/useAuth";
-import { FiShoppingCart, FiStar, FiTruck, FiShield, FiMinus, FiPlus } from "react-icons/fi";
+import { FiShoppingCart, FiStar, FiTruck, FiShield, FiMinus, FiPlus, FiMessageCircle } from "react-icons/fi";
 import toast from "react-hot-toast";
+
+const formatWhatsAppNumber = (num: string) => {
+  const cleaned = num.replace(/[^0-9]/g, "");
+  if (cleaned.startsWith("1") && cleaned.length >= 11) return cleaned;
+  if (cleaned.length === 10) return `1${cleaned}`;
+  return cleaned;
+};
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -60,7 +67,19 @@ export default function ProductDetail() {
             </div>
           )}
           {isAuthenticated && product.stock > 0 && (
-            <button onClick={handleAdd} className="w-full btn-primary mt-6 flex items-center justify-center gap-2 text-lg !py-3"><FiShoppingCart size={20} /> Agregar al Carrito</button>
+            <div className="flex gap-3 mt-6">
+              <button onClick={handleAdd} className="flex-1 btn-primary flex items-center justify-center gap-2 text-lg !py-3"><FiShoppingCart size={20} /> Agregar al Carrito</button>
+              {product.whatsapp && (
+                <a
+                  href={`https://wa.me/${formatWhatsAppNumber(product.whatsapp)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold transition text-lg"
+                >
+                  <FiMessageCircle size={20} /> WhatsApp
+                </a>
+              )}
+            </div>
           )}
           <div className="grid grid-cols-2 gap-4 mt-8">
             <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"><FiTruck className="text-aqui-blue" size={20} /><div><p className="text-sm font-medium">Envío</p><p className="text-xs text-gray-500">A todo RD</p></div></div>

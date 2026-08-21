@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import { useState, useEffect, useRef } from "react";
 import {
   FiSmartphone,
   FiHeart,
@@ -37,10 +38,10 @@ const categories = [
 ];
 
 const stats = [
-  { number: "10,000+", label: "Productos" },
-  { number: "500+", label: "Vendedores" },
-  { number: "50,000+", label: "Clientes" },
-  { number: "32", label: "Provincias" },
+  { number: 10000, suffix: "+", label: "Productos" },
+  { number: 500, suffix: "+", label: "Vendedores" },
+  { number: 50000, suffix: "+", label: "Clientes" },
+  { number: 32, suffix: "", label: "Provincias" },
 ];
 
 const platformFeatures = [
@@ -124,6 +125,40 @@ const featuredProducts = [
 
 const formatPrice = (p: number) => `RD$${p.toLocaleString()}`;
 
+function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: string }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+  const hasAnimated = useRef(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated.current) {
+          hasAnimated.current = true;
+          const duration = 2000;
+          const steps = 60;
+          const increment = target / steps;
+          let current = 0;
+          const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+              setCount(target);
+              clearInterval(timer);
+            } else {
+              setCount(Math.floor(current));
+            }
+          }, duration / steps);
+        }
+      },
+      { threshold: 0.3 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [target]);
+
+  return <div ref={ref}>{count.toLocaleString()}{suffix}</div>;
+}
+
 const brandValues = [
   {
     icon: <FiUsers size={36} />,
@@ -154,6 +189,7 @@ const brandValues = [
 export default function Landing() {
   const landingData = useQuery(api.landing.getAll);
   const landing = landingData || [];
+  const realProducts = useQuery(api.products.getAll, { sort: "popular", limit: 8 });
   const getVal = (section: string, key: string, fallback: string) => {
     const item = landing.find((l: any) => l.section === section && l.key === key);
     return item?.value || fallback;
@@ -184,26 +220,38 @@ export default function Landing() {
             <Link to="/login" className="bg-aqui-blue hover:bg-blue-700 text-white font-bold px-8 py-3.5 rounded-lg text-sm transition shadow-lg">Iniciar Sesión</Link>
           </div>
         </div>
-        <div className="bg-aqui-dark text-white px-8 py-16 md:px-12 md:py-16 flex flex-col justify-center">
-          <h2 className="text-3xl md:text-4xl font-extrabold mb-2">Una Plataforma,</h2>
-          <h2 className="text-3xl md:text-4xl font-extrabold mb-10"><span className="text-aqui-orange">Infinitas</span> Posibilidades</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
-            {platformFeatures.map((feat, i) => (
-              <div key={i} className="text-center">
-                <div className="text-aqui-orange mb-3 flex justify-center">{feat.icon}</div>
-                <h3 className="font-bold text-sm uppercase tracking-wide mb-1">{feat.title}</h3>
-                <p className="text-gray-400 text-xs leading-relaxed">{feat.desc}</p>
-              </div>
-            ))}
-          </div>
-          <div className="bg-white/10 rounded-2xl p-6">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {benefits.map((b, i) => (
+        <div
+          className={`text-white px-8 py-16 md:px-12 md:py-16 flex flex-col justify-center relative overflow-hidden ${!getVal("hero", "rightImage", "") ? "bg-aqui-dark" : ""}`}
+          style={getVal("hero", "rightImage", "") ? {
+            backgroundImage: `url(${getVal("hero", "rightImage", "")})`,
+            backgroundSize: getVal("hero", "rightImageFit", "cover"),
+            backgroundPosition: getVal("hero", "rightImagePosition", "center"),
+          } : undefined}
+        >
+          {!getVal("hero", "rightImage", "") ? null : (
+            <div className="absolute inset-0 bg-aqui-dark/80 backdrop-blur-sm z-0"></div>
+          )}
+          <div className={!getVal("hero", "rightImage", "") ? "" : "relative z-10"}>
+            <h2 className="text-3xl md:text-4xl font-extrabold mb-2">Una Plataforma,</h2>
+            <h2 className="text-3xl md:text-4xl font-extrabold mb-10"><span className="text-aqui-orange">Infinitas</span> Posibilidades</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
+              {platformFeatures.map((feat, i) => (
                 <div key={i} className="text-center">
-                  <div className="text-aqui-orange mb-2 flex justify-center">{b.icon}</div>
-                  <p className="text-xs font-semibold leading-tight">{b.title}</p>
+                  <div className="text-aqui-orange mb-3 flex justify-center">{feat.icon}</div>
+                  <h3 className="font-bold text-sm uppercase tracking-wide mb-1">{feat.title}</h3>
+                  <p className="text-gray-400 text-xs leading-relaxed">{feat.desc}</p>
                 </div>
               ))}
+            </div>
+            <div className="bg-white/10 rounded-2xl p-6">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {benefits.map((b, i) => (
+                  <div key={i} className="text-center">
+                    <div className="text-aqui-orange mb-2 flex justify-center">{b.icon}</div>
+                    <p className="text-xs font-semibold leading-tight">{b.title}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -215,7 +263,9 @@ export default function Landing() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((s, i) => (
               <div key={i} className="text-center text-white">
-                <p className="text-4xl md:text-5xl font-extrabold mb-2">{s.number}</p>
+                <p className="text-4xl md:text-5xl font-extrabold mb-2">
+                  <AnimatedCounter target={s.number} suffix={s.suffix} />
+                </p>
                 <p className="text-blue-200 font-medium uppercase tracking-wider text-sm">{s.label}</p>
               </div>
             ))}
@@ -256,25 +306,45 @@ export default function Landing() {
             </Link>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredProducts.map((p, i) => (
-              <Link to="/productos" key={i} className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition group">
+            {(realProducts || []).map((p: any, i: number) => (
+              <Link to={`/producto/${p._id}`} key={p._id} className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition group">
                 <div className="relative overflow-hidden">
-                  <img src={p.image} alt={p.name} className="w-full h-52 object-cover group-hover:scale-105 transition duration-500" loading="lazy" />
-                  <span className="absolute top-3 left-3 bg-aqui-red text-white text-xs font-bold px-2.5 py-1 rounded-lg">{p.badge}</span>
+                  {p.images && p.images[0] ? (
+                    <img src={p.images[0]} alt={p.name} className="w-full h-52 object-cover group-hover:scale-105 transition duration-500" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).src = "/logo-aqui.png"; }} />
+                  ) : (
+                    <div className="w-full h-52 bg-gray-100 flex items-center justify-center">
+                      <img src="/logo-aqui.png" alt="AQUÍ" className="w-24 h-24 object-contain opacity-30" />
+                    </div>
+                  )}
+                  {p.compareAtPrice > p.price && (
+                    <span className="absolute top-3 left-3 bg-aqui-red text-white text-xs font-bold px-2.5 py-1 rounded-lg">
+                      -{Math.round(((p.compareAtPrice - p.price) / p.compareAtPrice) * 100)}%
+                    </span>
+                  )}
                 </div>
                 <div className="p-5">
+                  {p.vendor && (
+                    <p className="text-xs text-aqui-blue mb-1">{p.vendor.businessName}</p>
+                  )}
                   <h3 className="font-bold text-aqui-dark mb-2 group-hover:text-aqui-orange transition line-clamp-1">{p.name}</h3>
                   <div className="flex items-center gap-2">
-                    <span className="text-aqui-orange font-extrabold text-lg">{formatPrice(p.price)}</span>
-                    <span className="text-gray-400 line-through text-sm">{formatPrice(p.oldPrice)}</span>
+                    <span className="text-aqui-orange font-extrabold text-lg">RD${(p.price / 100).toLocaleString()}</span>
+                    {p.compareAtPrice > p.price && (
+                      <span className="text-gray-400 line-through text-sm">RD${(p.compareAtPrice / 100).toLocaleString()}</span>
+                    )}
                   </div>
                   <div className="flex items-center gap-1 mt-2">
                     <FiStar className="text-yellow-400 fill-yellow-400" size={14} />
-                    <span className="text-sm text-gray-500">4.{8 + (i % 2)} ({20 + i * 13})</span>
+                    <span className="text-sm text-gray-500">{p.rating?.toFixed(1) || "0.0"} ({p.reviewCount || 0})</span>
                   </div>
                 </div>
               </Link>
             ))}
+            {(!realProducts || realProducts.length === 0) && (
+              <p className="col-span-full text-center text-gray-500 py-8">
+                No hay productos disponibles todavía.
+              </p>
+            )}
           </div>
         </div>
       </section>
@@ -300,122 +370,6 @@ export default function Landing() {
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── APP PREVIEW ───────────────────────────────────── */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <p className="text-aqui-orange font-bold text-sm uppercase tracking-widest mb-2">{getVal("appPreview", "subtitle", "Disponible en Tus Dispositivos")}</p>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-aqui-dark">{getVal("appPreview", "title", "La experiencia de Aquí RD en tu bolsillo")}</h2>
-          </div>
-          <div className="flex justify-center">
-            {/* Phone with mobile website */}
-            <div className="w-full max-w-[300px] bg-white rounded-[3rem] shadow-2xl border-4 border-gray-800 overflow-hidden">
-              {/* Status bar */}
-              <div className="bg-aqui-dark px-6 py-2 flex justify-between items-center">
-                <span className="text-white text-[10px] font-semibold">9:41</span>
-                <div className="flex gap-1">
-                  <div className="w-4 h-2 bg-white rounded-sm"></div>
-                  <div className="w-2 h-2 bg-white rounded-full"></div>
-                </div>
-              </div>
-              {/* Header */}
-              <div className="bg-aqui-dark px-4 py-3">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <img src="/logo-aqui-white.png" alt="AQUÍ" className="h-5 w-auto" />
-                    <span className="text-white font-bold text-sm">AQUÍ RD</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <FiShoppingBag className="text-white" size={18} />
-                  </div>
-                </div>
-                <div className="bg-white rounded-lg px-3 py-2 flex items-center gap-2">
-                  <FiSearch className="text-gray-400" size={14} />
-                  <span className="text-gray-400 text-xs">¿Qué estás buscando?</span>
-                </div>
-              </div>
-              {/* Nav */}
-              <div className="bg-aqui-dark px-4 py-2 flex gap-4 border-t border-gray-700">
-                <span className="text-white text-[10px] font-medium border-b-2 border-aqui-orange pb-1">Categorías</span>
-                <span className="text-gray-400 text-[10px] font-medium">Ofertas</span>
-                <span className="text-gray-400 text-[10px] font-medium">Tiendas</span>
-                <span className="text-gray-400 text-[10px] font-medium">Ayuda</span>
-              </div>
-              {/* Content */}
-              <div className="p-3 bg-gray-50">
-                {/* Hero banner */}
-                <div className="bg-gradient-to-r from-aqui-dark to-aqui-blue rounded-xl p-4 mb-3">
-                  <p className="text-white text-[8px] font-bold uppercase tracking-wider mb-0.5">Marketplace Dominicano</p>
-                  <h3 className="text-white text-sm font-extrabold mb-1">TODO LO QUE BUSCAS, AQUÍ.</h3>
-                  <p className="text-gray-300 text-[8px] mb-2">Descubre miles de productos.</p>
-                  <button className="bg-aqui-orange text-white text-[8px] font-bold px-3 py-1 rounded">Comprar ahora</button>
-                </div>
-                {/* Categories */}
-                <div className="bg-white rounded-xl p-3 mb-3">
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="text-aqui-dark text-[10px] font-bold">Categorías</h4>
-                    <span className="text-aqui-orange text-[8px] font-medium">Ver todas</span>
-                  </div>
-                  <div className="flex gap-3">
-                    {[
-                      { name: "Tecnología", icon: <FiSmartphone size={14} className="text-aqui-blue" /> },
-                      { name: "Bienestar", icon: <FiHeart size={14} className="text-aqui-orange" /> },
-                      { name: "Hogar", icon: <FiHome size={14} className="text-green-600" /> },
-                      { name: "Auto", icon: <FiTruck size={14} className="text-aqui-dark" /> },
-                    ].map((cat, i) => (
-                      <div key={i} className="flex flex-col items-center gap-1">
-                        <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                          {cat.icon}
-                        </div>
-                        <span className="text-[7px] text-gray-600">{cat.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                {/* Products */}
-                <div className="bg-white rounded-xl p-3">
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="text-aqui-dark text-[10px] font-bold">Lo más vendido</h4>
-                    <span className="text-aqui-orange text-[8px] font-medium">Ver todas</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    {featuredProducts.slice(0, 4).map((p, i) => (
-                      <div key={i} className="bg-gray-50 rounded-lg overflow-hidden">
-                        <img src={p.image} alt="" className="w-full h-14 object-cover" loading="lazy" />
-                        <div className="p-1.5">
-                          <div className="h-1 bg-gray-200 rounded w-3/4 mb-1"></div>
-                          <div className="text-aqui-orange text-[7px] font-bold">{formatPrice(p.price)}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              {/* Bottom nav */}
-              <div className="bg-white border-t border-gray-200 px-4 py-2 flex justify-between">
-                <div className="flex flex-col items-center gap-0.5">
-                  <div className="w-5 h-5 bg-aqui-orange rounded-full"></div>
-                  <span className="text-[7px] text-aqui-orange font-medium">Inicio</span>
-                </div>
-                <div className="flex flex-col items-center gap-0.5">
-                  <FiSearch className="text-gray-400" size={14} />
-                  <span className="text-[7px] text-gray-400">Buscar</span>
-                </div>
-                <div className="flex flex-col items-center gap-0.5 relative">
-                  <FiShoppingBag className="text-gray-400" size={14} />
-                  <span className="absolute -top-1 -right-1 bg-aqui-orange text-white text-[6px] w-3 h-3 rounded-full flex items-center justify-center">3</span>
-                  <span className="text-[7px] text-gray-400">Carrito</span>
-                </div>
-                <div className="flex flex-col items-center gap-0.5">
-                  <FiGrid className="text-gray-400" size={14} />
-                  <span className="text-[7px] text-gray-400">Menú</span>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -520,8 +474,16 @@ export default function Landing() {
       </section>
 
       {/* ── CTA BANNER ────────────────────────────────────── */}
-      <section className="bg-gradient-to-r from-aqui-dark via-aqui-blue to-aqui-dark py-20">
-        <div className="max-w-4xl mx-auto px-4 text-center">
+      <section
+        className="relative py-20 overflow-hidden"
+        style={getVal("cta", "bgImage", "") ? {
+          backgroundImage: `url(${getVal("cta", "bgImage", "")})`,
+          backgroundSize: getVal("cta", "bgImageFit", "cover"),
+          backgroundPosition: getVal("cta", "bgImagePosition", "center"),
+        } : undefined}
+      >
+        <div className={`absolute inset-0 ${getVal("cta", "bgImage", "") ? "bg-gradient-to-r from-aqui-dark/90 via-aqui-blue/80 to-aqui-dark/90" : "bg-gradient-to-r from-aqui-dark via-aqui-blue to-aqui-dark"}`}></div>
+        <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
           <div className="flex justify-center mb-6">
             <img src="/logo-aqui-white.png" alt="AQUÍ" className="h-20" />
           </div>

@@ -24,7 +24,17 @@ import {
   FiArrowLeft,
   FiChevronDown,
   FiChevronRight,
+  FiLifeBuoy,
+  FiMessageCircle,
+  FiDollarSign,
+  FiShoppingBag,
+  FiUpload,
+  FiEdit2,
 } from "react-icons/fi";
+import NotificationsBell from "../../components/support/NotificationsBell";
+import SupportChat from "../../components/support/SupportChat";
+import TicketsSection from "../../components/support/TicketsSection";
+import { Id } from "../../../convex/_generated/dataModel";
 
 const AUTH_KEY = "aqui_admin_auth";
 const ADMIN_PASSWORD = "aquirdadmin";
@@ -560,13 +570,7 @@ function ContrasenaTab() {
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-2">Contraseña Actual</label>
           <div className="relative">
-            <input
-              type={showCurrent ? "text" : "password"}
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              className="w-full bg-[#0A1929] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#FF6B35] pr-12"
-              placeholder="••••••••"
-            />
+            <input type={showCurrent ? "text" : "password"} value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className="w-full bg-[#0A1929] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#FF6B35] pr-12" placeholder="••••••••" />
             <button type="button" onClick={() => setShowCurrent(!showCurrent)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white">
               {showCurrent ? <FiEyeOff size={18} /> : <FiEye size={18} />}
             </button>
@@ -575,13 +579,7 @@ function ContrasenaTab() {
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-2">Nueva Contraseña</label>
           <div className="relative">
-            <input
-              type={showNew ? "text" : "password"}
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full bg-[#0A1929] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#FF6B35] pr-12"
-              placeholder="••••••••"
-            />
+            <input type={showNew ? "text" : "password"} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="w-full bg-[#0A1929] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#FF6B35] pr-12" placeholder="••••••••" />
             <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white">
               {showNew ? <FiEyeOff size={18} /> : <FiEye size={18} />}
             </button>
@@ -589,18 +587,375 @@ function ContrasenaTab() {
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-2">Confirmar Nueva Contraseña</label>
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full bg-[#0A1929] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#FF6B35]"
-            placeholder="••••••••"
-          />
+          <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="w-full bg-[#0A1929] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#FF6B35]" placeholder="••••••••" />
         </div>
         <button type="submit" className="flex items-center gap-2 bg-[#FF6B35] hover:bg-[#E85A28] text-white font-semibold px-6 py-3 rounded-lg transition-colors">
           <FiLock size={16} /> Cambiar Contraseña
         </button>
       </form>
+    </div>
+  );
+}
+
+function TiendasTab() {
+  const vendors = useQuery(api.admin.getAllVendorsWithDetails);
+  const updateVendor = useMutation(api.vendors.update);
+  const updateSocials = useMutation(api.vendors.updateSocials);
+  const updateVendorStatus = useMutation(api.admin.updateVendorStatus);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({ businessName: "", description: "", whatsapp: "" });
+
+  const startEdit = (v: any) => {
+    setEditingId(v._id);
+    setEditForm({ businessName: v.businessName || "", description: v.description || "", whatsapp: v.whatsapp || "" });
+  };
+
+  const saveEdit = async (vendor: any) => {
+    try {
+      await updateVendor({ userId: vendor.userId, businessName: editForm.businessName, description: editForm.description });
+      await updateSocials({ vendorId: vendor._id, whatsapp: editForm.whatsapp || undefined });
+      toast.success("Tienda actualizada");
+      setEditingId(null);
+    } catch (e: any) { toast.error(e.message); }
+  };
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-xl font-bold text-white flex items-center gap-2"><FiShoppingBag /> Gestionar Tiendas</h2>
+      {!vendors ? <div className="text-center py-12 text-gray-400">Cargando...</div> :
+       vendors.length === 0 ? <div className="text-center py-12 text-gray-400">No hay tiendas</div> : (
+        <div className="space-y-3">
+          {vendors.map((v: any) => (
+            <div key={v._id} className="bg-[#0A1929] border border-white/5 rounded-xl p-4">
+              {editingId === v._id ? (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-[#FF6B35] font-medium">Editando tienda</span>
+                    <button onClick={() => setEditingId(null)} className="text-gray-400 hover:text-white text-xs"><FiX size={14} /> Cancelar</button>
+                  </div>
+                  <input value={editForm.businessName} onChange={(e) => setEditForm({ ...editForm, businessName: e.target.value })} className="w-full bg-[#0F2A4A] border border-white/10 rounded-lg px-3 py-2 text-white text-sm" placeholder="Nombre de la tienda" />
+                  <textarea value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} className="w-full bg-[#0F2A4A] border border-white/10 rounded-lg px-3 py-2 text-white text-sm resize-none" rows={2} placeholder="Descripción" />
+                  <input value={editForm.whatsapp} onChange={(e) => setEditForm({ ...editForm, whatsapp: e.target.value })} className="w-full bg-[#0F2A4A] border border-white/10 rounded-lg px-3 py-2 text-white text-sm" placeholder="WhatsApp (número)" />
+                  <button onClick={() => saveEdit(v)} className="flex items-center gap-2 bg-[#FF6B35] hover:bg-[#E85A28] text-white px-4 py-2 rounded-lg text-sm font-medium"><FiSave size={14} /> Guardar Cambios</button>
+                </div>
+              ) : (
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-[#1B4B8A] flex items-center justify-center text-white font-bold text-lg overflow-hidden flex-shrink-0">
+                      {v.logo ? <img src={v.logo} alt="" className="w-full h-full object-cover" /> : v.businessName?.charAt(0) || "V"}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-white">{v.businessName}</p>
+                      <p className="text-sm text-gray-400">/{v.slug} &middot; {v.user?.name} &middot; {v.productCount} productos</p>
+                      {v.description && <p className="text-xs text-gray-500 mt-1 line-clamp-1">{v.description}</p>}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${v.status === "APPROVED" ? "bg-green-500/20 text-green-400" : v.status === "PENDING" ? "bg-yellow-500/20 text-yellow-400" : "bg-red-500/20 text-red-400"}`}>
+                      {v.status === "APPROVED" ? "Aprobado" : v.status === "PENDING" ? "Pendiente" : "Rechazado"}
+                    </span>
+                    <button onClick={() => startEdit(v)} className="p-2 bg-[#1B4B8A] hover:bg-[#2563EB] text-white rounded-lg transition-colors" title="Editar"><FiEdit2 size={14} /></button>
+                    {v.status === "PENDING" && (
+                      <>
+                        <button onClick={() => { updateVendorStatus({ vendorId: v._id, status: "APPROVED" }); toast.success("Aprobado"); }} className="p-2 bg-green-600 hover:bg-green-700 text-white rounded-lg" title="Aprobar"><FiCheck size={14} /></button>
+                        <button onClick={() => { updateVendorStatus({ vendorId: v._id, status: "REJECTED" }); toast.error("Rechazado"); }} className="p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg" title="Rechazar"><FiX size={14} /></button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ImpuestosTab() {
+  const settings = useQuery(api.admin.getSiteSettings);
+  const upsert = useMutation(api.admin.updateSiteSetting);
+  const [taxes, setTaxes] = useState<{ name: string; rate: number; enabled: boolean }[]>([]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    if (settings && !loaded) {
+      const taxesVal = settings.find((s: any) => s.key === "taxes")?.value;
+      if (Array.isArray(taxesVal) && taxesVal.length > 0) {
+        setTaxes(taxesVal);
+      } else {
+        const rate = settings.find((s: any) => s.key === "taxRate")?.value ?? 18;
+        const enabled = settings.find((s: any) => s.key === "taxEnabled")?.value !== false;
+        const name = settings.find((s: any) => s.key === "taxName")?.value ?? "Impuesto";
+        setTaxes([{ name, rate, enabled }]);
+      }
+      setLoaded(true);
+    }
+  }, [settings, loaded]);
+
+  const addTax = () => setTaxes([...taxes, { name: "", rate: 0, enabled: true }]);
+  const removeTax = (i: number) => setTaxes(taxes.filter((_, idx) => idx !== i));
+  const updateTax = (i: number, field: string, value: any) => {
+    const updated = [...taxes];
+    updated[i] = { ...updated[i], [field]: value };
+    setTaxes(updated);
+  };
+
+  const handleSave = async () => {
+    const valid = taxes.filter((t) => t.name.trim());
+    await upsert({ key: "taxes", value: valid });
+    toast.success("Impuestos guardados");
+  };
+
+  const previewTotal = 1000;
+  const previewTaxes = taxes.filter((t) => t.enabled && t.name.trim()).map((t) => ({
+    name: t.name,
+    amount: previewTotal * (t.rate / 100),
+  }));
+  const previewTotalTaxes = previewTaxes.reduce((s, t) => s + t.amount, 0);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-bold text-white flex items-center gap-2"><FiDollarSign /> Configuración de Impuestos</h2>
+        <button onClick={handleSave} className="flex items-center gap-2 bg-[#FF6B35] hover:bg-[#E85A28] text-white px-4 py-2 rounded-lg transition-colors">
+          <FiSave size={16} /> Guardar
+        </button>
+      </div>
+
+      <div className="bg-[#0A1929] border border-white/5 rounded-xl p-6 space-y-4">
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-white font-medium">Impuestos configurados</p>
+          <button onClick={addTax} className="flex items-center gap-1 text-sm text-[#FF6B35] hover:text-[#E85A28] transition-colors">
+            <FiPlus size={14} /> Agregar Impuesto
+          </button>
+        </div>
+
+        {taxes.length === 0 && (
+          <p className="text-center text-gray-500 py-6">No hay impuestos. Agrega uno para comenzar.</p>
+        )}
+
+        <div className="space-y-3">
+          {taxes.map((tax, i) => (
+            <div key={i} className="bg-[#0F2A4A] border border-white/5 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs text-gray-500 font-medium">Impuesto #{i + 1}</span>
+                <div className="flex items-center gap-3">
+                  <button onClick={() => updateTax(i, "enabled", !tax.enabled)} className={`w-10 h-5 rounded-full transition-colors relative ${tax.enabled ? "bg-green-500" : "bg-gray-600"}`}>
+                    <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition-transform ${tax.enabled ? "translate-x-5" : "translate-x-0.5"}`} />
+                  </button>
+                  <button onClick={() => removeTax(i)} className="text-red-400 hover:text-red-300 transition-colors"><FiTrash2 size={14} /></button>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Nombre</label>
+                  <input value={tax.name} onChange={(e) => updateTax(i, "name", e.target.value)} className="w-full bg-[#0A1929] border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#FF6B35]" placeholder="Ej: ITBIS, ISR, Municipal" disabled={!tax.enabled} />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Tasa (%)</label>
+                  <input type="number" value={tax.rate} onChange={(e) => updateTax(i, "rate", parseFloat(e.target.value) || 0)} className="w-full bg-[#0A1929] border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#FF6B35]" min="0" max="100" step="0.01" disabled={!tax.enabled} />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="bg-[#0F2A4A] rounded-lg p-4 mt-4">
+          <p className="text-sm text-gray-400 mb-2">Vista previa en compra de RD${previewTotal.toLocaleString()}:</p>
+          {previewTaxes.length > 0 ? (
+            <div className="space-y-1">
+              {previewTaxes.map((t, i) => (
+                <div key={i} className="flex justify-between text-sm">
+                  <span className="text-gray-400">{t.name}</span>
+                  <span className="text-[#FF6B35] font-medium">RD${t.amount.toFixed(2)}</span>
+                </div>
+              ))}
+              <div className="flex justify-between text-sm font-bold border-t border-white/10 pt-1 mt-1">
+                <span className="text-white">Total impuestos</span>
+                <span className="text-[#FF6B35]">RD${previewTotalTaxes.toFixed(2)}</span>
+              </div>
+            </div>
+          ) : (
+            <p className="text-gray-500 text-sm">Sin impuestos activos</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+interface ProductField {
+  name: string;
+  label: string;
+  type: "text" | "textarea" | "number" | "select" | "toggle";
+  required: boolean;
+  options?: string[];
+  placeholder?: string;
+  category?: string;
+}
+
+const DEFAULT_PRODUCT_FIELDS: ProductField[] = [
+  { name: "brand", label: "Marca", type: "text", required: false, category: "Detalles" },
+  { name: "color", label: "Color", type: "text", required: false, category: "Detalles" },
+  { name: "condition", label: "Condición", type: "select", required: true, options: ["NEW", "USED_LIKE_NEW", "USED_GOOD", "USED_ACCEPTABLE"], category: "Información" },
+  { name: "tags", label: "Etiquetas", type: "text", required: false, placeholder: "Separadas por coma", category: "Detalles" },
+  { name: "location", label: "Ubicación", type: "text", required: false, category: "Ubicación" },
+  { name: "videoUrl", label: "Video del producto", type: "text", required: false, placeholder: "URL del video", category: "Multimedia" },
+];
+
+function FormularioProductosTab() {
+  const settings = useQuery(api.admin.getSiteSettings);
+  const upsert = useMutation(api.admin.updateSiteSetting);
+  const [fields, setFields] = useState<ProductField[]>([]);
+  const [loaded, setLoaded] = useState(false);
+  const [newFieldName, setNewFieldName] = useState("");
+  const [newFieldLabel, setNewFieldLabel] = useState("");
+  const [newFieldType, setNewFieldType] = useState<"text" | "textarea" | "number" | "select" | "toggle">("text");
+  const [newFieldRequired, setNewFieldRequired] = useState(false);
+  const [newFieldCategory, setNewFieldCategory] = useState("Personalizado");
+  const [newFieldOptions, setNewFieldOptions] = useState("");
+
+  useEffect(() => {
+    if (settings && !loaded) {
+      const val = settings.find((s: any) => s.key === "productFormFields")?.value;
+      setFields(Array.isArray(val) && val.length > 0 ? val : DEFAULT_PRODUCT_FIELDS);
+      setLoaded(true);
+    }
+  }, [settings, loaded]);
+
+  const addField = () => {
+    if (!newFieldName.trim() || !newFieldLabel.trim()) {
+      toast.error("Nombre y etiqueta son requeridos");
+      return;
+    }
+    if (fields.some((f) => f.name === newFieldName.trim())) {
+      toast.error("Ya existe un campo con ese nombre");
+      return;
+    }
+    const field: ProductField = {
+      name: newFieldName.trim(),
+      label: newFieldLabel.trim(),
+      type: newFieldType,
+      required: newFieldRequired,
+      category: newFieldCategory || "Personalizado",
+      placeholder: "",
+    };
+    if (newFieldType === "select" && newFieldOptions.trim()) {
+      field.options = newFieldOptions.split(",").map((o) => o.trim()).filter(Boolean);
+    }
+    setFields([...fields, field]);
+    setNewFieldName("");
+    setNewFieldLabel("");
+    setNewFieldType("text");
+    setNewFieldRequired(false);
+    setNewFieldOptions("");
+    toast.success(`Campo "${field.label}" agregado`);
+  };
+
+  const removeField = (name: string) => {
+    setFields(fields.filter((f) => f.name !== name));
+    toast.success("Campo eliminado");
+  };
+
+  const toggleRequired = (name: string) => {
+    setFields(fields.map((f) => f.name === name ? { ...f, required: !f.required } : f));
+  };
+
+  const handleSave = async () => {
+    await upsert({ key: "productFormFields", value: fields });
+    toast.success("Campos del formulario guardados. Se actualizan en todas las tiendas.");
+  };
+
+  const categories = [...new Set(fields.map((f) => f.category || "General"))];
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-bold text-white flex items-center gap-2"><FiEdit2 /> Formulario de Productos</h2>
+        <button onClick={handleSave} className="flex items-center gap-2 bg-[#FF6B35] hover:bg-[#E85A28] text-white px-4 py-2 rounded-lg transition-colors">
+          <FiSave size={16} /> Guardar
+        </button>
+      </div>
+
+      <p className="text-gray-400 text-sm">Estos campos aparecen en el formulario de <strong>todos</strong> los vendedores al crear o editar productos.</p>
+
+      {/* Agregar nuevo campo */}
+      <div className="bg-[#0A1929] border border-white/5 rounded-xl p-6 space-y-4">
+        <h3 className="text-white font-medium">Agregar Nuevo Campo</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div>
+            <label className="block text-xs text-gray-400 mb-1">Nombre interno *</label>
+            <input value={newFieldName} onChange={(e) => setNewFieldName(e.target.value)} className="w-full bg-[#0F2A4A] border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#FF6B35]" placeholder="Ej: material" />
+          </div>
+          <div>
+            <label className="block text-xs text-gray-400 mb-1">Etiqueta visible *</label>
+            <input value={newFieldLabel} onChange={(e) => setNewFieldLabel(e.target.value)} className="w-full bg-[#0F2A4A] border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#FF6B35]" placeholder="Ej: Material" />
+          </div>
+          <div>
+            <label className="block text-xs text-gray-400 mb-1">Tipo</label>
+            <select value={newFieldType} onChange={(e) => setNewFieldType(e.target.value as any)} className="w-full bg-[#0F2A4A] border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#FF6B35]">
+              <option value="text">Texto</option>
+              <option value="textarea">Texto largo</option>
+              <option value="number">Número</option>
+              <option value="select">Selección</option>
+              <option value="toggle">Sí/No</option>
+            </select>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div>
+            <label className="block text-xs text-gray-400 mb-1">Categoría</label>
+            <input value={newFieldCategory} onChange={(e) => setNewFieldCategory(e.target.value)} className="w-full bg-[#0F2A4A] border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#FF6B35]" placeholder="Ej: Detalles, Personalizado" />
+          </div>
+          {newFieldType === "select" && (
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">Opciones (separadas por coma)</label>
+              <input value={newFieldOptions} onChange={(e) => setNewFieldOptions(e.target.value)} className="w-full bg-[#0F2A4A] border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#FF6B35]" placeholder="Opción 1, Opción 2, Opción 3" />
+            </div>
+          )}
+          <div className="flex items-end gap-4">
+            <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+              <input type="checkbox" checked={newFieldRequired} onChange={(e) => setNewFieldRequired(e.target.checked)} className="rounded" />
+              Requerido
+            </label>
+            <button onClick={addField} className="flex items-center gap-1 bg-[#FF6B35] hover:bg-[#E85A28] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+              <FiPlus size={14} /> Agregar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Lista de campos */}
+      <div className="space-y-4">
+        {categories.map((cat) => (
+          <div key={cat}>
+            <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">{cat}</h3>
+            <div className="space-y-2">
+              {fields.filter((f) => (f.category || "General") === cat).map((field) => (
+                <div key={field.name} className="bg-[#0A1929] border border-white/5 rounded-lg px-4 py-3 flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-8 h-8 bg-[#1B4B8A] rounded-lg flex items-center justify-center text-white text-xs font-bold">
+                      {field.type === "text" ? "Aa" : field.type === "textarea" ? "¶" : field.type === "number" ? "#" : field.type === "select" ? "▾" : "⬡"}
+                    </div>
+                    <div>
+                      <p className="text-white text-sm font-medium">{field.label}</p>
+                      <p className="text-xs text-gray-500">{field.name} &middot; {field.type}{field.options ? ` (${field.options.length} opciones)` : ""}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {field.required && <span className="px-2 py-0.5 bg-[#FF6B35]/20 text-[#FF6B35] rounded text-xs font-medium">Requerido</span>}
+                    <button onClick={() => toggleRequired(field.name)} className="text-gray-400 hover:text-white text-xs transition-colors" title="Toggle requerido">
+                      {field.required ? "Quitar req." : "Hacer req."}
+                    </button>
+                    <button onClick={() => removeField(field.name)} className="text-red-400 hover:text-red-300 transition-colors" title="Eliminar"><FiTrash2 size={14} /></button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -806,11 +1161,193 @@ function LandingContentTab() {
   );
 }
 
+function BannersTab() {
+  const landingData = useQuery(api.landing.getAll);
+  const upsert = useMutation(api.landing.upsert);
+  const [loaded, setLoaded] = useState(false);
+
+  const [heroRightImage, setHeroRightImage] = useState("");
+  const [heroRightFit, setHeroRightFit] = useState("cover");
+  const [heroRightPos, setHeroRightPos] = useState("center");
+  const [heroRightName, setHeroRightName] = useState("");
+
+  const [ctaBgImage, setCtaBgImage] = useState("");
+  const [ctaBgFit, setCtaBgFit] = useState("cover");
+  const [ctaBgPos, setCtaBgPos] = useState("center");
+  const [ctaBgName, setCtaBgName] = useState("");
+
+  const [uploading, setUploading] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (landingData !== undefined && !loaded) {
+      const get = (section: string, key: string) => landingData.find((l: any) => l.section === section && l.key === key)?.value || "";
+      setHeroRightImage(get("hero", "rightImage"));
+      setHeroRightFit(get("hero", "rightImageFit") || "cover");
+      setHeroRightPos(get("hero", "rightImagePosition") || "center");
+      setCtaBgImage(get("cta", "bgImage"));
+      setCtaBgFit(get("cta", "bgImageFit") || "cover");
+      setCtaBgPos(get("cta", "bgImagePosition") || "center");
+      setLoaded(true);
+    }
+  }, [landingData, loaded]);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, target: "hero" | "cta") => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { toast.error("Solo imágenes"); return; }
+    if (file.size > 4 * 1024 * 1024) { toast.error("Máximo 4MB"); return; }
+
+    setUploading(target);
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        if (target === "hero") {
+          setHeroRightImage(reader.result);
+          setHeroRightName(file.name);
+        } else {
+          setCtaBgImage(reader.result);
+          setCtaBgName(file.name);
+        }
+      }
+      setUploading(null);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  const removeImage = (target: "hero" | "cta") => {
+    if (target === "hero") { setHeroRightImage(""); setHeroRightName(""); }
+    else { setCtaBgImage(""); setCtaBgName(""); }
+  };
+
+  const saveHero = async () => {
+    await Promise.all([
+      upsert({ section: "hero", key: "rightImage", value: heroRightImage }),
+      upsert({ section: "hero", key: "rightImageFit", value: heroRightFit }),
+      upsert({ section: "hero", key: "rightImagePosition", value: heroRightPos }),
+    ]);
+    toast.success("Banner Hero guardado");
+  };
+
+  const saveCta = async () => {
+    await Promise.all([
+      upsert({ section: "cta", key: "bgImage", value: ctaBgImage }),
+      upsert({ section: "cta", key: "bgImageFit", value: ctaBgFit }),
+      upsert({ section: "cta", key: "bgImagePosition", value: ctaBgPos }),
+    ]);
+    toast.success("Banner CTA guardado");
+  };
+
+  const fitOptions = [
+    { value: "cover", label: "Completa (Cover)" },
+    { value: "contain", label: "Justa (Contain)" },
+    { value: "fill", label: "Estirada (Fill)" },
+    { value: "none", label: "Original" },
+  ];
+
+  const posOptions = [
+    { value: "center", label: "Centro" },
+    { value: "top", label: "Arriba" },
+    { value: "bottom", label: "Abajo" },
+    { value: "left", label: "Izquierda" },
+    { value: "right", label: "Derecha" },
+  ];
+
+  const renderImageControls = (
+    label: string,
+    imageUrl: string,
+    fileName: string,
+    target: "hero" | "cta",
+    fit: string,
+    setFit: (v: string) => void,
+    pos: string,
+    setPos: (v: string) => void,
+    onSave: () => void,
+    previewAspect: string
+  ) => (
+    <div className="bg-[#0A1929] border border-white/5 rounded-xl p-6 space-y-4">
+      <h3 className="text-white font-bold text-lg">{label}</h3>
+
+      {/* Upload area */}
+      <div>
+        <label className="block text-sm font-medium text-gray-300 mb-2">Subir Imagen</label>
+        <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-white/20 rounded-lg cursor-pointer hover:border-[#FF6B35] transition-colors">
+          {uploading === target ? (
+            <span className="text-gray-400 text-sm">Subiendo...</span>
+          ) : imageUrl ? (
+            <div className="text-center">
+              <FiCheck className="mx-auto text-green-400 mb-1" size={20} />
+              <span className="text-white text-sm font-medium">{fileName || "Imagen cargada"}</span>
+              <span className="text-gray-400 text-xs block mt-1">Click para cambiar</span>
+            </div>
+          ) : (
+            <div className="text-center">
+              <FiUpload className="mx-auto text-gray-400 mb-1" size={24} />
+              <span className="text-gray-400 text-sm">Click para subir imagen</span>
+              <span className="text-gray-500 text-xs block mt-1">JPG, PNG — Máx 4MB</span>
+            </div>
+          )}
+          <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, target)} />
+        </label>
+        {imageUrl && (
+          <button onClick={() => removeImage(target)} className="mt-2 text-red-400 hover:text-red-300 text-xs flex items-center gap-1">
+            <FiTrash2 size={12} /> Eliminar imagen
+          </button>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">Ajuste de imagen</label>
+          <select value={fit} onChange={(e) => setFit(e.target.value)} className="w-full bg-[#0F2A4A] border border-white/10 rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#FF6B35]">
+            {fitOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">Posición</label>
+          <select value={pos} onChange={(e) => setPos(e.target.value)} className="w-full bg-[#0F2A4A] border border-white/10 rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#FF6B35]">
+            {posOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+        </div>
+      </div>
+
+      {imageUrl && (
+        <div className="rounded-lg overflow-hidden border border-white/10" style={{ aspectRatio: previewAspect }}>
+          <img src={imageUrl} alt="Preview" className="w-full h-full" style={{ objectFit: fit as any, objectPosition: pos }} />
+        </div>
+      )}
+
+      <button onClick={onSave} className="flex items-center gap-2 bg-[#FF6B35] hover:bg-[#E85A28] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+        <FiSave size={14} /> Guardar {label}
+      </button>
+    </div>
+  );
+
+  if (landingData === undefined) return <div className="text-center py-12 text-gray-400">Cargando...</div>;
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-xl font-bold text-white flex items-center gap-2"><FiImage /> Banners de la Landing</h2>
+      <p className="text-gray-400 text-sm">Sube imágenes y ajusta cómo se muestran en cada banner.</p>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {renderImageControls("Hero - Imagen Derecha", heroRightImage, heroRightName, "hero", heroRightFit, setHeroRightFit, heroRightPos, setHeroRightPos, saveHero, "16/9")}
+        {renderImageControls("CTA - Imagen de Fondo", ctaBgImage, ctaBgName, "cta", ctaBgFit, setCtaBgFit, ctaBgPos, setCtaBgPos, saveCta, "21/9")}
+      </div>
+    </div>
+  );
+}
+
 const tabs = [
+  { id: "vendedores", label: "Vendedores", icon: FiUsers },
+  { id: "tiendas", label: "Tiendas", icon: FiShoppingBag },
+  { id: "banners", label: "Banners", icon: FiImage },
+  { id: "impuestos", label: "Impuestos", icon: FiDollarSign },
+  { id: "formulario", label: "Formulario Productos", icon: FiEdit2 },
+  { id: "soporte", label: "Soporte Técnico", icon: FiLifeBuoy },
+  { id: "mensajes", label: "Mensajes", icon: FiMessageCircle },
   { id: "general", label: "General", icon: FiSettings },
   { id: "contenido", label: "Contenido", icon: FiFileText },
   { id: "landingContent", label: "Contenido Landing", icon: FiFileText },
-  { id: "vendedores", label: "Vendedores", icon: FiUsers },
   { id: "chatbot", label: "Chatbot", icon: FiMessageSquare },
   { id: "redes", label: "Redes Sociales", icon: FiShare2 },
   { id: "contrasena", label: "Contraseña", icon: FiLock },
@@ -818,9 +1355,10 @@ const tabs = [
 
 export default function AdminPanel() {
   const [isAuthed, setIsAuthed] = useState(() => localStorage.getItem(AUTH_KEY) === "true");
-  const [activeTab, setActiveTab] = useState("general");
+  const [activeTab, setActiveTab] = useState("vendedores");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const adminUserId = (localStorage.getItem("aqui_user_id") as Id<"users"> | null) || null;
 
   useEffect(() => {
     setIsAuthed(localStorage.getItem(AUTH_KEY) === "true");
@@ -841,10 +1379,32 @@ export default function AdminPanel() {
       case "contenido": return <ContenidoTab />;
       case "landingContent": return <LandingContentTab />;
       case "vendedores": return <VendedoresTab />;
+      case "soporte":
+        return adminUserId ? (
+          <TicketsSection userId={adminUserId} role="ADMIN" />
+        ) : (
+          <div className="bg-[#0F2A4A] border border-white/10 rounded-2xl p-8 text-center text-gray-400">
+            <FiLifeBuoy size={36} className="mx-auto mb-3 opacity-60" />
+            <p className="text-sm">Inicia sesión en la página principal con la cuenta de administrador (admin@aqui.com.do) para usar el Soporte Técnico.</p>
+          </div>
+        );
+      case "mensajes":
+        return adminUserId ? (
+          <SupportChat userId={adminUserId} role="ADMIN" />
+        ) : (
+          <div className="bg-[#0F2A4A] border border-white/10 rounded-2xl p-8 text-center text-gray-400">
+            <FiMessageCircle size={36} className="mx-auto mb-3 opacity-60" />
+            <p className="text-sm">Inicia sesión en la página principal con la cuenta de administrador para usar los mensajes.</p>
+          </div>
+        );
       case "chatbot": return <ChatbotTab />;
       case "redes": return <RedesSocialesTab />;
       case "contrasena": return <ContrasenaTab />;
-      default: return <GeneralTab />;
+      case "tiendas": return <TiendasTab />;
+      case "impuestos": return <ImpuestosTab />;
+      case "formulario": return <FormularioProductosTab />;
+      case "banners": return <BannersTab />;
+      default: return <VendedoresTab />;
     }
   };
 
@@ -912,6 +1472,9 @@ export default function AdminPanel() {
             </button>
           </div>
           <div className="flex items-center gap-3">
+            {adminUserId && (
+              <NotificationsBell userId={adminUserId} variant="inline" />
+            )}
             <span className="text-sm text-gray-400">Administrador</span>
             <div className="w-8 h-8 bg-[#1B4B8A] rounded-full flex items-center justify-center text-white text-sm font-bold">A</div>
           </div>

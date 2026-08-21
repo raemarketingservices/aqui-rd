@@ -75,12 +75,6 @@ export default function Login() {
           </button>
         </form>
         <p className="text-center mt-6 text-gray-400">¿No tienes cuenta? <Link to="/registro" className="text-[#FF6B35] hover:underline font-medium">Regístrate aquí</Link></p>
-        <div className="mt-4 p-4 bg-[#0F2A4A]/60 backdrop-blur-sm rounded-lg border border-white/5 text-sm text-gray-300">
-          <p className="font-medium text-white mb-1">Cuentas de prueba:</p>
-          <p>Admin: admin@aqui.com.do / admin123</p>
-          <p>Vendedor: vendedor1@aqui.com.do / vendor123</p>
-          <p>Cliente: cliente@aqui.com.do / customer123</p>
-        </div>
       </div>
     </div>
   );

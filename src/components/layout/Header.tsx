@@ -50,7 +50,13 @@ export default function Header() {
                 </Link>
                 <div className="relative">
                   <button onClick={() => setUserMenuOpen(!userMenuOpen)} className="flex items-center gap-2 hover:text-aqui-orange transition">
-                    <div className="w-8 h-8 bg-aqui-blue rounded-full flex items-center justify-center text-sm font-semibold">{user?.name?.charAt(0)}</div>
+                    <div className="w-8 h-8 bg-aqui-blue rounded-full flex items-center justify-center text-sm font-semibold overflow-hidden">
+                      {user?.avatar ? (
+                        <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        user?.name?.charAt(0)
+                      )}
+                    </div>
                   </button>
                   {userMenuOpen && (
                     <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl py-2 z-50">
@@ -68,7 +74,7 @@ export default function Header() {
               </>
             ) : (
               <div className="flex items-center gap-3">
-                <Link to="/login" className="btn-outline !py-2 !px-4 text-sm">Iniciar Sesión</Link>
+                <Link to="/login" className="border-2 border-white text-white hover:bg-white hover:text-aqui-dark font-semibold py-2 px-4 text-sm rounded-lg transition-all duration-200">Iniciar Sesión</Link>
                 <Link to="/registro" className="btn-primary !py-2 !px-4 text-sm">Registrarse</Link>
               </div>
             )}

@@ -41,7 +41,45 @@ export const create = mutation({
       });
     }
 
-    const taxAmount = Math.round(subtotal * 0.18);
+    let totalTaxRate = 0;
+    let taxBreakdown: { name: string; rate: number; amount: number }[] = [];
+
+    const taxesSetting = await ctx.db
+      .query("siteSettings")
+      .withIndex("by_key", (q) => q.eq("key", "taxes"))
+      .unique();
+
+    if (taxesSetting && Array.isArray(taxesSetting.value)) {
+      for (const tax of taxesSetting.value) {
+        if (tax.enabled !== false && tax.rate > 0) {
+          const amount = Math.round(subtotal * (tax.rate / 100));
+          taxBreakdown.push({ name: tax.name, rate: tax.rate, amount });
+          totalTaxRate += tax.rate;
+        }
+      }
+    } else {
+      const taxSetting = await ctx.db
+        .query("siteSettings")
+        .withIndex("by_key", (q) => q.eq("key", "taxRate"))
+        .unique();
+      const taxEnabled = await ctx.db
+        .query("siteSettings")
+        .withIndex("by_key", (q) => q.eq("key", "taxEnabled"))
+        .unique();
+      const taxName = await ctx.db
+        .query("siteSettings")
+        .withIndex("by_key", (q) => q.eq("key", "taxName"))
+        .unique();
+      const rate = (taxSetting?.value ?? 18) as number;
+      const enabled = taxEnabled?.value !== false;
+      if (enabled && rate > 0) {
+        const amount = Math.round(subtotal * (rate / 100));
+        taxBreakdown.push({ name: (taxName?.value ?? "Impuesto") as string, rate, amount });
+        totalTaxRate = rate;
+      }
+    }
+
+    const taxAmount = taxBreakdown.reduce((sum, t) => sum + t.amount, 0);
     const shippingCost = subtotal > 200000 ? 0 : 15000;
     const totalAmount = subtotal + taxAmount + shippingCost;
     const orderNumber = `ORD-${Date.now().toString(36).toUpperCase()}`;

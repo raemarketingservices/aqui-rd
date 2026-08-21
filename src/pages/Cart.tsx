@@ -7,6 +7,7 @@ import { FiTrash2, FiMinus, FiPlus, FiShoppingBag } from "react-icons/fi";
 export default function Cart() {
   const { user } = useAuth();
   const cart = useQuery(api.cart.getCart, user ? { userId: user._id } : "skip");
+  const taxSettings = useQuery(api.settings.getTaxSettings);
   const updateQuantity = useMutation(api.cart.updateQuantity);
   const removeItem = useMutation(api.cart.removeItem);
 
@@ -24,8 +25,11 @@ export default function Cart() {
     );
   }
 
+  const taxes = (taxSettings || []) as { name: string; rate: number; enabled: boolean }[];
+  const activeTaxes = taxes.filter((t) => t.enabled !== false && t.rate > 0);
   const subtotal = cart.total / 100;
-  const tax = subtotal * 0.18;
+  const taxLines = activeTaxes.map((t) => ({ name: t.name, rate: t.rate, amount: subtotal * (t.rate / 100) }));
+  const tax = taxLines.reduce((sum, t) => sum + t.amount, 0);
   const shipping = subtotal > 2000 ? 0 : 150;
   const total = subtotal + tax + shipping;
 
@@ -59,7 +63,9 @@ export default function Cart() {
           <h2 className="text-lg font-bold mb-4">Resumen</h2>
           <div className="space-y-3 text-sm">
             <div className="flex justify-between"><span className="text-gray-600">Subtotal</span><span className="font-medium">RD${subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>
-            <div className="flex justify-between"><span className="text-gray-600">Impuestos (18%)</span><span className="font-medium">RD${tax.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>
+            {taxLines.length > 0 ? taxLines.map((t, i) => (
+              <div key={i} className="flex justify-between"><span className="text-gray-600">{t.name} ({t.rate}%)</span><span className="font-medium">RD$${t.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>
+            )) : <div className="flex justify-between"><span className="text-gray-600">Impuestos</span><span className="font-medium">No aplica</span></div>}
             <div className="flex justify-between"><span className="text-gray-600">Envío</span><span className="font-medium">{shipping === 0 ? "Gratis" : `RD$${shipping}`}</span></div>
             <hr />
             <div className="flex justify-between text-lg font-bold"><span>Total</span><span>RD${total.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>
