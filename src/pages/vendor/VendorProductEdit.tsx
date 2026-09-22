@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useQuery, useMutation } from "convex/react";
-import { api } from "../../../convex/_generated/api";
+import { supabaseApi } from "../../services/supabaseApi";
+import { useApiQuery } from "../../hooks/useApiQuery";
 import { useAuth } from "../../hooks/useAuth";
+import toast from "react-hot-toast";
 import {
   FiSave,
   FiArrowLeft,
@@ -17,7 +18,6 @@ import {
   FiMapPin,
   FiVideo,
 } from "react-icons/fi";
-import toast from "react-hot-toast";
 
 const CONDITION_OPTIONS = [
   { value: "NEW", label: "Nuevo" },
@@ -27,43 +27,12 @@ const CONDITION_OPTIONS = [
 ];
 
 const CATEGORIES_TREE: Record<string, Record<string, string[]>> = {
-  "Casa y Jardín": {
-    Herramientas: [],
-    Muebles: [],
-    Hogar: [],
-    Jardinería: [],
-    Electrodomésticos: [],
-  },
-  Electrónica: {
-    Celulares: ["Accesorios", "Fundas", "Cargadores"],
-    Computadoras: ["Laptops", "Desktops", "Tablets"],
-    Audio: ["Audífonos", "Bocinas", "Micrófonos"],
-    Video: ["TVs", "Monitores", "Cámaras"],
-  },
-  Vehículos: {
-    Carros: [],
-    Motos: [],
-    Repuestos: [],
-    Accesorios: [],
-  },
-  Ropa: {
-    Hombres: [],
-    Mujeres: [],
-    Niños: [],
-    Accesorios: ["Bolsos", "Relojes", "Gafas"],
-  },
-  Deportes: {
-    Fitness: [],
-    Bicicletas: [],
-    Outdoor: [],
-    Equipamiento: [],
-  },
-  "Belleza y Salud": {
-    CuidadoPersonal: [],
-    Maquillaje: [],
-    Perfumes: [],
-    Suplementos: [],
-  },
+  "Casa y Jardín": { Herramientas: [], Muebles: [], Hogar: [], Jardinería: [], Electrodomésticos: [] },
+  Electrónica: { Celulares: ["Accesorios", "Fundas", "Cargadores"], Computadoras: ["Laptops", "Desktops", "Tablets"], Audio: ["Audífonos", "Bocinas", "Micrófonos"], Video: ["TVs", "Monitores", "Cámaras"] },
+  Vehículos: { Carros: [], Motos: [], Repuestos: [], Accesorios: [] },
+  Ropa: { Hombres: [], Mujeres: [], Niños: [], Accesorios: ["Bolsos", "Relojes", "Gafas"] },
+  Deportes: { Fitness: [], Bicicletas: [], Outdoor: [], Equipamiento: [] },
+  "Belleza y Salud": { CuidadoPersonal: [], Maquillaje: [], Perfumes: [], Suplementos: [] },
   Juguetes: {},
   Mascotas: {},
   Libros: {},
@@ -75,12 +44,13 @@ export default function VendorProductEdit() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const product = useQuery(api.products.getById, id ? { productId: id as any } : "skip");
-  const updateProduct = useMutation(api.products.update);
-  const categories = useQuery(api.categories.getAll);
-  const productFormConfig = useQuery(api.settings.getProductFormConfig);
+  const { data: productRes, refetch: refetchProduct } = useApiQuery(() => supabaseApi.products.get(id || ""), [id]);
+  const { data: categoriesRes } = useApiQuery(() => supabaseApi.categories.getAll());
+  const { data: configRes } = useApiQuery(() => supabaseApi.settings.getProductFormConfig());
 
-  const adminFields = (Array.isArray(productFormConfig) ? productFormConfig : []) as { name: string; label: string; type: string; required: boolean; options?: string[]; placeholder?: string; category?: string }[];
+  const product = productRes?.product;
+  const categories = categoriesRes?.categories || [];
+  const adminFields = (Array.isArray(configRes) ? configRes : []) as { name: string; label: string; type: string; required: boolean; options?: string[]; placeholder?: string; category?: string }[];
 
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"info" | "inventory">("info");
@@ -154,7 +124,10 @@ export default function VendorProductEdit() {
     const newImages: string[] = [];
     let processed = 0;
     filesToProcess.forEach((file) => {
-      if (!file.type.startsWith("image/")) { processed++; return; }
+      if (!file.type.startsWith("image/")) {
+        processed++;
+        return;
+      }
       const reader = new FileReader();
       reader.onload = () => {
         if (typeof reader.result === "string") newImages.push(reader.result);
@@ -207,8 +180,7 @@ export default function VendorProductEdit() {
     e.preventDefault();
     setLoading(true);
     try {
-      await updateProduct({
-        productId: id as any,
+      await supabaseApi.products.update(id as string, {
         name: form.name,
         description: form.description || undefined,
         price: Math.round(parseFloat(form.price) * 100),
@@ -236,7 +208,7 @@ export default function VendorProductEdit() {
   const handleStockChange = async (newStock: number) => {
     setLoading(true);
     try {
-      await updateProduct({ productId: id as any, stock: newStock });
+      await supabaseApi.products.update(id as string, { stock: newStock });
       toast.success("Stock actualizado");
     } catch (e: any) {
       toast.error(e.message);
@@ -248,21 +220,24 @@ export default function VendorProductEdit() {
   const renderCategoryOptions = () => {
     const options: JSX.Element[] = [];
     if (categories && Array.isArray(categories)) {
-      const dbParentCats = categories.filter((c: any) => !c.parentId);
-      const dbSubCats = categories.filter((c: any) => c.parentId);
+      const dbParentCats = categories.filter((c: any) => !c.parentId && !c.parent_id);
+      const dbSubCats = categories.filter((c: any) => c.parentId || c.parent_id);
+
       dbParentCats.forEach((cat: any) => {
-        const subs = dbSubCats.filter((s: any) => s.parentId === cat._id);
-        options.push(<option key={cat._id} value={cat._id}>{cat.name}</option>);
+        const cid = cat.id || cat._id;
+        const subs = dbSubCats.filter((s: any) => (s.parentId || s.parent_id) === cid);
+        options.push(<option key={cid} value={cid}>{cat.name}</option>);
         subs.forEach((sub: any) => {
-          options.push(<option key={sub._id} value={sub._id}>&nbsp;&nbsp;{sub.name}</option>);
+          const sid = sub.id || sub._id;
+          options.push(<option key={sid} value={sid}>&nbsp;&nbsp;{sub.name}</option>);
         });
       });
     }
     return options;
   };
 
-  const stockPercent = (product as any).salesCount > 0
-    ? Math.min(100, (product.stock / (product.stock + (product as any).salesCount)) * 100)
+  const stockPercent = (product as any).sales_count > 0
+    ? Math.min(100, (product.stock / (product.stock + (product as any).sales_count)) * 100)
     : 100;
 
   return (
@@ -299,13 +274,12 @@ export default function VendorProductEdit() {
       {activeTab === "info" && (
         <div className="bg-white rounded-xl shadow-md p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Multimedia */}
             <div className="border-b border-uniko-blue/20 pb-6">
               <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <FiImage size={18} /> Multimedia ({form.images.length}/10)
               </h2>
               <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-uniko-blue/30 rounded-xl cursor-pointer hover:border-uniko-blue hover:bg-blue-50 transition mb-3">
-                <FiUpload size={22} className="text-white/80 mb-1" />
+                <FiUpload size={22} className="text-gray-400 mb-1" />
                 <span className="text-sm text-uniko-blue/70">Clic para subir fotos</span>
                 <input type="file" accept="image/*" multiple className="hidden" onChange={handleFileUpload} />
               </label>
@@ -326,7 +300,7 @@ export default function VendorProductEdit() {
               )}
               <div className="mt-3">
                 <label className="flex items-center gap-2 text-sm text-uniko-blue/70 mb-1"><FiVideo size={14} /> Video (opcional)</label>
-                <label className="flex items-center justify-center w-full h-20 border-2 border-dashed border-uniko-blue/20 rounded-lg cursor-pointer hover:border-uniko-blue transition">
+                <label className="flex flex-col items-center justify-center w-full h-20 border-2 border-dashed border-uniko-blue/20 rounded-lg cursor-pointer hover:border-uniko-blue transition">
                   <span className="text-xs text-uniko-blue/70">{form.videoUrl ? "Video cargado ✓" : "Subir video"}</span>
                   <input type="file" accept="video/*" className="hidden" onChange={handleVideoUpload} />
                 </label>
@@ -334,7 +308,6 @@ export default function VendorProductEdit() {
               </div>
             </div>
 
-            {/* Información */}
             <div className="border-b border-uniko-blue/20 pb-6">
               <h2 className="text-lg font-semibold mb-4">Información Principal</h2>
               <div className="space-y-4">
@@ -363,33 +336,28 @@ export default function VendorProductEdit() {
                   <label className="block text-sm font-medium text-uniko-blue mb-2">Condición</label>
                   <div className="grid grid-cols-2 gap-2">
                     {CONDITION_OPTIONS.map((opt) => (
-                      <button key={opt.value} type="button" onClick={() => setForm({ ...form, condition: opt.value })}
-                        className={`px-3 py-2 rounded-lg text-sm font-medium border transition ${form.condition === opt.value ? "bg-uniko-blue text-white border-uniko-blue" : "bg-white text-uniko-blue border-uniko-blue/30 hover:border-uniko-blue"}`}>
-                        {opt.label}
-                      </button>
+                      <button key={opt.value} type="button" onClick={() => setForm({ ...form, condition: opt.value })} className={`px-3 py-2 rounded-lg text-sm font-medium border transition ${form.condition === opt.value ? "bg-uniko-blue text-white border-uniko-blue" : "bg-white text-uniko-blue border-uniko-blue/30 hover:border-uniko-blue"}`}>{opt.label}</button>
                     ))}
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Descripción */}
             <div className="border-b border-uniko-blue/20 pb-6">
               <h2 className="text-lg font-semibold mb-4">Descripción</h2>
-              <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue" rows={4} maxLength={2000} />
+              <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-unipo-blue" rows={4} maxLength={2000} />
             </div>
 
-            {/* Más detalles */}
             <div className="border-b border-uniko-blue/20 pb-6">
               <h2 className="text-lg font-semibold mb-4 flex items-center gap-2"><FiTag size={18} /> Más Detalles</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-uniko-blue mb-1">Marca</label>
-                  <input type="text" value={form.brand} onChange={(e) => setForm({ ...form, brand: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue" placeholder="Samsung, Apple..." />
+                  <input type="text" value={form.brand} onChange={(e) => setForm({ ...form, brand: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-unipo-blue" placeholder="Samsung, Apple..." />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-uniko-blue mb-1">Color</label>
-                  <input type="text" value={form.color} onChange={(e) => setForm({ ...form, color: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue" placeholder="Negro, Azul..." />
+                  <input type="text" value={form.color} onChange={(e) => setForm({ ...form, color: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-unipo-blue" placeholder="Negro, Azul..." />
                 </div>
               </div>
               <div className="mt-4">
@@ -399,7 +367,7 @@ export default function VendorProductEdit() {
               <div className="mt-4">
                 <label className="block text-sm font-medium text-uniko-blue mb-1">Etiquetas</label>
                 <div className="flex gap-2">
-                  <input type="text" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag(); } }} className="flex-1 border border-uniko-blue/30 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-uniko-blue" placeholder="Escribe y presiona Enter" />
+                  <input type="text" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag(); } }} className="flex-1 border border-uniko-blue/30 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-unipo-blue" placeholder="Escribe y presiona Enter" />
                   <button type="button" onClick={addTag} className="px-4 py-2 bg-white hover:bg-white text-sm font-medium rounded-lg">+ Agregar</button>
                 </div>
                 {form.tags.length > 0 && (
@@ -415,21 +383,18 @@ export default function VendorProductEdit() {
               </div>
             </div>
 
-            {/* Ubicación */}
-            <div className="pb-6">
+            <div className="border-b border-uniko-blue/20 pb-6">
               <h2 className="text-lg font-semibold mb-4 flex items-center gap-2"><FiMapPin size={18} /> Ubicación</h2>
-              <input type="text" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue" placeholder="Santo Domingo, Distrito Nacional" />
+              <input type="text" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-unipo-blue" placeholder="Santo Domingo, Distrito Nacional" />
             </div>
 
-            {/* WhatsApp */}
-            <div>
+            <div className="pb-2">
               <label className="block text-sm font-medium text-uniko-blue mb-1">WhatsApp</label>
-              <input type="tel" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue" placeholder="809-555-0000" />
+              <input type="tel" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-unipo-blue" placeholder="809-555-0000" />
             </div>
 
-            {/* Campos personalizados del admin */}
             {adminFields.length > 0 && (
-              <div className="border-t border-uniko-blue/20 pt-6">
+              <div className="border-b border-uniko-blue/20 pb-6">
                 <h2 className="text-lg font-semibold mb-4">Campos Adicionales</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {adminFields.map((field) => (
@@ -438,16 +403,16 @@ export default function VendorProductEdit() {
                         {field.label} {field.required && <span className="text-red-500">*</span>}
                       </label>
                       {field.type === "text" && (
-                        <input type="text" value={customFields[field.name] || ""} onChange={(e) => setCustomFields({ ...customFields, [field.name]: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue" placeholder={field.placeholder || ""} />
+                        <input type="text" value={customFields[field.name] || ""} onChange={(e) => setCustomFields({ ...customFields, [field.name]: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-unipo-blue" placeholder={field.placeholder || ""} />
                       )}
                       {field.type === "textarea" && (
-                        <textarea value={customFields[field.name] || ""} onChange={(e) => setCustomFields({ ...customFields, [field.name]: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue" rows={3} />
+                        <textarea value={customFields[field.name] || ""} onChange={(e) => setCustomFields({ ...customFields, [field.name]: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-unipo-blue" rows={3} />
                       )}
                       {field.type === "number" && (
-                        <input type="number" value={customFields[field.name] || ""} onChange={(e) => setCustomFields({ ...customFields, [field.name]: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue" min="0" />
+                        <input type="number" value={customFields[field.name] || ""} onChange={(e) => setCustomFields({ ...customFields, [field.name]: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-unipo-blue" min="0" />
                       )}
                       {field.type === "select" && (
-                        <select value={customFields[field.name] || ""} onChange={(e) => setCustomFields({ ...customFields, [field.name]: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue">
+                        <select value={customFields[field.name] || ""} onChange={(e) => setCustomFields({ ...customFields, [field.name]: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-unipo-blue">
                           <option value="">Seleccionar</option>
                           {(field.options || []).map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
                         </select>
@@ -478,7 +443,7 @@ export default function VendorProductEdit() {
             </div>
             <div>
               <h2 className="text-xl font-bold">Gestión de Inventario</h2>
-              <p className="text-uniko-blue/70">Actualiza el stock de este producto</p>
+              <p className="text-sm text-uniko-blue/70">Actualiza el stock de este producto</p>
             </div>
           </div>
 
@@ -490,7 +455,7 @@ export default function VendorProductEdit() {
               </div>
               <div className="text-center">
                 <p className="text-sm text-uniko-blue/70 mb-1">Ventas Totales</p>
-                <p className="text-lg font-semibold text-uniko-blue">{product.salesCount.toLocaleString()}</p>
+                <p className="text-lg font-semibold text-uniko-blue">{product.sales_count || 0}</p>
               </div>
             </div>
 
@@ -506,7 +471,7 @@ export default function VendorProductEdit() {
 
             <div className="flex items-center gap-4">
               <button onClick={() => { const s = parseInt(form.stock) - 1; if (s >= 0) { setForm({ ...form, stock: s.toString() }); handleStockChange(s); } }} disabled={loading || parseInt(form.stock) <= 0} className="w-10 h-10 rounded-full border border-uniko-blue/30 flex items-center justify-center hover:bg-white disabled:opacity-50">−</button>
-              <input type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} className="w-20 text-center border border-uniko-blue/30 rounded-lg px-2 py-1 text-lg font-bold focus:ring-2 focus:ring-uniko-blue" min="0" />
+              <input type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} className="w-20 text-center border border-uniko-blue/30 rounded-lg px-2 py-1 text-lg font-bold focus:ring-2 focus:ring-unipo-blue" min="0" />
               <button onClick={() => { const s = parseInt(form.stock) + 1; setForm({ ...form, stock: s.toString() }); handleStockChange(s); }} disabled={loading} className="w-10 h-10 rounded-full border border-uniko-blue/30 flex items-center justify-center hover:bg-white disabled:opacity-50">+</button>
             </div>
 
@@ -516,7 +481,6 @@ export default function VendorProductEdit() {
             </div>
           </div>
 
-          {/* Detalles del inventario */}
           <div className="bg-white rounded-xl p-4 space-y-2 text-sm">
             <div className="flex justify-between"><span className="text-uniko-blue/70">SKU:</span><span className="font-mono">{autoSku || "Sin SKU"}</span></div>
             <div className="flex justify-between"><span className="text-uniko-blue/70">Condición:</span><span>{CONDITION_OPTIONS.find((c) => c.value === form.condition)?.label || "No definida"}</span></div>

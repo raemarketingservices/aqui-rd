@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { useAction } from "convex/react";
-import { api } from "../../../convex/_generated/api";
 import { useAuth } from "../../hooks/useAuth";
+import { supabaseApi } from "../../services/supabaseApi";
 import { FiFacebook, FiPlus, FiCheck, FiX, FiLoader, FiExternalLink } from "react-icons/fi";
 import toast from "react-hot-toast";
 
@@ -10,8 +9,7 @@ export default function VendorFacebookImport({ onSaved }: { onSaved: () => void 
   const [linksText, setLinksText] = useState("");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<any[] | null>(null);
-  const scrapeAndImport = useAction(api.facebook.scrapeAndImport);
-
+  
   const parseLinks = () =>
     linksText
       .split("\n")
@@ -31,7 +29,7 @@ export default function VendorFacebookImport({ onSaved }: { onSaved: () => void 
     setLoading(true);
     setResults(null);
     try {
-      const res = await scrapeAndImport({ vendorId: user.vendorId, urls });
+      const res = await supabaseApi.facebook.scrapeAndImport({ vendorId: user.vendorId, urls });
       setResults(res.results || []);
       if (res.created > 0) {
         toast.success(`${res.created} producto${res.created > 1 ? "s" : ""} importado${res.created > 1 ? "s" : ""}!`);

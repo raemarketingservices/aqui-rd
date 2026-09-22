@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useApiQuery } from "../../hooks/useApiQuery";
+import { supabaseApi } from "../../services/supabaseApi";
 import {
   FiLifeBuoy,
   FiPlus,
@@ -56,10 +58,16 @@ export default function TicketsSection({
   const [comment, setComment] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
 
-  const tickets = useQuery(api.support.getTickets, { userId });
-  const createTicket = useMutation(api.support.createTicket);
-  const updateStatus = useMutation(api.support.updateTicketStatus);
-  const addComment = useMutation(api.support.addTicketComment);
+  const { data: tickets } = useApiQuery(() => supabaseApi.support.getTickets(userId));
+  const createTicket = async (data: any) => {
+    await supabaseApi.support.createTicket(data);
+  };
+  const updateStatus = async (data: any) => {
+    await supabaseApi.support.updateTicketStatus(data.ticketId, data.userId, data.status);
+  };
+  const addComment = async (data: any) => {
+    await supabaseApi.support.addTicketComment(data);
+  };
 
   const list = (tickets as any[]) || [];
   const filtered = statusFilter === "ALL" ? list : list.filter((t) => t.status === statusFilter);

@@ -1,15 +1,12 @@
 import { useState } from "react";
-import { useQuery, useMutation } from "convex/react";
-import { api } from "../../convex/_generated/api";
+import { supabaseApi } from "../services/supabaseApi";
 import { useAuth } from "../hooks/useAuth";
 import toast from "react-hot-toast";
 
 export default function Profile() {
   const { user, userId } = useAuth();
   const [activeTab, setActiveTab] = useState("profile");
-  const updateProfile = useMutation(api.users.updateProfile);
-  const changePassword = useMutation(api.users.changePassword);
-  const vendorUpdate = useMutation(api.vendors.update);
+  const [loading, setLoading] = useState(false);
 
   const [name, setName] = useState(user?.name || "");
   const [phone, setPhone] = useState(user?.phone || "");
@@ -19,23 +16,56 @@ export default function Profile() {
   const [bizName, setBizName] = useState(user?.vendor?.businessName || "");
   const [bizDesc, setBizDesc] = useState(user?.vendor?.description || "");
   const [bizLogo, setBizLogo] = useState(user?.vendor?.logo || "");
-  const [loading, setLoading] = useState(false);
 
   if (!user) return null;
 
   const handleProfile = async (e: React.FormEvent) => {
-    e.preventDefault(); setLoading(true);
-    try { await updateProfile({ userId: user._id, name, phone, avatar }); toast.success("Perfil actualizado"); } catch (e: any) { toast.error(e.message); } finally { setLoading(false); }
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await supabaseApi.auth.updateProfile(userId, { name, phone, avatar });
+      toast.success("Perfil actualizado");
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handlePassword = async (e: React.FormEvent) => {
-    e.preventDefault(); setLoading(true);
-    try { await changePassword({ userId: user._id, currentPassword: currentPass, newPassword: newPass }); toast.success("Contraseña actualizada"); setCurrentPass(""); setNewPass(""); } catch (e: any) { toast.error(e.message); } finally { setLoading(false); }
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await supabaseApi.auth.changePassword(userId, currentPass, newPass);
+      toast.success("Contraseña actualizada");
+      setCurrentPass("");
+      setNewPass("");
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleVendor = async (e: React.FormEvent) => {
-    e.preventDefault(); setLoading(true);
-    try { await vendorUpdate({ userId: user._id, businessName: bizName, description: bizDesc, logo: bizLogo }); toast.success("Tienda actualizada"); } catch (e: any) { toast.error(e.message); } finally { setLoading(false); }
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const vendorData = user?.vendor?.id;
+      if (vendorData) {
+        await supabaseApi.vendor.update({
+          vendorId: vendorData,
+          businessName: bizName,
+          description: bizDesc,
+          logo: bizLogo,
+        });
+      }
+      toast.success("Tienda actualizada");
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

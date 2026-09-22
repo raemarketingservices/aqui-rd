@@ -1,124 +1,42 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery, useMutation } from "convex/react";
-import { api } from "../../convex/_generated/api";
+import { supabaseApi } from "../services/supabaseApi";
+import { useApiQuery } from "../hooks/useApiQuery";
 import { useAuth } from "../hooks/useAuth";
 import toast from "react-hot-toast";
 import { FiMapPin } from "react-icons/fi";
 
 const DR_PROVINCIAS = [
-  "Distrito Nacional",
-  "Santiago",
-  "Santo Domingo",
-  "San Cristóbal",
-  "La Altagracia",
-  "Puerto Plata",
-  "La Vega",
-  "Duarte",
-  "Espaillat",
-  "La Romana",
-  "Barahona",
-  "Samaná",
-  "Sánchez Ramírez",
-  "Valverde",
-  "Monseñor Nouel",
-  "Monte Plata",
-  "Monte Cristi",
-  "Peravia",
-  "Hato Mayor",
-  "San Pedro de Macorís",
-  "Azua",
-  "Pedernales",
-  "Independencia",
-  "San Juan",
-  "Elías Piña",
-  "San José de Ocoa",
-  "Santiago Rodríguez",
-  "Dajabón",
-  "María Trinidad Sánchez",
-  "Hermanas Mirabal",
+  "Distrito Nacional", "Santiago", "Santo Domingo", "San Cristóbal", "La Altagracia",
+  "Puerto Plata", "La Vega", "Duarte", "Espaillat", "La Romana", "Barahona",
+  "Samaná", "Sánchez Ramírez", "Valverde", "Monseñor Nouel", "Monte Plata",
+  "Monte Cristi", "Peravia", "Hato Mayor", "San Pedro de Macorís", "Azua",
+  "Pedernales", "Independencia", "San Juan", "Elías Piña", "San José de Ocoa",
+  "Santiago Rodríguez", "Dajabón", "María Trinidad Sánchez", "Hermanas Mirabal",
   "El Seibo",
 ];
 
 const DR_MUNICIPIOS: Record<string, string[]> = {
-  "Distrito Nacional": [
-    "Distrito Nacional",
-    "Zona Colonial",
-    "Villa Mella",
-    "Los Mina",
-    "Capotillo",
-    "Ensanche Espaillat",
-    "Villa Consuelo",
-    "Piantini",
-    "Naco",
-    "Arroyo Hondo",
-    "Mirador Norte",
-    "Los Rieles",
-    "Bella Vista",
-    "Ciudad Nueva",
-  ],
-  Santiago: [
-    "Santiago de los Caballeros",
-    "Bavaro",
-    "Puerto Plata",
-    "Villa González",
-    "Moca",
-    "San Francisco de Macorís",
-    "Pimentel",
-    "Villa Bastías",
-    "Jamao al Norte",
-    "Salsipuedes",
-    "Licey al Medio",
-    "Tamboril",
-    "Villa Bisonó",
-    "Pueblo Nuevo",
-  ],
-  "Santo Domingo": [
-    "Santo Domingo Este",
-    "Santo Domingo Norte",
-    "Santo Domingo Oeste",
-    "Boca Chica",
-    "San Antonio de Guerra",
-    "Los Alcarrizos",
-    "Pedro Brand",
-    "San Luis",
-    "San Isidro",
-    "La Victoria",
-    "Guerra",
-    "Villa Altagracia",
-    "Yamasá",
-    "Sabana Grande de Boyá",
-  ],
-  "San Cristóbal": [
-    "San Cristóbal",
-    "San Gregorio de Nigua",
-    "Bajos de Haina",
-    "San Gregorio",
-    "Villa Altagracia",
-    "Yamasá",
-    "Palmilla",
-    "San José de Ocoa",
-    "Cambita Garabito",
-    "San Antonio de Guerra",
-  ],
-  "La Altagracia": [
-    "Punta Cana",
-    "Higüey",
-    "San Rafael del Yuma",
-    "Verón",
-    "Bávaro",
-    "Otra Banda",
-    "Las Lagunas de Nizao",
-    "Caballero",
-  ],
+  "Distrito Nacional": ["Distrito Nacional", "Zona Colonial", "Villa Mella", "Los Mina", "Capotillo", "Ensanche Espaillat", "Villa Consuelo", "Piantini", "Naco", "Arroyo Hondo", "Mirador Norte", "Los Rieles", "Bella Vista", "Ciudad Nueva"],
+  Santiago: ["Santiago de los Caballeros", "Bavaro", "Puerto Plata", "Villa González", "Moca", "San Francisco de Macorís", "Pimentel", "Villa Bastías", "Jamao al Norte", "Salsipuedes", "Licey al Medio", "Tamboril", "Villa Bisonó", "Pueblo Nuevo"],
+  "Santo Domingo": ["Santo Domingo Este", "Santo Domingo Norte", "Santo Domingo Oeste", "Boca Chica", "San Antonio de Guerra", "Los Alcarrizos", "Pedro Brand", "San Luis", "San Isidro", "La Victoria", "Guerra", "Villa Altagracia", "Yamasá", "Sabana Grande de Boyá"],
+  "San Cristóbal": ["San Cristóbal", "San Gregorio de Nigua", "Bajos de Haina", "San Gregorio", "Villa Altagracia", "Yamasá", "Palmilla", "San José de Ocoa", "Cambita Garabito", "San Antonio de Guerra"],
+  "La Altagracia": ["Punta Cana", "Higüey", "San Rafael del Yuma", "Verón", "Bávaro", "Otra Banda", "Las Lagunas de Nizao", "Caballero"],
 };
 
 export default function Checkout() {
   const { user } = useAuth();
-  const cart = useQuery(api.cart.getCart, user ? { userId: user._id } : "skip");
-  const taxSettings = useQuery(api.settings.getTaxSettings);
-  const checkout = useMutation(api.orders.create);
+  const { data: cartRes, refetch: refetchCart } = useApiQuery(
+    () => user ? supabaseApi.cart.getCart(user.id || user._id) : "skip"
+  );
+  const { data: taxRes } = useApiQuery(() => supabaseApi.settings.getTaxSettings());
+
+  const cart = cartRes || { items: [], total: 0 };
+  const taxSettings = taxRes || [];
+
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
   const [form, setForm] = useState({
     street: "",
     number: "",
@@ -129,7 +47,6 @@ export default function Checkout() {
     phone: "",
     notes: "",
   });
-  const navigate = useNavigate();
 
   if (!user || !cart || cart.items.length === 0) {
     navigate("/carrito");
@@ -162,8 +79,8 @@ export default function Checkout() {
     e.preventDefault();
     setLoading(true);
     try {
-      await checkout({
-        userId: user._id,
+      await supabaseApi.orders.create({
+        userId: user.id || user._id,
         shippingAddress: fullAddress,
         paymentMethod: "contra_entrega",
         notes: form.notes || undefined,
@@ -180,16 +97,12 @@ export default function Checkout() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-uniko-blue mb-8">Checkout</h1>
-      <form
-        onSubmit={handleSubmit}
-        className="grid grid-cols-1 lg:grid-cols-3 gap-8"
-      >
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 bg-white rounded-xl shadow-md p-6">
           <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
             <FiMapPin size={18} /> Dirección de Envío
           </h2>
 
-          {/* Provincia y Ciudad */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block text-sm font-medium text-uniko-blue mb-1">
@@ -197,17 +110,13 @@ export default function Checkout() {
               </label>
               <select
                 value={form.province}
-                onChange={(e) =>
-                  setForm({ ...form, province: e.target.value, city: "" })
-                }
+                onChange={(e) => setForm({ ...form, province: e.target.value, city: "" })}
                 className="input-field"
                 required
               >
                 <option value="">Seleccionar provincia</option>
                 {DR_PROVINCIAS.map((p) => (
-                  <option key={p} value={p}>
-                    {p}
-                  </option>
+                  <option key={p} value={p}>{p}</option>
                 ))}
               </select>
             </div>
@@ -223,21 +132,16 @@ export default function Checkout() {
                 disabled={!form.province}
               >
                 <option value="">
-                  {form.province
-                    ? "Seleccionar ciudad"
-                    : "Primero selecciona provincia"}
+                  {form.province ? "Seleccionar ciudad" : "Primero selecciona provincia"}
                 </option>
                 {availableMunicipios.map((m) => (
-                  <option key={m} value={m}>
-                    {m}
-                  </option>
+                  <option key={m} value={m}>{m}</option>
                 ))}
                 <option value="Otra">Otra ciudad</option>
               </select>
             </div>
           </div>
 
-          {/* Sector */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-uniko-blue mb-1">
               Sector / Barrio
@@ -251,7 +155,6 @@ export default function Checkout() {
             />
           </div>
 
-          {/* Calle y Número */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-uniko-blue mb-1">
@@ -280,7 +183,6 @@ export default function Checkout() {
             </div>
           </div>
 
-          {/* Casa / Apartamento */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-uniko-blue mb-1">
               Casa / Apartamento / Edificio
@@ -294,7 +196,6 @@ export default function Checkout() {
             />
           </div>
 
-          {/* Teléfono */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-uniko-blue mb-1">
               Teléfono de contacto *
@@ -309,7 +210,6 @@ export default function Checkout() {
             />
           </div>
 
-          {/* Notas */}
           <div>
             <label className="block text-sm font-medium text-uniko-blue mb-1">
               Notas adicionales
@@ -323,7 +223,6 @@ export default function Checkout() {
             />
           </div>
 
-          {/* Vista previa de dirección */}
           {fullAddress.length > 10 && (
             <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-xs text-uniko-blue font-medium mb-1">
@@ -334,7 +233,6 @@ export default function Checkout() {
           )}
         </div>
 
-        {/* Resumen */}
         <div className="bg-white rounded-xl shadow-md p-6 h-fit sticky top-24">
           <h2 className="text-lg font-bold mb-4">Tu Orden</h2>
           <div className="space-y-2 text-sm">

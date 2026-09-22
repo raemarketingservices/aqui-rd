@@ -1,7 +1,5 @@
 import { useState } from "react";
-import { useQuery, useMutation } from "convex/react";
-import { api as convexApi } from "../../convex/_generated/api";
-import { api } from "../services/api";
+import { supabaseApi } from "../services/supabaseApi";
 import { useApiQuery } from "../hooks/useApiQuery";
 import ProductCard from "../components/shared/ProductCard";
 import { useParams } from "react-router-dom";
@@ -12,21 +10,20 @@ import {
   FiPackage,
   FiMessageCircle,
   FiSend,
-  FiExternalLink,
 } from "react-icons/fi";
 
 export default function VendorStore() {
   const { slug } = useParams();
   const { user, isAuthenticated } = useAuth();
-  const { data: vendor, loading } = useApiQuery(
-    () => api.stores.get(slug || ""),
+  const { data: vendor, loading, refetch: refetchStore } = useApiQuery(
+    () => supabaseApi.stores.get(slug || ""),
     [slug]
   );
-  const reviews = useQuery(
-    convexApi.vendorReviews.getVendorReviews,
-    vendor ? { vendorId: vendor.id } : "skip"
+  const { data: reviewsRes, refetch: refetchReviews } = useApiQuery(
+    () => supabaseApi.vendorReviews.getVendorReviews(vendor?.id || vendor?._id || ""),
+    [vendor?.id || vendor?._id]
   );
-  const createReview = useMutation(convexApi.vendorReviews.create);
+  const reviews = reviewsRes?.reviews || [];
 
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewRating, setReviewRating] = useState(5);
@@ -61,9 +58,9 @@ export default function VendorStore() {
     }
     setSubmitting(true);
     try {
-      await createReview({
-        vendorId: vendor.id,
-        userId: user._id,
+      await supabaseApi.vendorReviews.create({
+        vendorId: vendor.id || vendor._id,
+        userId: user.id || user._id,
         rating: reviewRating,
         comment: reviewComment || undefined,
       });
@@ -71,6 +68,8 @@ export default function VendorStore() {
       setShowReviewForm(false);
       setReviewComment("");
       setReviewRating(5);
+      refetchReviews();
+      refetchStore();
     } catch (error: any) {
       toast.error(error.message || "Error al publicar");
     } finally {
@@ -103,26 +102,25 @@ export default function VendorStore() {
 
   return (
     <div>
-      {/* Banner */}
       <div className="bg-gradient-to-r from-uniko-dark to-uniko-blue text-white">
         <div className="max-w-7xl mx-auto px-4 py-12">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
             <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center overflow-hidden">
-              {vendor.imageUrl ? (
+              {vendor.imageUrl || vendor.logo ? (
                 <img
-                  src={vendor.imageUrl}
+                  src={vendor.imageUrl || vendor.logo}
                   alt=""
                   className="w-full h-full object-cover"
                 />
               ) : (
                 <span className="text-4xl font-bold text-uniko-dark">
-                  {vendor.name.charAt(0)}
+                  {(vendor.name || vendor.businessName || "").charAt(0)}
                 </span>
               )}
             </div>
             <div className="text-center sm:text-left">
               <h1 className="text-2xl md:text-3xl font-bold">
-                {vendor.name}
+                {vendor.name || vendor.businessName}
               </h1>
               {vendor.description && (
                 <p className="text-gray-300 mt-1">{vendor.description}</p>
@@ -139,7 +137,7 @@ export default function VendorStore() {
                 </div>
                 <div className="flex items-center gap-1 text-gray-300">
                   <FiPackage />
-                  <span>{vendor.products?.length || 0} productos</span>
+                  <span>{vendor.products?.length || vendor.productCount || 0} productos</span>
                 </div>
               </div>
               {vendor.whatsapp && (
@@ -157,10 +155,8 @@ export default function VendorStore() {
         </div>
       </div>
 
-      {/* Reseñas */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
-          {/* Resumen de calificaciones */}
           <div className="bg-white rounded-xl shadow-md p-6">
             <h3 className="text-lg font-bold mb-4">Calificación de la tienda</h3>
             <div className="text-center mb-4">
@@ -177,7 +173,7 @@ export default function VendorStore() {
                 <div key={d.stars} className="flex items-center gap-2 text-sm">
                   <span className="w-3 text-right">{d.stars}</span>
                   <FiStar className="text-uniko-red fill-uniko-red" size={12} />
-                  <div className="flex-1 bg-white rounded-full h-2">
+                  <div className="flex-1 bg-gray-100 rounded-full h-2">
                     <div
                       className="bg-uniko-red h-2 rounded-full"
                       style={{ width: `${d.percent}%` }}
@@ -197,7 +193,6 @@ export default function VendorStore() {
             )}
           </div>
 
-          {/* Formulario de reseña */}
           {showReviewForm && (
             <div className="lg:col-span-2 bg-white rounded-xl shadow-md p-6">
               <h3 className="text-lg font-bold mb-4">Tu reseña</h3>
@@ -243,7 +238,7 @@ export default function VendorStore() {
                     placeholder="Comparte tu experiencia con esta tienda..."
                     maxLength={500}
                   />
-                  <p className="text-xs text-white/80 mt-1">
+                  <p className="text-xs text-gray-400 mt-1">
                     {reviewComment.length}/500
                   </p>
                 </div>
@@ -259,13 +254,12 @@ export default function VendorStore() {
             </div>
           )}
 
-          {/* Lista de reseñas */}
           {!showReviewForm && reviews && reviews.length > 0 && (
             <div className="lg:col-span-2 space-y-4">
               <h3 className="text-lg font-bold">Reseñas de compradores</h3>
               {reviews.map((review: any) => (
                 <div
-                  key={review._id}
+                  key={review.id || review._id}
                   className="bg-white rounded-xl shadow-sm p-4"
                 >
                   <div className="flex items-center gap-3 mb-2">
@@ -278,7 +272,7 @@ export default function VendorStore() {
                       </p>
                       {renderStars(review.rating, 14)}
                     </div>
-                    <span className="ml-auto text-xs text-white/80">
+                    <span className="ml-auto text-xs text-gray-400">
                       {new Date(review.createdAt).toLocaleDateString("es-DO")}
                     </span>
                   </div>
@@ -293,9 +287,8 @@ export default function VendorStore() {
           )}
         </div>
 
-        {/* Productos */}
         <h2 className="text-2xl font-bold mb-6">
-          Productos de {vendor.name}
+          Productos de {vendor.name || vendor.businessName}
         </h2>
         {!vendor.products || vendor.products.length === 0 ? (
           <p className="text-uniko-blue/70 text-center py-12">
@@ -304,7 +297,7 @@ export default function VendorStore() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             {vendor.products.map((p: any) => (
-              <ProductCard key={p.id} product={p} />
+              <ProductCard key={p.id || p._id} product={p} />
             ))}
           </div>
         )}

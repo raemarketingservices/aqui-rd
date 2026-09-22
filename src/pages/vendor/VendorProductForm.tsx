@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery, useMutation } from "convex/react";
-import { api } from "../../../convex/_generated/api";
+import { supabaseApi } from "../../services/supabaseApi";
+import { useApiQuery } from "../../hooks/useApiQuery";
 import { useAuth } from "../../hooks/useAuth";
 import toast from "react-hot-toast";
 import {
@@ -15,49 +15,16 @@ import {
   FiTag,
   FiMapPin,
   FiPackage,
-  FiChevronDown,
-  FiChevronRight,
   FiVideo,
 } from "react-icons/fi";
 
 const CATEGORIES_TREE: Record<string, Record<string, string[]>> = {
-  "Casa y Jardín": {
-    Herramientas: [],
-    Muebles: [],
-    Hogar: [],
-    Jardinería: [],
-    Electrodomésticos: [],
-  },
-  Electrónica: {
-    Celulares: ["Accesorios", "Fundas", "Cargadores"],
-    Computadoras: ["Laptops", "Desktops", "Tablets"],
-    Audio: ["Audífonos", "Bocinas", "Micrófonos"],
-    Video: ["TVs", "Monitores", "Cámaras"],
-  },
-  Vehículos: {
-    Carros: [],
-    Motos: [],
-    Repuestos: [],
-    Accesorios: [],
-  },
-  Ropa: {
-    Hombres: [],
-    Mujeres: [],
-    Niños: [],
-    Accesorios: ["Bolsos", "Relojes", "Gafas"],
-  },
-  Deportes: {
-    Fitness: [],
-    Bicicletas: [],
-    Outdoor: [],
-    Equipamiento: [],
-  },
-  "Belleza y Salud": {
-    CuidadoPersonal: [],
-    Maquillaje: [],
-    Perfumes: [],
-    Suplementos: [],
-  },
+  "Casa y Jardín": { Herramientas: [], Muebles: [], Hogar: [], Jardinería: [], Electrodomésticos: [] },
+  Electrónica: { Celulares: ["Accesorios"], Computadoras: ["Laptops"], Audio: ["Audífonos"], Video: ["TVs"] },
+  Vehículos: { Carros: [], Motos: [], Repuestos: [], Accesorios: [] },
+  Ropa: { Hombres: [], Mujeres: [], Niños: [], Accesorios: ["Bolsos"] },
+  Deportes: { Fitness: [], Bicicletas: [], Outdoor: [], Equipamiento: [] },
+  "Belleza y Salud": { CuidadoPersonal: [], Maquillaje: [], Perfumes: [], Suplementos: [] },
   Juguetes: {},
   Mascotas: {},
   Libros: {},
@@ -73,19 +40,17 @@ const CONDITION_OPTIONS = [
 
 export default function VendorProductForm() {
   const { user } = useAuth();
-  const categories = useQuery(api.categories.getAll);
-  const productFormConfig = useQuery(api.settings.getProductFormConfig);
-  const createProduct = useMutation(api.products.create);
+  const { data: catRes } = useApiQuery(() => supabaseApi.categories.getAll());
+  const { data: configRes } = useApiQuery(() => supabaseApi.settings.getProductFormConfig());
   const [loading, setLoading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
-  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
   const [customFields, setCustomFields] = useState<Record<string, any>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
 
-  const adminFields = (Array.isArray(productFormConfig) ? productFormConfig : []) as { name: string; label: string; type: string; required: boolean; options?: string[]; placeholder?: string; category?: string }[];
+  const categories = catRes?.categories || [];
+  const adminFields = (Array.isArray(configRes) ? configRes : []) as { name: string; label: string; type: string; required: boolean; options?: string[]; placeholder?: string; category?: string }[];
 
   const [form, setForm] = useState({
     name: "",
@@ -109,18 +74,13 @@ export default function VendorProductForm() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user && user.vendorId) {
+    if (user && user.phone) {
       setForm((prev) => ({ ...prev, whatsapp: user.phone || "" }));
     }
   }, [user]);
 
-  if (!user || !user.vendorId) return null;
-
-  const toggleExpandCategory = (cat: string) => {
-    setExpandedCategories((prev) =>
-      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
-    );
-  };
+  const vendorId = user?.vendorId || user?.vendor?.id;
+  if (!user || !vendorId) return null;
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -248,7 +208,8 @@ export default function VendorProductForm() {
           .replace(/(^-|-$)/g, "") +
         "-" +
         Date.now().toString(36);
-      await createProduct({
+      await supabaseApi.products.create({
+        vendorId,
         name: form.name,
         slug,
         description: form.description || undefined,
@@ -258,10 +219,9 @@ export default function VendorProductForm() {
           : undefined,
         stock: parseInt(form.stock) || 1,
         images: form.images,
-        vendorId: user.vendorId!,
-        categoryId: form.categoryId ? (form.categoryId as any) : undefined,
+        categoryId: form.categoryId || undefined,
         whatsapp: form.whatsapp || undefined,
-        condition: form.condition as any,
+        condition: form.condition,
         brand: form.brand || undefined,
         color: form.color || undefined,
         sku: autoSku,
@@ -281,21 +241,22 @@ export default function VendorProductForm() {
 
   const renderCategoryOptions = () => {
     const options: JSX.Element[] = [];
-
     if (categories && Array.isArray(categories)) {
-      const dbParentCats = categories.filter((c: any) => !c.parentId);
-      const dbSubCats = categories.filter((c: any) => c.parentId);
+      const dbParentCats = categories.filter((c: any) => !c.parentId && !c.parent_id);
+      const dbSubCats = categories.filter((c: any) => c.parentId || c.parent_id);
 
       dbParentCats.forEach((cat: any) => {
-        const subs = dbSubCats.filter((s: any) => s.parentId === cat._id);
+        const cid = cat.id || cat._id;
+        const subs = dbSubCats.filter((s: any) => (s.parentId || s.parent_id) === cid);
         options.push(
-          <option key={cat._id} value={cat._id}>
+          <option key={cid} value={cid}>
             {cat.name}
           </option>
         );
         subs.forEach((sub: any) => {
+          const sid = sub.id || sub._id;
           options.push(
-            <option key={sub._id} value={sub._id}>
+            <option key={sid} value={sid}>
               &nbsp;&nbsp;{sub.name}
             </option>
           );
@@ -303,15 +264,12 @@ export default function VendorProductForm() {
       });
     }
 
-    Object.entries(CATEGORIES_TREE).forEach(([parent, children]) => {
-      const childNames = Object.keys(children);
-      if (childNames.length === 0) {
-        options.push(
-          <option key={`tree-${parent}`} value={`tree:${parent}`}>
-            {parent}
-          </option>
-        );
-      }
+    Object.entries(CATEGORIES_TREE).forEach(([parent]) => {
+      options.push(
+        <option key={`tree-${parent}`} value={`tree:${parent}`}>
+          {parent}
+        </option>
+      );
     });
 
     return options;
@@ -341,17 +299,13 @@ export default function VendorProductForm() {
           type="button"
           onClick={() => setShowPreview(true)}
           disabled={form.images.length === 0}
-          className="flex items-center gap-2 px-4 py-2 bg-uniko-blue text-white rounded-lg hover:bg-[#002280] transition disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+          className="flex items-center gap-2 px-4 py-2 bg-uniko-blue text-white rounded-lg hover:bg-[#002280] transition disabled:opacity-50 text-sm font-medium"
         >
           <FiEye size={16} /> Vista Previa
         </button>
       </div>
 
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white rounded-xl shadow-md p-6 space-y-6"
-      >
-        {/* MULTIMEDIA */}
+      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-md p-6 space-y-6">
         <div className="border-b border-uniko-blue/20 pb-6">
           <h2 className="text-lg font-semibold text-uniko-blue mb-4 flex items-center gap-2">
             <FiImage size={18} /> Multimedia
@@ -359,21 +313,10 @@ export default function VendorProductForm() {
           <p className="text-sm text-uniko-blue/70 mb-3">Fotos del producto (mínimo 1, máximo 10)</p>
 
           <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-uniko-blue/30 rounded-xl cursor-pointer hover:border-uniko-blue hover:bg-blue-50 transition mb-3">
-            <FiUpload size={24} className="text-white/80 mb-2" />
-            <span className="text-sm text-uniko-blue/70 font-medium">
-              Clic para subir fotos
-            </span>
-            <span className="text-xs text-white/80 mt-1">
-              JPG, PNG o GIF — {form.images.length}/10 fotos
-            </span>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              multiple
-              className="hidden"
-              onChange={handleFileUpload}
-            />
+            <FiUpload size={24} className="text-gray-400 mb-2" />
+            <span className="text-sm text-uniko-blue/70 font-medium">Clic para subir fotos</span>
+            <span className="text-xs text-gray-400 mt-1">JPG, PNG o GIF — {form.images.length}/10 fotos</span>
+            <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFileUpload} />
           </label>
 
           <div className="flex gap-2 mb-4">
@@ -381,314 +324,98 @@ export default function VendorProductForm() {
               type="url"
               value={urlInput}
               onChange={(e) => setUrlInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  addUrlImage();
-                }
-              }}
-              className="flex-1 border border-uniko-blue/30 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addUrlImage(); } }}
+              className="flex-1 border border-uniko-blue/30 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-uniko-blue"
               placeholder="O pega una URL de imagen"
             />
-            <button
-              type="button"
-              onClick={addUrlImage}
-              className="px-4 py-2 bg-white hover:bg-white text-sm font-medium rounded-lg"
-            >
-              Agregar
-            </button>
+            <button type="button" onClick={addUrlImage} className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-sm font-medium rounded-lg">Agregar</button>
           </div>
 
           {form.images.length > 0 && (
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
               {form.images.map((img, i) => (
                 <div key={i} className="relative group">
-                  <img
-                    src={img}
-                    alt={`Foto ${i + 1}`}
-                    className="w-full h-24 object-cover rounded-lg border border-uniko-blue/20"
-                  />
-                  {i === 0 && (
-                    <span className="absolute top-1 left-1 bg-uniko-blue text-white text-[10px] px-1.5 py-0.5 rounded font-medium">
-                      Principal
-                    </span>
-                  )}
+                  <img src={img} alt="" className="w-full h-24 object-cover rounded-lg border" />
+                  {i === 0 && <span className="absolute top-1 left-1 bg-uniko-blue text-white text-[10px] px-1.5 py-0.5 rounded">Principal</span>}
                   <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition">
-                    {i > 0 && (
-                      <button
-                        type="button"
-                        onClick={() => moveImage(i, i - 1)}
-                        className="w-5 h-5 bg-uniko-blue text-white rounded-full flex items-center justify-center text-[10px]"
-                      >
-                        ←
-                      </button>
-                    )}
-                    {i < form.images.length - 1 && (
-                      <button
-                        type="button"
-                        onClick={() => moveImage(i, i + 1)}
-                        className="w-5 h-5 bg-uniko-blue text-white rounded-full flex items-center justify-center text-[10px]"
-                      >
-                        →
-                      </button>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => removeImage(i)}
-                      className="w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center"
-                    >
-                      <FiTrash2 size={10} />
-                    </button>
+                    {i > 0 && <button type="button" onClick={() => moveImage(i, i - 1)} className="w-5 h-5 bg-uniko-blue text-white rounded-full text-[10px]">←</button>}
+                    {i < form.images.length - 1 && <button type="button" onClick={() => moveImage(i, i + 1)} className="w-5 h-5 bg-uniko-blue text-white rounded-full text-[10px]">→</button>}
+                    <button type="button" onClick={() => removeImage(i)} className="w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center"><FiTrash2 size={10} /></button>
                   </div>
                 </div>
               ))}
             </div>
           )}
-
-          <div className="mt-4 border-t border-uniko-blue/10 pt-4">
-            <p className="text-sm text-uniko-blue/70 mb-2 flex items-center gap-2">
-              <FiVideo size={14} /> Video del producto (opcional)
-            </p>
-            <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-uniko-blue/20 rounded-xl cursor-pointer hover:border-uniko-blue hover:bg-blue-50 transition">
-              <FiUpload size={18} className="text-white/80 mb-1" />
-              <span className="text-xs text-uniko-blue/70">
-                {form.videoUrl ? "Video cargado ✓" : "Subir video (MP4, WebM)"}
-              </span>
-              <input
-                ref={videoInputRef}
-                type="file"
-                accept="video/*"
-                className="hidden"
-                onChange={handleVideoUpload}
-              />
-            </label>
-            {form.videoUrl && (
-              <button
-                type="button"
-                onClick={() => setForm((prev) => ({ ...prev, videoUrl: "" }))}
-                className="mt-2 text-xs text-red-500 hover:underline"
-              >
-                Eliminar video
-              </button>
-            )}
-          </div>
         </div>
 
-        {/* INFORMACIÓN PRINCIPAL */}
         <div className="border-b border-uniko-blue/20 pb-6">
-          <h2 className="text-lg font-semibold text-uniko-blue mb-4 flex items-center gap-2">
-            <FiPackage size={18} /> Información Principal
-          </h2>
-
+          <h2 className="text-lg font-semibold text-uniko-blue mb-4 flex items-center gap-2"><FiPackage size={18} /> Información Principal</h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-uniko-blue mb-1">
-                Título del Producto *
-              </label>
-              <input
-                type="text"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
-                placeholder="Ej: Audífonos Bluetooth Pro Max"
-                required
-                maxLength={120}
-              />
-              <p className="text-xs text-white/80 mt-1">{form.name.length}/120 caracteres</p>
+              <label className="block text-sm font-medium text-uniko-blue mb-1">Título del Producto *</label>
+              <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue" required maxLength={120} />
             </div>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-uniko-blue mb-1">
-                  Precio (RD$) *
-                </label>
-                <input
-                  type="number"
-                  value={form.price}
-                  onChange={(e) => setForm({ ...form, price: e.target.value })}
-                  className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
-                  min="0"
-                  step="0.01"
-                  placeholder="0.00"
-                  required
-                />
+                <label className="block text-sm font-medium text-uniko-blue mb-1">Precio (RD$) *</label>
+                <input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue" min="0" step="0.01" required />
               </div>
               <div>
-                <label className="block text-sm font-medium text-uniko-blue mb-1">
-                  Precio Anterior (oferta)
-                </label>
-                <input
-                  type="number"
-                  value={form.compareAtPrice}
-                  onChange={(e) =>
-                    setForm({ ...form, compareAtPrice: e.target.value })
-                  }
-                  className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
-                  min="0"
-                  step="0.01"
-                  placeholder="Opcional"
-                />
+                <label className="block text-sm font-medium text-uniko-blue mb-1">Precio Anterior</label>
+                <input type="number" value={form.compareAtPrice} onChange={(e) => setForm({ ...form, compareAtPrice: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue" min="0" step="0.01" />
               </div>
             </div>
-
             <div>
-              <label className="block text-sm font-medium text-uniko-blue mb-1">
-                Categoría
-              </label>
-              <select
-                value={form.categoryId}
-                onChange={(e) =>
-                  setForm({ ...form, categoryId: e.target.value })
-                }
-                className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
-              >
+              <label className="block text-sm font-medium text-uniko-blue mb-1">Categoría</label>
+              <select value={form.categoryId} onChange={(e) => setForm({ ...form, categoryId: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue">
                 <option value="">Seleccionar categoría</option>
                 {renderCategoryOptions()}
-                <optgroup label="── Categorías predefinidas ──">
-                  {Object.entries(CATEGORIES_TREE).map(([parent, children]) => {
-                    const childNames = Object.keys(children);
-                    if (childNames.length === 0) {
-                      return (
-                        <option key={`tree-${parent}`} value={`tree:${parent}`}>
-                          {parent}
-                        </option>
-                      );
-                    }
-                    return null;
-                  })}
-                </optgroup>
               </select>
             </div>
-
             <div>
-              <label className="block text-sm font-medium text-uniko-blue mb-2">
-                Condición / Estado *
-              </label>
+              <label className="block text-sm font-medium text-uniko-blue mb-2">Condición *</label>
               <div className="grid grid-cols-2 gap-2">
                 {CONDITION_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => setForm({ ...form, condition: opt.value })}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium border transition ${
-                      form.condition === opt.value
-                        ? "bg-uniko-blue text-white border-uniko-blue"
-                        : "bg-white text-uniko-blue border-uniko-blue/30 hover:border-uniko-blue"
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
+                  <button key={opt.value} type="button" onClick={() => setForm({ ...form, condition: opt.value })} className={`px-3 py-2 rounded-lg text-sm font-medium border transition ${form.condition === opt.value ? "bg-uniko-blue text-white border-uniko-blue" : "bg-white text-uniko-blue border-uniko-blue/30 hover:border-uniko-blue"}`}>{opt.label}</button>
                 ))}
               </div>
             </div>
           </div>
         </div>
 
-        {/* DESCRIPCIÓN */}
         <div className="border-b border-uniko-blue/20 pb-6">
           <h2 className="text-lg font-semibold text-uniko-blue mb-4">Descripción</h2>
-          <textarea
-            value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
-            className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
-            rows={5}
-            placeholder="Describe tu producto: características, materiales, condiciones de entrega..."
-            maxLength={2000}
-          />
-          <p className="text-xs text-white/80 mt-1">{form.description.length}/2000</p>
+          <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue" rows={5} maxLength={2000} />
         </div>
 
-        {/* MÁS DETALLES */}
         <div className="border-b border-uniko-blue/20 pb-6">
-          <h2 className="text-lg font-semibold text-uniko-blue mb-4 flex items-center gap-2">
-            <FiTag size={18} /> Más Detalles
-          </h2>
-
+          <h2 className="text-lg font-semibold text-uniko-blue mb-4 flex items-center gap-2"><FiTag size={18} /> Más Detalles</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-uniko-blue mb-1">
-                Marca
-              </label>
-              <input
-                type="text"
-                value={form.brand}
-                onChange={(e) => setForm({ ...form, brand: e.target.value })}
-                className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
-                placeholder="Ej: Samsung, Apple..."
-              />
+              <label className="block text-sm font-medium text-uniko-blue mb-1">Marca</label>
+              <input type="text" value={form.brand} onChange={(e) => setForm({ ...form, brand: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-uniko-blue mb-1">
-                Color
-              </label>
-              <input
-                type="text"
-                value={form.color}
-                onChange={(e) => setForm({ ...form, color: e.target.value })}
-                className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
-                placeholder="Ej: Negro, Azul..."
-              />
+              <label className="block text-sm font-medium text-uniko-blue mb-1">Color</label>
+              <input type="text" value={form.color} onChange={(e) => setForm({ ...form, color: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue" />
             </div>
           </div>
-
           <div className="mt-4">
-            <label className="block text-sm font-medium text-uniko-blue mb-1">
-              SKU / Código de Inventario
-            </label>
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={autoSku}
-                readOnly
-                className="flex-1 border border-uniko-blue/20 rounded-lg px-4 py-2.5 text-sm bg-white text-uniko-blue/70"
-              />
-              <span className="text-xs text-green-600 font-medium whitespace-nowrap">
-                Auto-generado ✓
-              </span>
-            </div>
+            <label className="block text-sm font-medium text-uniko-blue mb-1">SKU</label>
+            <input type="text" value={autoSku} readOnly className="w-full border border-uniko-blue/20 rounded-lg px-4 py-2.5 text-sm bg-gray-50 text-uniko-blue/70" />
           </div>
-
           <div className="mt-4">
-            <label className="block text-sm font-medium text-uniko-blue mb-1">
-              Etiquetas (Tags)
-            </label>
+            <label className="block text-sm font-medium text-uniko-blue mb-1">Etiquetas</label>
             <div className="flex gap-2">
-              <input
-                type="text"
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === ",") {
-                    e.preventDefault();
-                    addTag();
-                  }
-                }}
-                className="flex-1 border border-uniko-blue/30 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
-                placeholder="Escribe y presiona Enter"
-              />
-              <button
-                type="button"
-                onClick={addTag}
-                className="px-4 py-2 bg-white hover:bg-white text-sm font-medium rounded-lg"
-              >
-                + Agregar
-              </button>
+              <input type="text" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag(); } }} className="flex-1 border border-uniko-blue/30 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-uniko-blue" placeholder="Escribe y presiona Enter" />
+              <button type="button" onClick={addTag} className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-sm font-medium rounded-lg">+ Agregar</button>
             </div>
             {form.tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-2">
                 {form.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="inline-flex items-center gap-1 px-3 py-1 bg-uniko-blue/10 text-uniko-blue rounded-full text-sm"
-                  >
+                  <span key={tag} className="inline-flex items-center gap-1 px-3 py-1 bg-uniko-blue/10 text-uniko-blue rounded-full text-sm">
                     {tag}
-                    <button
-                      type="button"
-                      onClick={() => removeTag(tag)}
-                      className="hover:text-red-500"
-                    >
-                      <FiX size={14} />
-                    </button>
+                    <button type="button" onClick={() => removeTag(tag)} className="hover:text-red-500"><FiX size={14} /></button>
                   </span>
                 ))}
               </div>
@@ -696,290 +423,39 @@ export default function VendorProductForm() {
           </div>
         </div>
 
-        {/* UBICACIÓN Y DISPONIBILIDAD */}
         <div className="border-b border-uniko-blue/20 pb-6">
-          <h2 className="text-lg font-semibold text-uniko-blue mb-4 flex items-center gap-2">
-            <FiMapPin size={18} /> Ubicación y Disponibilidad
-          </h2>
-
+          <h2 className="text-lg font-semibold text-uniko-blue mb-4 flex items-center gap-2"><FiMapPin size={18} /> Ubicación y Disponibilidad</h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-uniko-blue mb-1">
-                Ubicación
-              </label>
-              <input
-                type="text"
-                value={form.location}
-                onChange={(e) => setForm({ ...form, location: e.target.value })}
-                className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
-                placeholder="Ej: Santo Domingo, Distrito Nacional"
-              />
+              <label className="block text-sm font-medium text-uniko-blue mb-1">Ubicación</label>
+              <input type="text" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue" />
             </div>
-
             <div>
-              <label className="block text-sm font-medium text-uniko-blue mb-1">
-                Cantidad en Inventario *
-              </label>
-              <input
-                type="number"
-                value={form.stock}
-                onChange={(e) => setForm({ ...form, stock: e.target.value })}
-                className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
-                min="0"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-uniko-blue mb-2">
-                Disponibilidad
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setForm({ ...form, availability: "SINGLE" })}
-                  className={`px-4 py-3 rounded-lg text-sm font-medium border-2 transition text-left ${
-                    form.availability === "SINGLE"
-                      ? "border-uniko-blue bg-uniko-blue/5 text-uniko-blue"
-                      : "border-uniko-blue/20 text-uniko-blue hover:border-uniko-blue/30"
-                  }`}
-                >
-                  <div className="font-semibold">Artículo único</div>
-                  <div className="text-xs text-uniko-blue/70 mt-1">Solo 1 unidad disponible</div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setForm({ ...form, availability: "MULTIPLE" })}
-                  className={`px-4 py-3 rounded-lg text-sm font-medium border-2 transition text-left ${
-                    form.availability === "MULTIPLE"
-                      ? "border-uniko-blue bg-uniko-blue/5 text-uniko-blue"
-                      : "border-uniko-blue/20 text-uniko-blue hover:border-uniko-blue/30"
-                  }`}
-                >
-                  <div className="font-semibold">Varias unidades</div>
-                  <div className="text-xs text-uniko-blue/70 mt-1">Stock múltiple disponible</div>
-                </button>
-              </div>
+              <label className="block text-sm font-medium text-uniko-blue mb-1">Cantidad en Inventario *</label>
+              <input type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue" min="0" required />
             </div>
           </div>
         </div>
 
-        {/* WHATSAPP */}
-        <div className="pb-2">
-          <label className="flex items-center gap-2 text-sm font-medium text-uniko-blue mb-1">
-            <FiPhone size={14} /> WhatsApp (contacto)
-          </label>
-          <input
-            type="tel"
-            value={form.whatsapp}
-            onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
-            className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
-            placeholder="809-555-0000"
-          />
-        </div>
-
-        {/* CAMPOS PERSONALIZADOS DEL ADMIN */}
-        {adminFields.length > 0 && (
-          <div className="border-b border-uniko-blue/20 pb-6">
-            <h2 className="text-lg font-semibold text-uniko-blue mb-4">Campos Adicionales</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {adminFields.map((field) => (
-                <div key={field.name} className={field.type === "textarea" ? "sm:col-span-2" : ""}>
-                  <label className="block text-sm font-medium text-uniko-blue mb-1">
-                    {field.label} {field.required && <span className="text-red-500">*</span>}
-                  </label>
-                  {field.type === "text" && (
-                    <input
-                      type="text"
-                      value={customFields[field.name] || ""}
-                      onChange={(e) => setCustomFields({ ...customFields, [field.name]: e.target.value })}
-                      className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
-                      placeholder={field.placeholder || ""}
-                    />
-                  )}
-                  {field.type === "textarea" && (
-                    <textarea
-                      value={customFields[field.name] || ""}
-                      onChange={(e) => setCustomFields({ ...customFields, [field.name]: e.target.value })}
-                      className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
-                      rows={3}
-                    />
-                  )}
-                  {field.type === "number" && (
-                    <input
-                      type="number"
-                      value={customFields[field.name] || ""}
-                      onChange={(e) => setCustomFields({ ...customFields, [field.name]: e.target.value })}
-                      className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
-                      min="0"
-                    />
-                  )}
-                  {field.type === "select" && (
-                    <select
-                      value={customFields[field.name] || ""}
-                      onChange={(e) => setCustomFields({ ...customFields, [field.name]: e.target.value })}
-                      className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
-                    >
-                      <option value="">Seleccionar</option>
-                      {(field.options || []).map((opt: string) => (
-                        <option key={opt} value={opt}>{opt}</option>
-                      ))}
-                    </select>
-                  )}
-                  {field.type === "toggle" && (
-                    <button
-                      type="button"
-                      onClick={() => setCustomFields({ ...customFields, [field.name]: customFields[field.name] ? "" : "yes" })}
-                      className={`w-12 h-6 rounded-full transition-colors relative ${customFields[field.name] ? "bg-uniko-blue" : "bg-gray-300"}`}
-                    >
-                      <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${customFields[field.name] ? "translate-x-6" : "translate-x-0.5"}`} />
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* BOTONES */}
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4">
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-uniko-red hover:bg-uniko-red text-white font-semibold px-6 py-3 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-          >
-            <FiCheck size={18} />
-            {loading ? "Publicando..." : "Publicar Producto"}
+        <div className="flex gap-4 pt-4">
+          <button type="submit" disabled={loading} className="bg-uniko-red hover:bg-uniko-red text-white font-semibold px-6 py-3 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+            <FiCheck size={18} /> {loading ? "Publicando..." : "Publicar Producto"}
           </button>
-          <button
-            type="button"
-            onClick={() => navigate("/vendor/dashboard")}
-            className="border border-uniko-blue/30 text-uniko-blue hover:bg-white font-semibold px-6 py-3 rounded-lg transition-colors"
-          >
-            Cancelar
-          </button>
+          <button type="button" onClick={() => navigate("/vendor/dashboard")} className="border border-uniko-blue/30 text-uniko-blue hover:bg-gray-50 font-semibold px-6 py-3 rounded-lg transition-colors">Cancelar</button>
         </div>
       </form>
 
-      {/* MODAL VISTA PREVIA */}
       {showPreview && (
         <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-4 border-b">
-              <h3 className="text-lg font-bold">Vista Previa del Producto</h3>
-              <button
-                onClick={() => setShowPreview(false)}
-                className="w-8 h-8 rounded-full bg-white flex items-center justify-center hover:bg-white"
-              >
-                <FiX size={18} />
-              </button>
+          <div className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold">Vista Previa</h3>
+              <button onClick={() => setShowPreview(false)}><FiX size={18} /></button>
             </div>
-            <div className="p-4">
-              {previewProduct.images.length > 0 ? (
-                <div className="relative">
-                  <img
-                    src={previewProduct.images[0]}
-                    alt={previewProduct.name}
-                    className="w-full h-64 object-cover rounded-xl"
-                  />
-                  {previewProduct.images.length > 1 && (
-                    <span className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
-                      1/{previewProduct.images.length} fotos
-                    </span>
-                  )}
-                  {previewProduct.condition === "NEW" && (
-                    <span className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                      Nuevo
-                    </span>
-                  )}
-                </div>
-              ) : (
-                <div className="w-full h-64 bg-white rounded-xl flex items-center justify-center text-white/80">
-                  Sin imagen
-                </div>
-              )}
-
-              <div className="mt-4 space-y-3">
-                <h2 className="text-xl font-bold text-uniko-blue">{previewProduct.name}</h2>
-
-                <div className="flex items-baseline gap-3">
-                  <span className="text-2xl font-bold text-uniko-red">
-                    RD${(previewProduct.price / 100).toLocaleString()}
-                  </span>
-                  {previewProduct.compareAtPrice && (
-                    <span className="text-sm text-white/80 line-through">
-                      RD${(previewProduct.compareAtPrice / 100).toLocaleString()}
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex flex-wrap gap-2 text-xs">
-                  {previewProduct.condition && (
-                    <span className="px-2 py-1 bg-white rounded-full">
-                      {CONDITION_OPTIONS.find((c) => c.value === previewProduct.condition)?.label}
-                    </span>
-                  )}
-                  {previewProduct.brand && (
-                    <span className="px-2 py-1 bg-white rounded-full">
-                      Marca: {previewProduct.brand}
-                    </span>
-                  )}
-                  {previewProduct.color && (
-                    <span className="px-2 py-1 bg-white rounded-full">
-                      Color: {previewProduct.color}
-                    </span>
-                  )}
-                  {previewProduct.sku && (
-                    <span className="px-2 py-1 bg-white rounded-full font-mono">
-                      SKU: {previewProduct.sku}
-                    </span>
-                  )}
-                </div>
-
-                {previewProduct.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
-                    {previewProduct.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-2 py-0.5 bg-uniko-blue/10 text-uniko-blue rounded-full text-xs"
-                      >
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {previewProduct.location && (
-                  <p className="text-sm text-uniko-blue/70 flex items-center gap-1">
-                    <FiMapPin size={14} /> {previewProduct.location}
-                  </p>
-                )}
-
-                <p className="text-sm text-uniko-blue leading-relaxed">
-                  {previewProduct.description}
-                </p>
-
-                <div className="flex items-center gap-2 text-sm text-uniko-blue/70">
-                  <FiPackage size={14} />
-                  {previewProduct.stock > 0
-                    ? `${previewProduct.stock} unidades disponibles`
-                    : "Agotado"}
-                  <span className="text-gray-300">•</span>
-                  {previewProduct.availability === "SINGLE"
-                    ? "Artículo único"
-                    : "Varias unidades"}
-                </div>
-              </div>
-
-              <div className="mt-6 flex gap-3">
-                <button
-                  onClick={() => setShowPreview(false)}
-                  className="flex-1 bg-uniko-blue text-white font-semibold py-3 rounded-lg hover:bg-[#002280] transition"
-                >
-                  Cerrar Vista Previa
-                </button>
-              </div>
-            </div>
+            <img src={previewProduct.images[0]} alt="" className="w-full h-64 object-cover rounded-xl mb-4" />
+            <h2 className="text-xl font-bold text-uniko-blue">{previewProduct.name}</h2>
+            <p className="text-2xl font-bold text-uniko-red mt-2">RD${(previewProduct.price / 100).toLocaleString()}</p>
+            <p className="text-sm text-uniko-blue/70 mt-2">{previewProduct.description}</p>
           </div>
         </div>
       )}

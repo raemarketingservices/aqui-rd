@@ -1,6 +1,6 @@
-import { useQuery } from "convex/react";
-import { api } from "../../../convex/_generated/api";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../hooks/useAuth";
+import { supabaseApi } from "../services/supabaseApi";
+import { useApiQuery } from "../hooks/useApiQuery";
 import { Link } from "react-router-dom";
 import {
   FiShoppingBag,
@@ -29,20 +29,19 @@ const statusConfig: Record<string, { bg: string; text: string; label: string; ic
 
 export default function CustomerDashboard() {
   const { user } = useAuth();
-  const orders = useQuery(
-    api.orders.getUserOrders,
-    user ? { userId: user._id } : "skip"
+  const { data: res } = useApiQuery(
+    () => user ? supabaseApi.orders.getUserOrders(user.id || user._id) : "skip"
   );
+  const orders = res?.orders || [];
 
   if (!user || user.role !== "CUSTOMER") return null;
 
-  const orderList = (orders as any[]) || [];
-  const totalOrders = orderList.length;
-  const totalSpent = orderList.reduce(
-    (sum: number, o: any) => sum + (o.status !== "CANCELLED" ? o.totalAmount : 0),
+  const totalOrders = orders.length;
+  const totalSpent = orders.reduce(
+    (sum: number, o: any) => sum + (o.status !== "CANCELLED" ? o.totalAmount || o.total : 0),
     0
   );
-  const recentOrders = orderList.slice(0, 5);
+  const recentOrders = orders.slice(0, 5);
 
   const statCards = [
     {
@@ -54,7 +53,7 @@ export default function CustomerDashboard() {
     {
       icon: <FiDollarSign size={22} />,
       label: "Total Gastado",
-      value: `RD$${(totalSpent / 100).toLocaleString()}`,
+      value: `RD$${totalSpent.toLocaleString()}`,
       color: "bg-[#FF6B35]",
     },
     {
@@ -74,38 +73,27 @@ export default function CustomerDashboard() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      {/* Welcome */}
       <div className="bg-[#0F2A4A] rounded-2xl p-6 sm:p-8 mb-8 text-white">
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-full bg-[#FF6B35] flex items-center justify-center text-xl font-bold shrink-0">
             {user.avatar ? (
-              <img
-                src={user.avatar}
-                alt={user.name}
-                className="w-14 h-14 rounded-full object-cover"
-              />
+              <img src={user.avatar} alt={user.name} className="w-14 h-14 rounded-full object-cover" />
             ) : (
               user.name.charAt(0).toUpperCase()
             )}
           </div>
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold">Bienvenido, {user.name}</h1>
-            <p className="text-blue-200 text-sm mt-1">{user.email}</p>
+            <p className="text-blue-200 text-sm">{user.email}</p>
             {user.phone && <p className="text-blue-200 text-sm">{user.phone}</p>}
           </div>
         </div>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
         {statCards.map((stat, i) => (
-          <div
-            key={i}
-            className="bg-white rounded-xl shadow-md p-6 flex items-center gap-4"
-          >
-            <div
-              className={`w-12 h-12 ${stat.color} rounded-lg flex items-center justify-center text-white`}
-            >
+          <div key={i} className="bg-white rounded-xl shadow-md p-6 flex items-center gap-4">
+            <div className={`w-12 h-12 ${stat.color} rounded-lg flex items-center justify-center text-white`}>
               {stat.icon}
             </div>
             <div>
@@ -117,7 +105,6 @@ export default function CustomerDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Recent Orders */}
         <div className="lg:col-span-2 bg-white rounded-xl shadow-md p-6">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-lg font-bold text-uniko-blue">Órdenes Recientes</h2>
@@ -129,7 +116,7 @@ export default function CustomerDashboard() {
             </Link>
           </div>
 
-          {orderList.length === 0 ? (
+          {orders.length === 0 ? (
             <div className="text-center py-10">
               <FiPackage size={48} className="mx-auto text-gray-300 mb-3" />
               <p className="text-uniko-blue/70 mb-3">Aún no tienes órdenes</p>
@@ -145,28 +132,18 @@ export default function CustomerDashboard() {
               {recentOrders.map((order: any) => {
                 const st = statusConfig[order.status] || statusConfig.PENDING;
                 return (
-                  <div
-                    key={order._id}
-                    className="flex items-center justify-between p-4 bg-white rounded-lg hover:bg-white transition-colors"
-                  >
+                  <div key={order.id || order._id} className="flex items-center justify-between p-4 bg-white rounded-lg">
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm text-uniko-blue">
-                        {order.orderNumber}
-                      </p>
-                      <p className="text-xs text-uniko-blue/70 mt-0.5">
-                        {new Date(order._creationTime).toLocaleDateString("es-DO")} ·{" "}
-                        {order.items?.length || 0} artículo(s)
-                      </p>
+                      <p className="font-semibold text-sm text-uniko-blue">{order.orderNumber}</p>
+                      <p className="text-xs text-uniko-blue/70 mt-0.5">{order.items?.length || 0} artículo(s)</p>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span
-                        className={`inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full ${st.bg} ${st.text}`}
-                      >
+                      <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full">
                         {st.icon}
                         {st.label}
                       </span>
-                      <p className="font-bold text-sm text-uniko-blue whitespace-nowrap">
-                        RD${(order.totalAmount / 100).toLocaleString()}
+                      <p className="font-bold text-sm text-uniko-blue">
+                        RD${(order.totalAmount || order.total) / 100}
                       </p>
                     </div>
                   </div>
@@ -176,9 +153,7 @@ export default function CustomerDashboard() {
           )}
         </div>
 
-        {/* Quick Actions + Payment Info */}
         <div className="space-y-6">
-          {/* Quick Actions */}
           <div className="bg-white rounded-xl shadow-md p-6">
             <h2 className="text-lg font-bold text-uniko-blue mb-4">Acciones Rápidas</h2>
             <div className="space-y-3">
@@ -196,7 +171,6 @@ export default function CustomerDashboard() {
             </div>
           </div>
 
-          {/* Payment Info */}
           <div className="bg-white rounded-xl shadow-md p-6">
             <div className="flex items-center gap-2 mb-4">
               <FiCreditCard size={18} className="text-[#FF6B35]" />
@@ -207,7 +181,7 @@ export default function CustomerDashboard() {
               <p className="text-sm text-uniko-blue/70">
                 No hay métodos de pago guardados
               </p>
-              <p className="text-xs text-white/80 mt-1">
+              <p className="text-xs text-gray-400 mt-1">
                 Los métodos de pago se agregan al realizar una compra
               </p>
             </div>

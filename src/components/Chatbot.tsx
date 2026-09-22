@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { supabaseApi } from "../../services/supabaseApi";
+import { supabaseApi } from "../services/supabaseApi";
 import { FiMessageSquare, FiX, FiSend } from "react-icons/fi";
 
 interface ChatMessage {

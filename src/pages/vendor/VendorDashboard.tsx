@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { useQuery, useMutation } from "convex/react";
-import { api } from "../../../convex/_generated/api";
+import { supabaseApi } from "../../services/supabaseApi";
+import { useApiQuery } from "../../hooks/useApiQuery";
 import { useAuth } from "../../hooks/useAuth";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   FiPackage,
   FiDollarSign,
@@ -24,20 +24,18 @@ import VendorFacebookImport from "../../components/vendor/VendorFacebookImport";
 
 export default function VendorDashboard() {
   const { user } = useAuth();
-  const navigate = useNavigate();
-  const vendor = useQuery(
-    api.vendors.getBySlug,
-    user?.vendor?.slug ? { slug: user.vendor.slug } : "skip"
+  const vendorId = user?.vendorId || user?.vendor?.id;
+
+  const { data: vendor, refetch: refetchVendor } = useApiQuery(
+    () => supabaseApi.stores.get(vendorId || ""),
+    [vendorId]
   );
-  const products = useQuery(
-    api.products.getVendorProducts,
-    user?.vendorId ? { vendorId: user.vendorId } : "skip"
+  const { data: productsRes, refetch: refetchProducts } = useApiQuery(
+    () => supabaseApi.vendor.getProducts(vendorId || ""),
+    [vendorId]
   );
 
-  const updateVendor = useMutation(api.vendors.update);
-  const updateSocials = useMutation(api.vendors.updateSocials);
-  const deleteProduct = useMutation(api.products.remove);
-  const updateProduct = useMutation(api.products.update);
+  const productList = productsRes?.products || [];
   const [stockLoadingId, setStockLoadingId] = useState<string | null>(null);
 
   const [editingInfo, setEditingInfo] = useState(false);
@@ -68,10 +66,9 @@ export default function VendorDashboard() {
   if (!user || user.role !== "VENDOR") return null;
 
   const vendorData = vendor as any;
-  const productList = (products as any[]) || [];
   const totalSales =
     vendorData?.totalSales ||
-    productList.reduce((sum: number, p: any) => sum + (p.salesCount || 0), 0);
+    productList.reduce((sum: number, p: any) => sum + (p.sales_count || p.salesCount || 0), 0);
 
   const startEditInfo = () => {
     setInfoForm({
@@ -83,16 +80,17 @@ export default function VendorDashboard() {
   };
 
   const saveInfo = async () => {
-    if (!user.vendorId) return;
+    if (!vendorId) return;
     try {
-      await updateVendor({
-        userId: user._id,
+      await supabaseApi.vendor.update({
+        vendorId,
         businessName: infoForm.businessName || undefined,
         description: infoForm.description || undefined,
         logo: infoForm.logo || undefined,
       });
       toast.success("Información actualizada");
       setEditingInfo(false);
+      refetchVendor();
     } catch (e: any) {
       toast.error(e.message);
     }
@@ -111,10 +109,10 @@ export default function VendorDashboard() {
   };
 
   const saveSocials = async () => {
-    if (!user.vendorId) return;
+    if (!vendorId) return;
     try {
-      await updateSocials({
-        vendorId: user.vendorId,
+      await supabaseApi.vendor.update({
+        vendorId,
         whatsapp: socialsForm.whatsapp || undefined,
         socials: {
           instagram: socialsForm.instagram || undefined,
@@ -123,9 +121,10 @@ export default function VendorDashboard() {
           tiktok: socialsForm.tiktok || undefined,
           youtube: socialsForm.youtube || undefined,
         },
-      });
+      } as any);
       toast.success("Redes sociales actualizadas");
       setEditingSocials(false);
+      refetchVendor();
     } catch (e: any) {
       toast.error(e.message);
     }
@@ -144,14 +143,15 @@ export default function VendorDashboard() {
   };
 
   const savePayment = async () => {
-    if (!user.vendorId) return;
+    if (!vendorId) return;
     try {
-      await updateVendor({
-        userId: user._id,
+      await supabaseApi.vendor.update({
+        vendorId,
         paymentMethods: { ...paymentForm },
       });
       toast.success("Métodos de pago guardados");
       setEditingPayment(false);
+      refetchVendor();
     } catch (e: any) {
       toast.error(e.message);
     }
@@ -160,8 +160,9 @@ export default function VendorDashboard() {
   const handleDeleteProduct = async (productId: string, name: string) => {
     if (!window.confirm(`¿Eliminar "${name}"? Esta acción no se puede deshacer.`)) return;
     try {
-      await deleteProduct({ productId: productId as any });
+      await supabaseApi.products.delete(productId);
       toast.success("Producto eliminado");
+      refetchProducts();
     } catch (e: any) {
       toast.error(e.message);
     }
@@ -171,8 +172,9 @@ export default function VendorDashboard() {
     const newStock = Math.max(0, currentStock + delta);
     setStockLoadingId(productId);
     try {
-      await updateProduct({ productId: productId as any, stock: newStock });
+      await supabaseApi.products.update(productId, { stock: newStock });
       toast.success(`Stock actualizado a ${newStock}`);
+      refetchProducts();
     } catch (e: any) {
       toast.error(e.message);
     } finally {
@@ -182,7 +184,7 @@ export default function VendorDashboard() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      <NotificationsBell userId={user._id} />
+      <NotificationsBell userId={user.id} />
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
@@ -193,13 +195,12 @@ export default function VendorDashboard() {
         </div>
         <Link
           to="/vendor/nuevo-producto"
-          className="bg-uniko-red hover:bg-uniko-red text-white font-semibold px-5 py-2.5 rounded-lg transition-colors"
+          className="bg-uniko-red hover:bg-uniko-red text-white font-semibold px-5 py-2.5 rounded-lg transition-colors text-center"
         >
           + Nuevo Producto
         </Link>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
         {[
           {
@@ -212,7 +213,7 @@ export default function VendorDashboard() {
             icon: <FiDollarSign size={22} />,
             label: "Ventas Totales",
             value: `$${(totalSales / 100).toLocaleString()}`,
-            color: "bg-uniko-green",
+            color: "bg-green-600",
           },
           {
             icon: <FiStar size={22} />,
@@ -239,7 +240,6 @@ export default function VendorDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        {/* Business Info */}
         <div className="bg-white rounded-xl shadow-md p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold">Mi Negocio</h2>
@@ -320,13 +320,13 @@ export default function VendorDashboard() {
                 />
               )}
               <div>
-                <p className="text-xs text-white/80 uppercase tracking-wide">
+                <p className="text-xs text-uniko-blue/70 uppercase tracking-wide">
                   Nombre
                 </p>
                 <p className="font-medium">{vendorData?.businessName || "—"}</p>
               </div>
               <div>
-                <p className="text-xs text-white/80 uppercase tracking-wide">
+                <p className="text-xs text-uniko-blue/70 uppercase tracking-wide">
                   Descripción
                 </p>
                 <p className="text-sm text-uniko-blue">
@@ -337,7 +337,6 @@ export default function VendorDashboard() {
           )}
         </div>
 
-        {/* Social Links */}
         <div className="bg-white rounded-xl shadow-md p-6 lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold">Redes Sociales</h2>
@@ -402,57 +401,6 @@ export default function VendorDashboard() {
                     placeholder="https://facebook.com/tu-pagina"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-uniko-blue mb-1">
-                    X / Twitter
-                  </label>
-                  <input
-                    type="url"
-                    value={socialsForm.twitter}
-                    onChange={(e) =>
-                      setSocialsForm({
-                        ...socialsForm,
-                        twitter: e.target.value,
-                      })
-                    }
-                    className="w-full border border-uniko-blue/30 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
-                    placeholder="https://x.com/tu-cuenta"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-uniko-blue mb-1">
-                    TikTok
-                  </label>
-                  <input
-                    type="url"
-                    value={socialsForm.tiktok}
-                    onChange={(e) =>
-                      setSocialsForm({
-                        ...socialsForm,
-                        tiktok: e.target.value,
-                      })
-                    }
-                    className="w-full border border-uniko-blue/30 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
-                    placeholder="https://tiktok.com/@tu-cuenta"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-uniko-blue mb-1">
-                    YouTube
-                  </label>
-                  <input
-                    type="url"
-                    value={socialsForm.youtube}
-                    onChange={(e) =>
-                      setSocialsForm({
-                        ...socialsForm,
-                        youtube: e.target.value,
-                      })
-                    }
-                    className="w-full border border-uniko-blue/30 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
-                    placeholder="https://youtube.com/@tu-canal"
-                  />
-                </div>
               </div>
               <div className="flex gap-2 pt-2">
                 <button
@@ -505,61 +453,11 @@ export default function VendorDashboard() {
                   <span className="text-sm">Facebook</span>
                 </a>
               )}
-              {vendorData?.socials?.twitter && (
-                <a
-                  href={vendorData.socials.twitter}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-uniko-blue hover:text-uniko-blue transition-colors"
-                >
-                  <span className="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center">
-                    <FiTwitter size={16} />
-                  </span>
-                  <span className="text-sm">X / Twitter</span>
-                </a>
-              )}
-              {vendorData?.socials?.tiktok && (
-                <a
-                  href={vendorData.socials.tiktok}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-uniko-blue hover:text-black transition-colors"
-                >
-                  <span className="w-9 h-9 rounded-full bg-white flex items-center justify-center">
-                    <FiExternalLink size={16} />
-                  </span>
-                  <span className="text-sm">TikTok</span>
-                </a>
-              )}
-              {vendorData?.socials?.youtube && (
-                <a
-                  href={vendorData.socials.youtube}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-uniko-blue hover:text-red-600 transition-colors"
-                >
-                  <span className="w-9 h-9 rounded-full bg-red-100 flex items-center justify-center">
-                    <FiYoutube size={16} />
-                  </span>
-                  <span className="text-sm">YouTube</span>
-                </a>
-              )}
-              {!vendorData?.whatsapp &&
-                !vendorData?.socials?.instagram &&
-                !vendorData?.socials?.facebook &&
-                !vendorData?.socials?.twitter &&
-                !vendorData?.socials?.tiktok &&
-                !vendorData?.socials?.youtube && (
-                  <p className="text-white/80 text-sm">
-                    No hay redes sociales configuradas
-                  </p>
-                )}
             </div>
           )}
         </div>
       </div>
 
-      {/* Payment Methods */}
       <div className="bg-white rounded-xl shadow-md p-6 mb-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold flex items-center gap-2">
@@ -606,69 +504,6 @@ export default function VendorDashboard() {
                   placeholder="000-000000-00"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-uniko-blue mb-1">
-                  Tipo de cuenta
-                </label>
-                <select
-                  value={paymentForm.tipoCuenta}
-                  onChange={(e) =>
-                    setPaymentForm({ ...paymentForm, tipoCuenta: e.target.value })
-                  }
-                  className="w-full border border-uniko-blue/30 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
-                >
-                  <option value="Ahorro">Ahorro</option>
-                  <option value="Corriente">Corriente</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-uniko-blue mb-1">
-                  Teléfono para pagos móviles
-                </label>
-                <input
-                  type="tel"
-                  value={paymentForm.telefonoPagos}
-                  onChange={(e) =>
-                    setPaymentForm({
-                      ...paymentForm,
-                      telefonoPagos: e.target.value,
-                    })
-                  }
-                  className="w-full border border-uniko-blue/30 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
-                  placeholder="809-555-0000"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-uniko-blue mb-1">
-                  PayPal email <span className="text-white/80">(opcional)</span>
-                </label>
-                <input
-                  type="email"
-                  value={paymentForm.paypalEmail}
-                  onChange={(e) =>
-                    setPaymentForm({
-                      ...paymentForm,
-                      paypalEmail: e.target.value,
-                    })
-                  }
-                  className="w-full border border-uniko-blue/30 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
-                  placeholder="correo@paypal.com"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-uniko-blue mb-1">
-                  Link de pago
-                </label>
-                <input
-                  type="url"
-                  value={paymentForm.linkPago}
-                  onChange={(e) =>
-                    setPaymentForm({ ...paymentForm, linkPago: e.target.value })
-                  }
-                  className="w-full border border-uniko-blue/30 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
-                  placeholder="https://..."
-                />
-              </div>
             </div>
             <div className="flex gap-2 pt-2">
               <button
@@ -689,71 +524,20 @@ export default function VendorDashboard() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {vendorData?.paymentMethods?.banco && (
               <div>
-                <p className="text-xs text-white/80 uppercase tracking-wide">Banco</p>
+                <p className="text-xs text-uniko-blue/70 uppercase tracking-wide">Banco</p>
                 <p className="font-medium">{vendorData.paymentMethods.banco}</p>
               </div>
             )}
             {vendorData?.paymentMethods?.cuenta && (
               <div>
-                <p className="text-xs text-white/80 uppercase tracking-wide">
-                  Cuenta
-                </p>
+                <p className="text-xs text-uniko-blue/70 uppercase tracking-wide">Cuenta</p>
                 <p className="font-medium">{vendorData.paymentMethods.cuenta}</p>
               </div>
             )}
-            {vendorData?.paymentMethods?.tipoCuenta && (
-              <div>
-                <p className="text-xs text-white/80 uppercase tracking-wide">
-                  Tipo
-                </p>
-                <p className="font-medium">{vendorData.paymentMethods.tipoCuenta}</p>
-              </div>
-            )}
-            {vendorData?.paymentMethods?.telefonoPagos && (
-              <div>
-                <p className="text-xs text-white/80 uppercase tracking-wide">
-                  Pagos móviles
-                </p>
-                <p className="font-medium">{vendorData.paymentMethods.telefonoPagos}</p>
-              </div>
-            )}
-            {vendorData?.paymentMethods?.paypalEmail && (
-              <div>
-                <p className="text-xs text-white/80 uppercase tracking-wide">
-                  PayPal
-                </p>
-                <p className="font-medium">{vendorData.paymentMethods.paypalEmail}</p>
-              </div>
-            )}
-            {vendorData?.paymentMethods?.linkPago && (
-              <div>
-                <p className="text-xs text-white/80 uppercase tracking-wide">
-                  Link de pago
-                </p>
-                <a
-                  href={vendorData.paymentMethods.linkPago}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-medium text-uniko-blue hover:underline text-sm"
-                >
-                  {vendorData.paymentMethods.linkPago}
-                </a>
-              </div>
-            )}
-            {!vendorData?.paymentMethods?.banco &&
-              !vendorData?.paymentMethods?.cuenta &&
-              !vendorData?.paymentMethods?.telefonoPagos &&
-              !vendorData?.paymentMethods?.paypalEmail &&
-              !vendorData?.paymentMethods?.linkPago && (
-                <p className="text-white/80 text-sm">
-                  No hay métodos de pago configurados
-                </p>
-              )}
           </div>
         )}
       </div>
 
-      {/* Inventario */}
       <div className="bg-white rounded-xl shadow-md p-6 mb-8">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
@@ -790,7 +574,7 @@ export default function VendorDashboard() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-xs text-white/80 uppercase tracking-wide border-b border-uniko-blue/10">
+                <tr className="text-left text-xs text-uniko-blue/70 uppercase tracking-wide border-b border-uniko-blue/10">
                   <th className="px-3 py-2">Producto</th>
                   <th className="px-3 py-2">Precio</th>
                   <th className="px-3 py-2">Stock</th>
@@ -799,8 +583,10 @@ export default function VendorDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {productList.map((p: any) => (
-                  <tr key={p._id} className="border-b border-gray-50 hover:bg-white/50">
+                {productList.map((p: any) => {
+                  const pid = p.id || p._id;
+                  return (
+                  <tr key={pid} className="border-b border-gray-50 hover:bg-gray-50/50">
                     <td className="px-3 py-3">
                       <div className="flex items-center gap-3 min-w-0">
                         {p.images && p.images[0] ? (
@@ -810,20 +596,20 @@ export default function VendorDashboard() {
                             className="w-10 h-10 rounded-lg object-cover border"
                           />
                         ) : (
-                          <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center text-white/80">
+                          <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400">
                             <FiPackage size={16} />
                           </div>
                         )}
                         <Link
-                          to={`/vendor/editar-producto/${p._id}`}
-                          className="font-medium text-uniko-blue hover:text-uniko-blue truncate"
+                          to={`/vendor/editar-producto/${pid}`}
+                          className="font-medium text-uniko-blue hover:underline truncate"
                         >
                           {p.name}
                         </Link>
                       </div>
                     </td>
                     <td className="px-3 py-3 text-uniko-blue">
-                      RD${(p.price / 100).toLocaleString()}
+                      RD${((p.price || 0) / 100).toLocaleString()}
                     </td>
                     <td className="px-3 py-3">
                       <span
@@ -831,7 +617,7 @@ export default function VendorDashboard() {
                           p.stock <= 0
                             ? "bg-red-50 text-red-600"
                             : p.stock < 10
-                            ? "bg-uniko-red text-[#CC0033]"
+                            ? "bg-[#FFE5EA] text-[#CC0033]"
                             : "bg-green-50 text-green-600"
                         }`}
                       >
@@ -843,114 +629,53 @@ export default function VendorDashboard() {
                       </span>
                     </td>
                     <td className="px-3 py-3 text-uniko-blue/70">
-                      {p.salesCount || 0}
+                      {p.sales_count || p.salesCount || 0}
                     </td>
                     <td className="px-3 py-3">
                       <div className="flex items-center justify-end gap-1">
                         <button
-                          onClick={() => handleStockChange(p._id, p.stock, -1)}
-                          disabled={stockLoadingId === p._id || p.stock <= 0}
-                          className="w-8 h-8 rounded-lg border border-uniko-blue/20 flex items-center justify-center hover:bg-white disabled:opacity-40"
+                          onClick={() => handleStockChange(pid, p.stock, -1)}
+                          disabled={stockLoadingId === pid || p.stock <= 0}
+                          className="w-8 h-8 rounded-lg border border-uniko-blue/20 flex items-center justify-center hover:bg-gray-100 disabled:opacity-40"
                         >
                           −
                         </button>
                         <span className="w-10 text-center font-bold">
-                          {stockLoadingId === p._id ? "..." : p.stock}
+                          {stockLoadingId === pid ? "..." : p.stock}
                         </span>
                         <button
-                          onClick={() => handleStockChange(p._id, p.stock, 1)}
-                          disabled={stockLoadingId === p._id}
-                          className="w-8 h-8 rounded-lg border border-uniko-blue/20 flex items-center justify-center hover:bg-white disabled:opacity-40"
+                          onClick={() => handleStockChange(pid, p.stock, 1)}
+                          disabled={stockLoadingId === pid}
+                          className="w-8 h-8 rounded-lg border border-uniko-blue/20 flex items-center justify-center hover:bg-gray-100 disabled:opacity-40"
                         >
                           +
                         </button>
                       </div>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
         )}
       </div>
 
-      {/* Products */}
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <h2 className="text-lg font-bold mb-4">Mis Productos</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {productList.map((p: any) => (
-            <div
-              key={p._id}
-              className="border border-uniko-blue/10 rounded-lg p-3 hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-center gap-3 mb-2">
-                {vendorData?.logo ? (
-                  <img
-                    src={vendorData.logo}
-                    alt=""
-                    className="w-10 h-10 rounded-full object-cover border"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-uniko-blue text-white flex items-center justify-center font-bold text-sm">
-                    {(vendorData?.businessName || "V").charAt(0).toUpperCase()}
-                  </div>
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm truncate">{p.name}</p>
-                  <p className="text-xs text-uniko-blue/70">
-                    RD${(p.price / 100).toLocaleString()} · Stock: {p.stock}
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <Link
-                  to={`/vendor/editar-producto/${p._id}`}
-                  className="flex items-center gap-1 text-xs text-uniko-blue hover:text-[#002280] font-medium bg-blue-50 px-3 py-1.5 rounded-lg flex-1 justify-center"
-                >
-                  <FiEdit2 size={12} /> Editar
-                </Link>
-                <button
-                  onClick={() => handleDeleteProduct(p._id, p.name)}
-                  className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 font-medium bg-red-50 px-3 py-1.5 rounded-lg"
-                >
-                  <FiTrash2 size={12} /> Eliminar
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-        {productList.length === 0 && (
-          <div className="text-center py-12">
-            <FiPackage size={40} className="mx-auto text-gray-300 mb-3" />
-            <p className="text-uniko-blue/70">No tienes productos aún</p>
-            <Link
-              to="/vendor/nuevo-producto"
-              className="text-uniko-red hover:underline text-sm font-medium"
-            >
-              Crear tu primer producto
-            </Link>
-          </div>
-        )}
-      </div>
-
-      {/* Importar de Facebook */}
       <div className="mb-8">
-        <VendorFacebookImport onSaved={() => {}} />
+        <VendorFacebookImport onSaved={() => refetchProducts()} />
       </div>
 
-      {/* Soporte Técnico - Tickets */}
       <div className="mb-8">
         <TicketsSection
-          userId={user._id}
+          userId={user.id}
           role="VENDOR"
-          vendorId={user.vendorId}
+          vendorId={vendorId}
           vendorName={vendorData?.businessName || user.name}
         />
       </div>
 
-      {/* Chat con Soporte */}
       <div>
-        <SupportChat userId={user._id} role="VENDOR" vendorId={user.vendorId} />
+        <SupportChat userId={user.id} role="VENDOR" vendorId={vendorId} />
       </div>
     </div>
   );

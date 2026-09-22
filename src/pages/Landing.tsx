@@ -1,7 +1,5 @@
 import { Link } from "react-router-dom";
-import { useQuery } from "convex/react";
-import { api as convexApi } from "../../convex/_generated/api";
-import { api } from "../services/api";
+import { supabaseApi } from "../services/supabaseApi";
 import { useApiQuery } from "../hooks/useApiQuery";
 import { useState, useEffect, useRef } from "react";
 import {
@@ -189,10 +187,10 @@ const brandValues = [
 ];
 
 export default function Landing() {
-  const landingData = useQuery(convexApi.landing.getAll);
+  const { data: landingData } = useApiQuery(() => supabaseApi.landing.getAll());
   const landing = landingData || [];
-  const { data: realProducts } = useApiQuery(() => api.products.getAll({ sort: "popular" }));
-  const { data: vendors } = useApiQuery(() => api.stores.getAll());
+  const { data: realProducts } = useApiQuery(() => supabaseApi.products.getAll({ sort: "popular" }));
+  const { data: vendors } = useApiQuery(() => supabaseApi.stores.getAll());
   const getVal = (section: string, key: string, fallback: string) => {
     const item = landing.find((l: any) => l.section === section && l.key === key);
     return item?.value || fallback;
