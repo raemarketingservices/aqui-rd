@@ -336,12 +336,12 @@ export default function VendorProductForm() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Nuevo Producto</h1>
+        <h1 className="text-3xl font-bold text-uniko-blue">Nuevo Producto</h1>
         <button
           type="button"
           onClick={() => setShowPreview(true)}
           disabled={form.images.length === 0}
-          className="flex items-center gap-2 px-4 py-2 bg-aqui-blue text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+          className="flex items-center gap-2 px-4 py-2 bg-uniko-blue text-white rounded-lg hover:bg-[#002280] transition disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
         >
           <FiEye size={16} /> Vista Previa
         </button>
@@ -352,18 +352,18 @@ export default function VendorProductForm() {
         className="bg-white rounded-xl shadow-md p-6 space-y-6"
       >
         {/* MULTIMEDIA */}
-        <div className="border-b border-gray-200 pb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <div className="border-b border-uniko-blue/20 pb-6">
+          <h2 className="text-lg font-semibold text-uniko-blue mb-4 flex items-center gap-2">
             <FiImage size={18} /> Multimedia
           </h2>
-          <p className="text-sm text-gray-500 mb-3">Fotos del producto (mínimo 1, máximo 10)</p>
+          <p className="text-sm text-uniko-blue/70 mb-3">Fotos del producto (mínimo 1, máximo 10)</p>
 
-          <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-aqui-blue hover:bg-blue-50 transition mb-3">
-            <FiUpload size={24} className="text-gray-400 mb-2" />
-            <span className="text-sm text-gray-500 font-medium">
+          <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-uniko-blue/30 rounded-xl cursor-pointer hover:border-uniko-blue hover:bg-blue-50 transition mb-3">
+            <FiUpload size={24} className="text-white/80 mb-2" />
+            <span className="text-sm text-uniko-blue/70 font-medium">
               Clic para subir fotos
             </span>
-            <span className="text-xs text-gray-400 mt-1">
+            <span className="text-xs text-white/80 mt-1">
               JPG, PNG o GIF — {form.images.length}/10 fotos
             </span>
             <input
@@ -387,13 +387,13 @@ export default function VendorProductForm() {
                   addUrlImage();
                 }
               }}
-              className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+              className="flex-1 border border-uniko-blue/30 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
               placeholder="O pega una URL de imagen"
             />
             <button
               type="button"
               onClick={addUrlImage}
-              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-sm font-medium rounded-lg"
+              className="px-4 py-2 bg-white hover:bg-white text-sm font-medium rounded-lg"
             >
               Agregar
             </button>
@@ -406,10 +406,10 @@ export default function VendorProductForm() {
                   <img
                     src={img}
                     alt={`Foto ${i + 1}`}
-                    className="w-full h-24 object-cover rounded-lg border border-gray-200"
+                    className="w-full h-24 object-cover rounded-lg border border-uniko-blue/20"
                   />
                   {i === 0 && (
-                    <span className="absolute top-1 left-1 bg-aqui-blue text-white text-[10px] px-1.5 py-0.5 rounded font-medium">
+                    <span className="absolute top-1 left-1 bg-uniko-blue text-white text-[10px] px-1.5 py-0.5 rounded font-medium">
                       Principal
                     </span>
                   )}
@@ -418,7 +418,7 @@ export default function VendorProductForm() {
                       <button
                         type="button"
                         onClick={() => moveImage(i, i - 1)}
-                        className="w-5 h-5 bg-blue-500 text-white rounded-full flex items-center justify-center text-[10px]"
+                        className="w-5 h-5 bg-uniko-blue text-white rounded-full flex items-center justify-center text-[10px]"
                       >
                         ←
                       </button>
@@ -427,7 +427,7 @@ export default function VendorProductForm() {
                       <button
                         type="button"
                         onClick={() => moveImage(i, i + 1)}
-                        className="w-5 h-5 bg-blue-500 text-white rounded-full flex items-center justify-center text-[10px]"
+                        className="w-5 h-5 bg-uniko-blue text-white rounded-full flex items-center justify-center text-[10px]"
                       >
                         →
                       </button>
@@ -445,13 +445,13 @@ export default function VendorProductForm() {
             </div>
           )}
 
-          <div className="mt-4 border-t border-gray-100 pt-4">
-            <p className="text-sm text-gray-500 mb-2 flex items-center gap-2">
+          <div className="mt-4 border-t border-uniko-blue/10 pt-4">
+            <p className="text-sm text-uniko-blue/70 mb-2 flex items-center gap-2">
               <FiVideo size={14} /> Video del producto (opcional)
             </p>
-            <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-aqui-blue hover:bg-blue-50 transition">
-              <FiUpload size={18} className="text-gray-400 mb-1" />
-              <span className="text-xs text-gray-500">
+            <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-uniko-blue/20 rounded-xl cursor-pointer hover:border-uniko-blue hover:bg-blue-50 transition">
+              <FiUpload size={18} className="text-white/80 mb-1" />
+              <span className="text-xs text-uniko-blue/70">
                 {form.videoUrl ? "Video cargado ✓" : "Subir video (MP4, WebM)"}
               </span>
               <input
@@ -475,38 +475,38 @@ export default function VendorProductForm() {
         </div>
 
         {/* INFORMACIÓN PRINCIPAL */}
-        <div className="border-b border-gray-200 pb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <div className="border-b border-uniko-blue/20 pb-6">
+          <h2 className="text-lg font-semibold text-uniko-blue mb-4 flex items-center gap-2">
             <FiPackage size={18} /> Información Principal
           </h2>
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-uniko-blue mb-1">
                 Título del Producto *
               </label>
               <input
                 type="text"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
                 placeholder="Ej: Audífonos Bluetooth Pro Max"
                 required
                 maxLength={120}
               />
-              <p className="text-xs text-gray-400 mt-1">{form.name.length}/120 caracteres</p>
+              <p className="text-xs text-white/80 mt-1">{form.name.length}/120 caracteres</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-uniko-blue mb-1">
                   Precio (RD$) *
                 </label>
                 <input
                   type="number"
                   value={form.price}
                   onChange={(e) => setForm({ ...form, price: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                  className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
                   min="0"
                   step="0.01"
                   placeholder="0.00"
@@ -514,7 +514,7 @@ export default function VendorProductForm() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-uniko-blue mb-1">
                   Precio Anterior (oferta)
                 </label>
                 <input
@@ -523,7 +523,7 @@ export default function VendorProductForm() {
                   onChange={(e) =>
                     setForm({ ...form, compareAtPrice: e.target.value })
                   }
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                  className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
                   min="0"
                   step="0.01"
                   placeholder="Opcional"
@@ -532,7 +532,7 @@ export default function VendorProductForm() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-uniko-blue mb-1">
                 Categoría
               </label>
               <select
@@ -540,7 +540,7 @@ export default function VendorProductForm() {
                 onChange={(e) =>
                   setForm({ ...form, categoryId: e.target.value })
                 }
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
               >
                 <option value="">Seleccionar categoría</option>
                 {renderCategoryOptions()}
@@ -561,7 +561,7 @@ export default function VendorProductForm() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-uniko-blue mb-2">
                 Condición / Estado *
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -572,8 +572,8 @@ export default function VendorProductForm() {
                     onClick={() => setForm({ ...form, condition: opt.value })}
                     className={`px-3 py-2 rounded-lg text-sm font-medium border transition ${
                       form.condition === opt.value
-                        ? "bg-aqui-blue text-white border-aqui-blue"
-                        : "bg-white text-gray-700 border-gray-300 hover:border-aqui-blue"
+                        ? "bg-uniko-blue text-white border-uniko-blue"
+                        : "bg-white text-uniko-blue border-uniko-blue/30 hover:border-uniko-blue"
                     }`}
                   >
                     {opt.label}
@@ -585,54 +585,54 @@ export default function VendorProductForm() {
         </div>
 
         {/* DESCRIPCIÓN */}
-        <div className="border-b border-gray-200 pb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Descripción</h2>
+        <div className="border-b border-uniko-blue/20 pb-6">
+          <h2 className="text-lg font-semibold text-uniko-blue mb-4">Descripción</h2>
           <textarea
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+            className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
             rows={5}
             placeholder="Describe tu producto: características, materiales, condiciones de entrega..."
             maxLength={2000}
           />
-          <p className="text-xs text-gray-400 mt-1">{form.description.length}/2000</p>
+          <p className="text-xs text-white/80 mt-1">{form.description.length}/2000</p>
         </div>
 
         {/* MÁS DETALLES */}
-        <div className="border-b border-gray-200 pb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <div className="border-b border-uniko-blue/20 pb-6">
+          <h2 className="text-lg font-semibold text-uniko-blue mb-4 flex items-center gap-2">
             <FiTag size={18} /> Más Detalles
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-uniko-blue mb-1">
                 Marca
               </label>
               <input
                 type="text"
                 value={form.brand}
                 onChange={(e) => setForm({ ...form, brand: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
                 placeholder="Ej: Samsung, Apple..."
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-uniko-blue mb-1">
                 Color
               </label>
               <input
                 type="text"
                 value={form.color}
                 onChange={(e) => setForm({ ...form, color: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
                 placeholder="Ej: Negro, Azul..."
               />
             </div>
           </div>
 
           <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-uniko-blue mb-1">
               SKU / Código de Inventario
             </label>
             <div className="flex items-center gap-2">
@@ -640,7 +640,7 @@ export default function VendorProductForm() {
                 type="text"
                 value={autoSku}
                 readOnly
-                className="flex-1 border border-gray-200 rounded-lg px-4 py-2.5 text-sm bg-gray-50 text-gray-500"
+                className="flex-1 border border-uniko-blue/20 rounded-lg px-4 py-2.5 text-sm bg-white text-uniko-blue/70"
               />
               <span className="text-xs text-green-600 font-medium whitespace-nowrap">
                 Auto-generado ✓
@@ -649,7 +649,7 @@ export default function VendorProductForm() {
           </div>
 
           <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-uniko-blue mb-1">
               Etiquetas (Tags)
             </label>
             <div className="flex gap-2">
@@ -663,13 +663,13 @@ export default function VendorProductForm() {
                     addTag();
                   }
                 }}
-                className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                className="flex-1 border border-uniko-blue/30 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
                 placeholder="Escribe y presiona Enter"
               />
               <button
                 type="button"
                 onClick={addTag}
-                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-sm font-medium rounded-lg"
+                className="px-4 py-2 bg-white hover:bg-white text-sm font-medium rounded-lg"
               >
                 + Agregar
               </button>
@@ -679,7 +679,7 @@ export default function VendorProductForm() {
                 {form.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center gap-1 px-3 py-1 bg-aqui-blue/10 text-aqui-blue rounded-full text-sm"
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-uniko-blue/10 text-uniko-blue rounded-full text-sm"
                   >
                     {tag}
                     <button
@@ -697,41 +697,41 @@ export default function VendorProductForm() {
         </div>
 
         {/* UBICACIÓN Y DISPONIBILIDAD */}
-        <div className="border-b border-gray-200 pb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <div className="border-b border-uniko-blue/20 pb-6">
+          <h2 className="text-lg font-semibold text-uniko-blue mb-4 flex items-center gap-2">
             <FiMapPin size={18} /> Ubicación y Disponibilidad
           </h2>
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-uniko-blue mb-1">
                 Ubicación
               </label>
               <input
                 type="text"
                 value={form.location}
                 onChange={(e) => setForm({ ...form, location: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
                 placeholder="Ej: Santo Domingo, Distrito Nacional"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-uniko-blue mb-1">
                 Cantidad en Inventario *
               </label>
               <input
                 type="number"
                 value={form.stock}
                 onChange={(e) => setForm({ ...form, stock: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
                 min="0"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-uniko-blue mb-2">
                 Disponibilidad
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -740,24 +740,24 @@ export default function VendorProductForm() {
                   onClick={() => setForm({ ...form, availability: "SINGLE" })}
                   className={`px-4 py-3 rounded-lg text-sm font-medium border-2 transition text-left ${
                     form.availability === "SINGLE"
-                      ? "border-aqui-blue bg-aqui-blue/5 text-aqui-blue"
-                      : "border-gray-200 text-gray-700 hover:border-gray-300"
+                      ? "border-uniko-blue bg-uniko-blue/5 text-uniko-blue"
+                      : "border-uniko-blue/20 text-uniko-blue hover:border-uniko-blue/30"
                   }`}
                 >
                   <div className="font-semibold">Artículo único</div>
-                  <div className="text-xs text-gray-500 mt-1">Solo 1 unidad disponible</div>
+                  <div className="text-xs text-uniko-blue/70 mt-1">Solo 1 unidad disponible</div>
                 </button>
                 <button
                   type="button"
                   onClick={() => setForm({ ...form, availability: "MULTIPLE" })}
                   className={`px-4 py-3 rounded-lg text-sm font-medium border-2 transition text-left ${
                     form.availability === "MULTIPLE"
-                      ? "border-aqui-blue bg-aqui-blue/5 text-aqui-blue"
-                      : "border-gray-200 text-gray-700 hover:border-gray-300"
+                      ? "border-uniko-blue bg-uniko-blue/5 text-uniko-blue"
+                      : "border-uniko-blue/20 text-uniko-blue hover:border-uniko-blue/30"
                   }`}
                 >
                   <div className="font-semibold">Varias unidades</div>
-                  <div className="text-xs text-gray-500 mt-1">Stock múltiple disponible</div>
+                  <div className="text-xs text-uniko-blue/70 mt-1">Stock múltiple disponible</div>
                 </button>
               </div>
             </div>
@@ -766,26 +766,26 @@ export default function VendorProductForm() {
 
         {/* WHATSAPP */}
         <div className="pb-2">
-          <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">
+          <label className="flex items-center gap-2 text-sm font-medium text-uniko-blue mb-1">
             <FiPhone size={14} /> WhatsApp (contacto)
           </label>
           <input
             type="tel"
             value={form.whatsapp}
             onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+            className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
             placeholder="809-555-0000"
           />
         </div>
 
         {/* CAMPOS PERSONALIZADOS DEL ADMIN */}
         {adminFields.length > 0 && (
-          <div className="border-b border-gray-200 pb-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Campos Adicionales</h2>
+          <div className="border-b border-uniko-blue/20 pb-6">
+            <h2 className="text-lg font-semibold text-uniko-blue mb-4">Campos Adicionales</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {adminFields.map((field) => (
                 <div key={field.name} className={field.type === "textarea" ? "sm:col-span-2" : ""}>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-uniko-blue mb-1">
                     {field.label} {field.required && <span className="text-red-500">*</span>}
                   </label>
                   {field.type === "text" && (
@@ -793,7 +793,7 @@ export default function VendorProductForm() {
                       type="text"
                       value={customFields[field.name] || ""}
                       onChange={(e) => setCustomFields({ ...customFields, [field.name]: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                      className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
                       placeholder={field.placeholder || ""}
                     />
                   )}
@@ -801,7 +801,7 @@ export default function VendorProductForm() {
                     <textarea
                       value={customFields[field.name] || ""}
                       onChange={(e) => setCustomFields({ ...customFields, [field.name]: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                      className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
                       rows={3}
                     />
                   )}
@@ -810,7 +810,7 @@ export default function VendorProductForm() {
                       type="number"
                       value={customFields[field.name] || ""}
                       onChange={(e) => setCustomFields({ ...customFields, [field.name]: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                      className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
                       min="0"
                     />
                   )}
@@ -818,7 +818,7 @@ export default function VendorProductForm() {
                     <select
                       value={customFields[field.name] || ""}
                       onChange={(e) => setCustomFields({ ...customFields, [field.name]: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                      className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
                     >
                       <option value="">Seleccionar</option>
                       {(field.options || []).map((opt: string) => (
@@ -830,7 +830,7 @@ export default function VendorProductForm() {
                     <button
                       type="button"
                       onClick={() => setCustomFields({ ...customFields, [field.name]: customFields[field.name] ? "" : "yes" })}
-                      className={`w-12 h-6 rounded-full transition-colors relative ${customFields[field.name] ? "bg-aqui-blue" : "bg-gray-300"}`}
+                      className={`w-12 h-6 rounded-full transition-colors relative ${customFields[field.name] ? "bg-uniko-blue" : "bg-gray-300"}`}
                     >
                       <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${customFields[field.name] ? "translate-x-6" : "translate-x-0.5"}`} />
                     </button>
@@ -846,7 +846,7 @@ export default function VendorProductForm() {
           <button
             type="submit"
             disabled={loading}
-            className="bg-aqui-orange hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            className="bg-uniko-red hover:bg-uniko-red text-white font-semibold px-6 py-3 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
           >
             <FiCheck size={18} />
             {loading ? "Publicando..." : "Publicar Producto"}
@@ -854,7 +854,7 @@ export default function VendorProductForm() {
           <button
             type="button"
             onClick={() => navigate("/vendor/dashboard")}
-            className="border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold px-6 py-3 rounded-lg transition-colors"
+            className="border border-uniko-blue/30 text-uniko-blue hover:bg-white font-semibold px-6 py-3 rounded-lg transition-colors"
           >
             Cancelar
           </button>
@@ -869,7 +869,7 @@ export default function VendorProductForm() {
               <h3 className="text-lg font-bold">Vista Previa del Producto</h3>
               <button
                 onClick={() => setShowPreview(false)}
-                className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200"
+                className="w-8 h-8 rounded-full bg-white flex items-center justify-center hover:bg-white"
               >
                 <FiX size={18} />
               </button>
@@ -894,20 +894,20 @@ export default function VendorProductForm() {
                   )}
                 </div>
               ) : (
-                <div className="w-full h-64 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400">
+                <div className="w-full h-64 bg-white rounded-xl flex items-center justify-center text-white/80">
                   Sin imagen
                 </div>
               )}
 
               <div className="mt-4 space-y-3">
-                <h2 className="text-xl font-bold text-gray-900">{previewProduct.name}</h2>
+                <h2 className="text-xl font-bold text-uniko-blue">{previewProduct.name}</h2>
 
                 <div className="flex items-baseline gap-3">
-                  <span className="text-2xl font-bold text-aqui-orange">
+                  <span className="text-2xl font-bold text-uniko-red">
                     RD${(previewProduct.price / 100).toLocaleString()}
                   </span>
                   {previewProduct.compareAtPrice && (
-                    <span className="text-sm text-gray-400 line-through">
+                    <span className="text-sm text-white/80 line-through">
                       RD${(previewProduct.compareAtPrice / 100).toLocaleString()}
                     </span>
                   )}
@@ -915,22 +915,22 @@ export default function VendorProductForm() {
 
                 <div className="flex flex-wrap gap-2 text-xs">
                   {previewProduct.condition && (
-                    <span className="px-2 py-1 bg-gray-100 rounded-full">
+                    <span className="px-2 py-1 bg-white rounded-full">
                       {CONDITION_OPTIONS.find((c) => c.value === previewProduct.condition)?.label}
                     </span>
                   )}
                   {previewProduct.brand && (
-                    <span className="px-2 py-1 bg-gray-100 rounded-full">
+                    <span className="px-2 py-1 bg-white rounded-full">
                       Marca: {previewProduct.brand}
                     </span>
                   )}
                   {previewProduct.color && (
-                    <span className="px-2 py-1 bg-gray-100 rounded-full">
+                    <span className="px-2 py-1 bg-white rounded-full">
                       Color: {previewProduct.color}
                     </span>
                   )}
                   {previewProduct.sku && (
-                    <span className="px-2 py-1 bg-gray-100 rounded-full font-mono">
+                    <span className="px-2 py-1 bg-white rounded-full font-mono">
                       SKU: {previewProduct.sku}
                     </span>
                   )}
@@ -941,7 +941,7 @@ export default function VendorProductForm() {
                     {previewProduct.tags.map((tag) => (
                       <span
                         key={tag}
-                        className="px-2 py-0.5 bg-aqui-blue/10 text-aqui-blue rounded-full text-xs"
+                        className="px-2 py-0.5 bg-uniko-blue/10 text-uniko-blue rounded-full text-xs"
                       >
                         #{tag}
                       </span>
@@ -950,16 +950,16 @@ export default function VendorProductForm() {
                 )}
 
                 {previewProduct.location && (
-                  <p className="text-sm text-gray-500 flex items-center gap-1">
+                  <p className="text-sm text-uniko-blue/70 flex items-center gap-1">
                     <FiMapPin size={14} /> {previewProduct.location}
                   </p>
                 )}
 
-                <p className="text-sm text-gray-600 leading-relaxed">
+                <p className="text-sm text-uniko-blue leading-relaxed">
                   {previewProduct.description}
                 </p>
 
-                <div className="flex items-center gap-2 text-sm text-gray-500">
+                <div className="flex items-center gap-2 text-sm text-uniko-blue/70">
                   <FiPackage size={14} />
                   {previewProduct.stock > 0
                     ? `${previewProduct.stock} unidades disponibles`
@@ -974,7 +974,7 @@ export default function VendorProductForm() {
               <div className="mt-6 flex gap-3">
                 <button
                   onClick={() => setShowPreview(false)}
-                  className="flex-1 bg-aqui-blue text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition"
+                  className="flex-1 bg-uniko-blue text-white font-semibold py-3 rounded-lg hover:bg-[#002280] transition"
                 >
                   Cerrar Vista Previa
                 </button>

@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
+import { api as convexApi } from "../../convex/_generated/api";
+import { api } from "../services/api";
+import { useApiQuery } from "../hooks/useApiQuery";
 import { useState, useEffect, useRef } from "react";
 import {
   FiSmartphone,
@@ -27,7 +29,7 @@ import {
   FiChevronDown,
   FiArrowRight,
 } from "react-icons/fi";
-import AquiLogo from "../components/ui/AquiLogo";
+import UnikoLogo from "../components/ui/UnikoLogo";
 
 const categories = [
   { icon: <FiSmartphone size={28} />, label: "Tecnología", slug: "tecnologia" },
@@ -69,21 +71,21 @@ const testimonials = [
   {
     name: "María González",
     role: "Cliente frecuente",
-    text: "AQUÍ me cambió la forma de comprar. Todo lo que necesito está en un solo lugar y el envío es súper rápido.",
+    text: "UNIKO me cambió la forma de comprar. Todo lo que necesito está en un solo lugar y el envío es súper rápido.",
     rating: 5,
     avatar: "M",
   },
   {
     name: "Carlos Rodríguez",
-    role: "Vendedor en AQUÍ",
-    text: "Como vendedor, AQUÍ me dio la oportunidad de llegar a clientes de todo el país. Mis ventas aumentaron un 300%.",
+    role: "Vendedor en UNIKO",
+    text: "Como vendedor, UNIKO me dio la oportunidad de llegar a clientes de todo el país. Mis ventas aumentaron un 300%.",
     rating: 5,
     avatar: "C",
   },
   {
     name: "Ana Martínez",
     role: "Emprendedora",
-    text: "La plataforma es fácil de usar y el soporte es increíble. Recomiendo AQUÍ a todos mis amigos.",
+    text: "La plataforma es fácil de usar y el soporte es increíble. Recomiendo UNIKO a todos mis amigos.",
     rating: 5,
     avatar: "A",
   },
@@ -91,7 +93,7 @@ const testimonials = [
 
 const faqs = [
   {
-    q: "¿Cómo creo mi tienda en AQUÍ?",
+    q: "¿Cómo creo mi tienda en UNIKO?",
     a: "Solo registrarte como vendedor, completa tu perfil y empieza a subir tus productos. El proceso es gratis y toma menos de 5 minutos.",
   },
   {
@@ -107,7 +109,7 @@ const faqs = [
     a: "Sí, tienes hasta 30 días para devolver cualquier producto sin preguntas. Nosotros nos encargamos del recojo.",
   },
   {
-    q: "¿Es seguro comprar en AQUÍ?",
+    q: "¿Es seguro comprar en UNIKO?",
     a: "Totalmente. Tenemos protección al comprador, pagos seguros y vendedores verificados por nuestro equipo.",
   },
 ];
@@ -164,32 +166,33 @@ const brandValues = [
     icon: <FiUsers size={36} />,
     title: "Para Todos",
     desc: "Una experiencia de compra para cada estilo de vida.",
-    color: "text-aqui-orange",
+    color: "text-uniko-red",
   },
   {
     icon: <FiMapPin size={36} />,
     title: "Somos RD",
     desc: "Hecho para los dominicanos, por dominicanos.",
-    color: "text-aqui-blue",
+    color: "text-uniko-blue",
   },
   {
     icon: <FiTrendingUp size={36} />,
     title: "Crecemos Contigo",
     desc: "Más vendedores, más productos, más oportunidades.",
-    color: "text-aqui-green",
+    color: "text-uniko-red",
   },
   {
     icon: <FiAward size={36} />,
     title: "Tu Mejor Opción",
     desc: "Calidad, precio y confianza en un solo lugar.",
-    color: "text-aqui-orange",
+    color: "text-uniko-red",
   },
 ];
 
 export default function Landing() {
-  const landingData = useQuery(api.landing.getAll);
+  const landingData = useQuery(convexApi.landing.getAll);
   const landing = landingData || [];
-  const realProducts = useQuery(api.products.getAll, { sort: "popular", limit: 8 });
+  const { data: realProducts } = useApiQuery(() => api.products.getAll({ sort: "popular" }));
+  const { data: vendors } = useApiQuery(() => api.stores.getAll());
   const getVal = (section: string, key: string, fallback: string) => {
     const item = landing.find((l: any) => l.section === section && l.key === key);
     return item?.value || fallback;
@@ -201,27 +204,27 @@ export default function Landing() {
       <section className="grid lg:grid-cols-2 min-h-[600px]">
         <div className="bg-white px-8 py-16 md:px-16 md:py-20 flex flex-col justify-center">
           <div className="mb-6">
-            <img src="/logo-aqui.png" alt="AQUÍ Marketplace Dominicano" className="w-full max-w-md" />
+            <img src="/logo-uniko.png" alt="UNIKO Marketplace Dominicano" className="w-full max-w-md" />
           </div>
-          <p className="text-aqui-dark text-xl md:text-2xl font-bold mb-10">{getVal("hero", "subtitle", "Todo lo que buscas, en un solo lugar.")}</p>
+          <p className="text-uniko-dark text-xl md:text-2xl font-bold mb-10">{getVal("hero", "subtitle", "Todo lo que buscas, en un solo lugar.")}</p>
           <div className="flex flex-wrap gap-6 md:gap-10 mb-10">
             {categories.map((cat, i) => (
               <Link to={`/productos?category=${cat.slug}`} key={i} className="flex flex-col items-center gap-2 cursor-pointer group">
-                <div className="w-14 h-14 rounded-full border-2 border-gray-200 flex items-center justify-center text-aqui-blue group-hover:border-aqui-orange group-hover:text-aqui-orange transition-colors">
+                <div className="w-14 h-14 rounded-full border-2 border-uniko-blue/20 flex items-center justify-center text-uniko-blue group-hover:border-uniko-red group-hover:text-uniko-red transition-colors">
                   {cat.icon}
                 </div>
-                <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide group-hover:text-aqui-orange transition">{cat.label}</span>
+                <span className="text-xs font-semibold text-uniko-blue uppercase tracking-wide group-hover:text-uniko-red transition">{cat.label}</span>
               </Link>
             ))}
           </div>
           <div className="flex flex-wrap gap-4">
-            <Link to="/productos" className="bg-aqui-orange hover:bg-orange-600 text-white font-bold px-8 py-3.5 rounded-lg text-sm transition shadow-lg">Explorar Productos</Link>
-            <Link to="/registro" className="border-2 border-aqui-dark text-aqui-dark hover:bg-aqui-dark hover:text-white font-bold px-8 py-3.5 rounded-lg text-sm transition">Vender en AQUÍ</Link>
-            <Link to="/login" className="bg-aqui-blue hover:bg-blue-700 text-white font-bold px-8 py-3.5 rounded-lg text-sm transition shadow-lg">Iniciar Sesión</Link>
+            <Link to="/productos" className="bg-uniko-red hover:bg-uniko-red text-white font-bold px-8 py-3.5 rounded-lg text-sm transition shadow-lg">Explorar Productos</Link>
+            <Link to="/registro" className="border-2 border-uniko-dark text-uniko-dark hover:bg-uniko-dark hover:text-white font-bold px-8 py-3.5 rounded-lg text-sm transition">Vender en UNIKO</Link>
+            <Link to="/login" className="bg-uniko-blue hover:bg-[#002280] text-white font-bold px-8 py-3.5 rounded-lg text-sm transition shadow-lg">Iniciar Sesión</Link>
           </div>
         </div>
         <div
-          className={`text-white px-8 py-16 md:px-12 md:py-16 flex flex-col justify-center relative overflow-hidden ${!getVal("hero", "rightImage", "") ? "bg-aqui-dark" : ""}`}
+          className={`text-white px-8 py-16 md:px-12 md:py-16 flex flex-col justify-center relative overflow-hidden ${!getVal("hero", "rightImage", "") ? "bg-uniko-dark" : ""}`}
           style={getVal("hero", "rightImage", "") ? {
             backgroundImage: `url(${getVal("hero", "rightImage", "")})`,
             backgroundSize: getVal("hero", "rightImageFit", "cover"),
@@ -229,17 +232,17 @@ export default function Landing() {
           } : undefined}
         >
           {!getVal("hero", "rightImage", "") ? null : (
-            <div className="absolute inset-0 bg-aqui-dark/80 backdrop-blur-sm z-0"></div>
+            <div className="absolute inset-0 bg-uniko-dark/80 backdrop-blur-sm z-0"></div>
           )}
           <div className={!getVal("hero", "rightImage", "") ? "" : "relative z-10"}>
             <h2 className="text-3xl md:text-4xl font-extrabold mb-2">Una Plataforma,</h2>
-            <h2 className="text-3xl md:text-4xl font-extrabold mb-10"><span className="text-aqui-orange">Infinitas</span> Posibilidades</h2>
+            <h2 className="text-3xl md:text-4xl font-extrabold mb-10"><span className="text-uniko-red">Infinitas</span> Posibilidades</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
               {platformFeatures.map((feat, i) => (
                 <div key={i} className="text-center">
-                  <div className="text-aqui-orange mb-3 flex justify-center">{feat.icon}</div>
+                  <div className="text-uniko-red mb-3 flex justify-center">{feat.icon}</div>
                   <h3 className="font-bold text-sm uppercase tracking-wide mb-1">{feat.title}</h3>
-                  <p className="text-gray-400 text-xs leading-relaxed">{feat.desc}</p>
+                  <p className="text-white/80 text-xs leading-relaxed">{feat.desc}</p>
                 </div>
               ))}
             </div>
@@ -247,7 +250,7 @@ export default function Landing() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {benefits.map((b, i) => (
                   <div key={i} className="text-center">
-                    <div className="text-aqui-orange mb-2 flex justify-center">{b.icon}</div>
+                    <div className="text-uniko-red mb-2 flex justify-center">{b.icon}</div>
                     <p className="text-xs font-semibold leading-tight">{b.title}</p>
                   </div>
                 ))}
@@ -258,7 +261,7 @@ export default function Landing() {
       </section>
 
       {/* ── STATS ──────────────────────────────────────────── */}
-      <section className="bg-aqui-blue py-16">
+      <section className="bg-uniko-blue py-16">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((s, i) => (
@@ -266,7 +269,7 @@ export default function Landing() {
                 <p className="text-4xl md:text-5xl font-extrabold mb-2">
                   <AnimatedCounter target={s.number} suffix={s.suffix} />
                 </p>
-                <p className="text-blue-200 font-medium uppercase tracking-wider text-sm">{s.label}</p>
+                <p className="text-white/80 font-medium uppercase tracking-wider text-sm">{s.label}</p>
               </div>
             ))}
           </div>
@@ -277,16 +280,16 @@ export default function Landing() {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
-            <p className="text-aqui-orange font-bold text-sm uppercase tracking-widest mb-2">Explora por Categoría</p>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-aqui-dark">Todo lo que necesitas, aquí está</h2>
+            <p className="text-uniko-red font-bold text-sm uppercase tracking-widest mb-2">Explora por Categoría</p>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-uniko-dark">Todo lo que buscas, en un solo lugar</h2>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
             {categories.map((cat, i) => (
-              <Link to={`/productos?category=${cat.slug}`} key={i} className="group bg-gray-50 hover:bg-aqui-dark rounded-2xl p-8 text-center transition duration-300 cursor-pointer">
-                <div className="w-20 h-20 mx-auto mb-4 bg-white group-hover:bg-aqui-orange/10 rounded-2xl flex items-center justify-center text-aqui-blue group-hover:text-aqui-orange transition-colors shadow-sm">
+              <Link to={`/productos?category=${cat.slug}`} key={i} className="group bg-white hover:bg-uniko-dark rounded-2xl p-8 text-center transition duration-300 cursor-pointer">
+                <div className="w-20 h-20 mx-auto mb-4 bg-white group-hover:bg-uniko-red/10 rounded-2xl flex items-center justify-center text-uniko-blue group-hover:text-uniko-red transition-colors shadow-sm">
                   {cat.icon}
                 </div>
-                <h3 className="font-bold text-aqui-dark group-hover:text-white transition">{cat.label}</h3>
+                <h3 className="font-bold text-uniko-dark group-hover:text-white transition">{cat.label}</h3>
               </Link>
             ))}
           </div>
@@ -294,54 +297,53 @@ export default function Landing() {
       </section>
 
       {/* ── FEATURED PRODUCTS ─────────────────────────────── */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between mb-12">
             <div>
-              <p className="text-aqui-orange font-bold text-sm uppercase tracking-widest mb-2">Ofertas del Día</p>
-              <h2 className="text-3xl md:text-4xl font-extrabold text-aqui-dark">Lo más vendido</h2>
+              <p className="text-uniko-red font-bold text-sm uppercase tracking-widest mb-2">Ofertas del Día</p>
+              <h2 className="text-3xl md:text-4xl font-extrabold text-uniko-dark">Lo más vendido</h2>
             </div>
-            <Link to="/productos" className="text-aqui-blue hover:text-aqui-orange font-bold text-sm flex items-center gap-1 transition">
+            <Link to="/productos" className="text-uniko-blue hover:text-uniko-red font-bold text-sm flex items-center gap-1 transition">
               Ver todos <FiArrowRight />
             </Link>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {(realProducts || []).map((p: any, i: number) => (
-              <Link to={`/producto/${p._id}`} key={p._id} className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition group">
+            {(realProducts || []).slice(0, 8).map((p: any, i: number) => {
+              const pid = p.id || p._id;
+              const imgSrc = p.imageUrl || (p.images && p.images[0]) || "/logo-uniko.png";
+              const price = p.price;
+              const comparePrice = p.originalPrice || p.compareAtPrice || 0;
+              const storeName = p.vendor?.businessName || p.storeName || "";
+              return (
+              <Link to={`/producto/${pid}`} key={pid} className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition group">
                 <div className="relative overflow-hidden">
-                  {p.images && p.images[0] ? (
-                    <img src={p.images[0]} alt={p.name} className="w-full h-52 object-cover group-hover:scale-105 transition duration-500" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).src = "/logo-aqui.png"; }} />
-                  ) : (
-                    <div className="w-full h-52 bg-gray-100 flex items-center justify-center">
-                      <img src="/logo-aqui.png" alt="AQUÍ" className="w-24 h-24 object-contain opacity-30" />
-                    </div>
-                  )}
-                  {p.compareAtPrice > p.price && (
-                    <span className="absolute top-3 left-3 bg-aqui-red text-white text-xs font-bold px-2.5 py-1 rounded-lg">
-                      -{Math.round(((p.compareAtPrice - p.price) / p.compareAtPrice) * 100)}%
+                  <img src={imgSrc} alt={p.name} className="w-full h-52 object-cover group-hover:scale-105 transition duration-500" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).src = "/logo-uniko.png"; }} />
+                  {comparePrice > price && (
+                    <span className="absolute top-3 left-3 bg-uniko-red text-white text-xs font-bold px-2.5 py-1 rounded-lg">
+                      -{Math.round(((comparePrice - price) / comparePrice) * 100)}%
                     </span>
                   )}
                 </div>
                 <div className="p-5">
-                  {p.vendor && (
-                    <p className="text-xs text-aqui-blue mb-1">{p.vendor.businessName}</p>
-                  )}
-                  <h3 className="font-bold text-aqui-dark mb-2 group-hover:text-aqui-orange transition line-clamp-1">{p.name}</h3>
+                  {storeName && <p className="text-xs text-uniko-blue mb-1">{storeName}</p>}
+                  <h3 className="font-bold text-uniko-dark mb-2 group-hover:text-uniko-red transition line-clamp-1">{p.name}</h3>
                   <div className="flex items-center gap-2">
-                    <span className="text-aqui-orange font-extrabold text-lg">RD${(p.price / 100).toLocaleString()}</span>
-                    {p.compareAtPrice > p.price && (
-                      <span className="text-gray-400 line-through text-sm">RD${(p.compareAtPrice / 100).toLocaleString()}</span>
+                    <span className="text-uniko-red font-extrabold text-lg">RD${price.toLocaleString()}</span>
+                    {comparePrice > price && (
+                      <span className="text-white/80 line-through text-sm">RD${comparePrice.toLocaleString()}</span>
                     )}
                   </div>
                   <div className="flex items-center gap-1 mt-2">
-                    <FiStar className="text-yellow-400 fill-yellow-400" size={14} />
-                    <span className="text-sm text-gray-500">{p.rating?.toFixed(1) || "0.0"} ({p.reviewCount || 0})</span>
+                    <FiStar className="text-uniko-red fill-uniko-red" size={14} />
+                    <span className="text-sm text-uniko-blue/70">{p.rating?.toFixed(1) || "0.0"} ({p.reviewsCount || p.reviewCount || 0})</span>
                   </div>
                 </div>
               </Link>
-            ))}
+              );
+            })}
             {(!realProducts || realProducts.length === 0) && (
-              <p className="col-span-full text-center text-gray-500 py-8">
+              <p className="col-span-full text-center text-uniko-blue/70 py-8">
                 No hay productos disponibles todavía.
               </p>
             )}
@@ -349,24 +351,61 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ── TIENDAS / STORES ──────────────────────────────── */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex items-center justify-between mb-12">
+            <div>
+              <p className="text-uniko-red font-bold text-sm uppercase tracking-widest mb-2">Nuestras Tiendas</p>
+              <h2 className="text-3xl md:text-4xl font-extrabold text-uniko-dark">Vendedores Verificados</h2>
+            </div>
+            <Link to="/tiendas" className="text-uniko-blue hover:text-uniko-red font-bold text-sm flex items-center gap-1 transition">
+              Ver todas <FiArrowRight />
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {(vendors || []).slice(0, 8).map((v: any) => (
+              <Link to={`/tienda/${v.slug}`} key={v.id} className="bg-white border border-uniko-blue/10 rounded-2xl p-6 hover:shadow-xl transition group text-center">
+                <div className="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden bg-white flex items-center justify-center">
+                  {v.imageUrl ? (
+                    <img src={v.imageUrl} alt={v.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-2xl font-extrabold text-uniko-blue">{v.name?.charAt(0)}</span>
+                  )}
+                </div>
+                <h3 className="font-bold text-uniko-dark group-hover:text-uniko-red transition mb-1 truncate">{v.name}</h3>
+                {v.description && <p className="text-uniko-blue/70 text-xs mb-3 line-clamp-2">{v.description}</p>}
+                <div className="flex items-center justify-center gap-3 text-xs text-white/80">
+                  <span className="flex items-center gap-1"><FiStar className="text-uniko-red fill-uniko-red" size={12} />{v.rating?.toFixed(1) || "0.0"}</span>
+                  <span>{v.productCount || 0} productos</span>
+                </div>
+              </Link>
+            ))}
+            {(!vendors || vendors.length === 0) && (
+              <p className="col-span-full text-center text-uniko-blue/70 py-8">Próximamente tendrás tiendas Uniko.</p>
+            )}
+          </div>
+        </div>
+      </section>
+
       {/* ── HOW IT WORKS ───────────────────────────────────── */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
-            <p className="text-aqui-orange font-bold text-sm uppercase tracking-widest mb-2">{getVal("howItWorks", "title", "¿Cómo Funciona?")}</p>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-aqui-dark">Comprar en AQUÍ es fácil</h2>
+            <p className="text-uniko-red font-bold text-sm uppercase tracking-widest mb-2">{getVal("howItWorks", "title", "¿Cómo Funciona?")}</p>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-uniko-dark">Comprar en UNIKO es fácil</h2>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {howItWorks.map((step, i) => (
               <div key={i} className="relative">
-                {i < 3 && <div className="hidden lg:block absolute top-12 left-full w-full h-0.5 bg-aqui-orange/20 -translate-x-1/2 z-0"></div>}
+                {i < 3 && <div className="hidden lg:block absolute top-12 left-full w-full h-0.5 bg-uniko-red/20 -translate-x-1/2 z-0"></div>}
                 <div className="relative bg-white rounded-2xl p-8 text-center shadow-sm hover:shadow-lg transition h-full">
-                  <span className="text-6xl font-extrabold text-aqui-orange/10 absolute top-4 right-6">{step.step}</span>
-                  <div className="w-16 h-16 mx-auto mb-6 bg-aqui-orange/10 rounded-2xl flex items-center justify-center text-aqui-orange">
+                  <span className="text-6xl font-extrabold text-uniko-red/10 absolute top-4 right-6">{step.step}</span>
+                  <div className="w-16 h-16 mx-auto mb-6 bg-uniko-red/10 rounded-2xl flex items-center justify-center text-uniko-red">
                     {step.icon}
                   </div>
-                  <h3 className="text-xl font-bold text-aqui-dark mb-3">{step.title}</h3>
-                  <p className="text-gray-500 text-sm leading-relaxed">{step.desc}</p>
+                  <h3 className="text-xl font-bold text-uniko-dark mb-3">{step.title}</h3>
+                  <p className="text-uniko-blue/70 text-sm leading-relaxed">{step.desc}</p>
                 </div>
               </div>
             ))}
@@ -375,26 +414,26 @@ export default function Landing() {
       </section>
 
       {/* ── TESTIMONIALS ──────────────────────────────────── */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
-            <p className="text-aqui-orange font-bold text-sm uppercase tracking-widest mb-2">{getVal("testimonials", "title", "Lo Que Dicen Nuestros Usuarios")}</p>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-aqui-dark">Miles de clientes satisfechos</h2>
+            <p className="text-uniko-red font-bold text-sm uppercase tracking-widest mb-2">{getVal("testimonials", "title", "Lo Que Dicen Nuestros Usuarios")}</p>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-uniko-dark">Miles de clientes satisfechos</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {testimonials.map((t, i) => (
               <div key={i} className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-lg transition">
                 <div className="flex gap-1 mb-4">
                   {[...Array(t.rating)].map((_, j) => (
-                    <FiStar key={j} size={18} className="text-yellow-400 fill-yellow-400" />
+                    <FiStar key={j} size={18} className="text-uniko-red fill-uniko-red" />
                   ))}
                 </div>
-                <p className="text-gray-600 leading-relaxed mb-6 italic">"{t.text}"</p>
+                <p className="text-uniko-blue leading-relaxed mb-6 italic">"{t.text}"</p>
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-aqui-blue rounded-full flex items-center justify-center text-white font-bold">{t.avatar}</div>
+                  <div className="w-12 h-12 bg-uniko-blue rounded-full flex items-center justify-center text-white font-bold">{t.avatar}</div>
                   <div>
-                    <p className="font-bold text-aqui-dark">{t.name}</p>
-                    <p className="text-sm text-gray-500">{t.role}</p>
+                    <p className="font-bold text-uniko-dark">{t.name}</p>
+                    <p className="text-sm text-uniko-blue/70">{t.role}</p>
                   </div>
                 </div>
               </div>
@@ -404,18 +443,18 @@ export default function Landing() {
       </section>
 
       {/* ── BRAND VALUES ──────────────────────────────────── */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
-            <p className="text-aqui-orange font-bold text-sm uppercase tracking-widest mb-2">{getVal("brandValues", "title", "Nuestros Valores")}</p>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-aqui-dark">¿Por qué AQUÍ?</h2>
+            <p className="text-uniko-red font-bold text-sm uppercase tracking-widest mb-2">{getVal("brandValues", "title", "Nuestros Valores")}</p>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-uniko-dark">¿Por qué UNIKO?</h2>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {brandValues.map((v, i) => (
               <div key={i} className="bg-white rounded-2xl p-8 text-center shadow-sm hover:shadow-lg transition">
                 <div className={`${v.color} mb-4 flex justify-center`}>{v.icon}</div>
-                <h3 className="text-xl font-bold text-aqui-dark mb-2">{v.title}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">{v.desc}</p>
+                <h3 className="text-xl font-bold text-uniko-dark mb-2">{v.title}</h3>
+                <p className="text-uniko-blue/70 text-sm leading-relaxed">{v.desc}</p>
               </div>
             ))}
           </div>
@@ -425,10 +464,10 @@ export default function Landing() {
       {/* ── FEATURES GRID ─────────────────────────────────── */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="bg-aqui-dark rounded-3xl p-12 md:p-16">
+          <div className="bg-uniko-dark rounded-3xl p-12 md:p-16">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4">{getVal("features", "title", "Todo Lo Que Necesitas")}</h2>
-              <p className="text-gray-400 max-w-2xl mx-auto">Una plataforma completa para comprar y vender con confianza</p>
+              <p className="text-white/80 max-w-2xl mx-auto">Una plataforma completa para comprar y vender con confianza</p>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {[
@@ -436,14 +475,14 @@ export default function Landing() {
                 { icon: <FiShield size={24} />, title: "Compra Protegida", desc: "Tu dinero está seguro hasta que recibas" },
                 { icon: <FiCreditCard size={24} />, title: "Pagos Flexibles", desc: "Acepta todas las tarjetas y transferencias" },
                 { icon: <FiPercent size={24} />, title: "Ofertas Diarias", desc: "Descuentos exclusivos todos los días" },
-                { icon: <FiClock size={24} />, title: "Soporte 24/7", desc: "Estamos aquí para ayudarte siempre" },
+                { icon: <FiClock size={24} />, title: "Soporte 24/7", desc: "Estamos Uniko para ayudarte siempre" },
                 { icon: <FiRefreshCw size={24} />, title: "Devoluciones", desc: "30 días para devolver sin preguntas" },
               ].map((f, i) => (
                 <div key={i} className="flex items-start gap-4 bg-white/5 rounded-xl p-5">
-                  <div className="text-aqui-orange mt-1">{f.icon}</div>
+                  <div className="text-uniko-red mt-1">{f.icon}</div>
                   <div>
                     <h3 className="font-bold text-white mb-1">{f.title}</h3>
-                    <p className="text-gray-400 text-sm">{f.desc}</p>
+                    <p className="text-white/80 text-sm">{f.desc}</p>
                   </div>
                 </div>
               ))}
@@ -453,20 +492,20 @@ export default function Landing() {
       </section>
 
       {/* ── FAQ ────────────────────────────────────────────── */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-white">
         <div className="max-w-3xl mx-auto px-4">
           <div className="text-center mb-12">
-            <p className="text-aqui-orange font-bold text-sm uppercase tracking-widest mb-2">{getVal("faq", "title", "Preguntas Frecuentes")}</p>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-aqui-dark">¿Tienes dudas?</h2>
+            <p className="text-uniko-red font-bold text-sm uppercase tracking-widest mb-2">{getVal("faq", "title", "Preguntas Frecuentes")}</p>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-uniko-dark">¿Tienes dudas?</h2>
           </div>
           <div className="space-y-4">
             {faqs.map((faq, i) => (
               <details key={i} className="bg-white rounded-xl shadow-sm group">
-                <summary className="flex items-center justify-between p-6 cursor-pointer font-bold text-aqui-dark hover:text-aqui-orange transition">
+                <summary className="flex items-center justify-between p-6 cursor-pointer font-bold text-uniko-dark hover:text-uniko-red transition">
                   {faq.q}
-                  <FiChevronDown className="text-gray-400 group-open:rotate-180 transition-transform" />
+                  <FiChevronDown className="text-white/80 group-open:rotate-180 transition-transform" />
                 </summary>
-                <div className="px-6 pb-6 text-gray-600 leading-relaxed">{faq.a}</div>
+                <div className="px-6 pb-6 text-uniko-blue leading-relaxed">{faq.a}</div>
               </details>
             ))}
           </div>
@@ -482,62 +521,62 @@ export default function Landing() {
           backgroundPosition: getVal("cta", "bgImagePosition", "center"),
         } : undefined}
       >
-        <div className={`absolute inset-0 ${getVal("cta", "bgImage", "") ? "bg-gradient-to-r from-aqui-dark/90 via-aqui-blue/80 to-aqui-dark/90" : "bg-gradient-to-r from-aqui-dark via-aqui-blue to-aqui-dark"}`}></div>
+        <div className={`absolute inset-0 ${getVal("cta", "bgImage", "") ? "bg-gradient-to-r from-uniko-dark/90 via-uniko-blue/80 to-uniko-dark/90" : "bg-gradient-to-r from-uniko-dark via-uniko-blue to-uniko-dark"}`}></div>
         <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
           <div className="flex justify-center mb-6">
-            <img src="/logo-aqui-white.png" alt="AQUÍ" className="h-20" />
+            <img src="/logo-uniko-white.png" alt="UNIKO" className="h-20" />
           </div>
-          <p className="text-white text-xl mb-3">{getVal("cta", "title", "AQUÍ, mucho más que una tienda.")}</p>
-          <p className="text-aqui-orange text-3xl font-extrabold mb-4">{getVal("cta", "subtitle", "Es tu marketplace.")}</p>
-          <p className="text-gray-300 mb-10 max-w-xl mx-auto">{getVal("cta", "description", "Únete a miles de dominicanos que ya compran y venden en AQUÍ. Empieza hoy mismo.")}</p>
+          <p className="text-white text-xl mb-3">{getVal("cta", "title", "UNIKO, mucho más que una tienda.")}</p>
+          <p className="text-uniko-red text-3xl font-extrabold mb-4">{getVal("cta", "subtitle", "Es tu marketplace.")}</p>
+          <p className="text-gray-300 mb-10 max-w-xl mx-auto">{getVal("cta", "description", "Únete a miles de dominicanos que ya compran y venden en UNIKO. Empieza hoy mismo.")}</p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Link to="/productos" className="bg-aqui-orange hover:bg-orange-600 text-white font-bold px-10 py-4 rounded-lg text-base transition shadow-lg flex items-center gap-2">
+            <Link to="/productos" className="bg-uniko-red hover:bg-uniko-red text-white font-bold px-10 py-4 rounded-lg text-base transition shadow-lg flex items-center gap-2">
               Comprar Ahora <FiArrowRight />
             </Link>
-            <Link to="/registro" className="border-2 border-white text-white hover:bg-white hover:text-aqui-dark font-bold px-10 py-4 rounded-lg text-base transition">
-              Vender en AQUÍ
+            <Link to="/registro" className="border-2 border-white text-white hover:bg-white hover:text-uniko-dark font-bold px-10 py-4 rounded-lg text-base transition">
+              Vender en UNIKO
             </Link>
           </div>
         </div>
       </section>
 
       {/* ── FOOTER ────────────────────────────────────────── */}
-      <footer className="bg-aqui-dark text-white py-12">
+      <footer className="bg-uniko-dark text-white py-12">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
             <div>
               <div className="mb-4">
-                <img src="/logo-aqui-white.png" alt="AQUÍ" className="h-16" />
+                <img src="/logo-uniko-white.png" alt="UNIKO" className="h-16" />
               </div>
-              <p className="text-gray-400 text-sm leading-relaxed">{getVal("footer", "description", "Marketplace dominicano. Todo lo que buscas, en un solo lugar.")}</p>
+              <p className="text-white/80 text-sm leading-relaxed">{getVal("footer", "description", "Marketplace dominicano. Todo lo que buscas, en un solo lugar.")}</p>
             </div>
             <div>
               <h4 className="font-bold text-sm uppercase tracking-wider mb-4">Comprar</h4>
-              <ul className="space-y-2 text-gray-400 text-sm">
-                <li><Link to="/productos" className="hover:text-aqui-orange transition">Productos</Link></li>
-                <li><Link to="/tiendas" className="hover:text-aqui-orange transition">Tiendas</Link></li>
-                <li><Link to="/productos?sort=popular" className="hover:text-aqui-orange transition">Ofertas</Link></li>
+              <ul className="space-y-2 text-white/80 text-sm">
+                <li><Link to="/productos" className="hover:text-uniko-red transition">Productos</Link></li>
+                <li><Link to="/tiendas" className="hover:text-uniko-red transition">Tiendas</Link></li>
+                <li><Link to="/productos?sort=popular" className="hover:text-uniko-red transition">Ofertas</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-bold text-sm uppercase tracking-wider mb-4">Vender</h4>
-              <ul className="space-y-2 text-gray-400 text-sm">
-                <li><Link to="/registro" className="hover:text-aqui-orange transition">Crear Tienda</Link></li>
-                <li><Link to="/vendor/dashboard" className="hover:text-aqui-orange transition">Panel de Vendor</Link></li>
+              <ul className="space-y-2 text-white/80 text-sm">
+                <li><Link to="/registro" className="hover:text-uniko-red transition">Crear Tienda</Link></li>
+                <li><Link to="/vendor/dashboard" className="hover:text-uniko-red transition">Panel de Vendor</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-bold text-sm uppercase tracking-wider mb-4">Contacto</h4>
-              <ul className="space-y-2 text-gray-400 text-sm">
+              <ul className="space-y-2 text-white/80 text-sm">
                 <li>Soporte 24/7</li>
-                <li>info@aquird.com</li>
+                <li>info@uniko-rd.com</li>
                 <li>Santo Domingo, RD</li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-700 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-gray-500 text-sm">© 2026 AQUÍ. Todos los derechos reservados.</p>
-            <p className="text-gray-500 text-sm">www.aquird.com</p>
+          <div className="border-t border-white/20 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-uniko-blue/70 text-sm">© 2026 UNIKO. Todos los derechos reservados.</p>
+            <p className="text-uniko-blue/70 text-sm">www.uniko-rd.com</p>
           </div>
         </div>
       </footer>

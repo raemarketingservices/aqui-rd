@@ -5,25 +5,27 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
+  background-color: #FFFFFF;
+  color: #0033A0;
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-aqui-orange hover:bg-orange-600 text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg;
+    @apply bg-uniko-red hover:bg-[#CC0033]/90 text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg;
   }
   .btn-secondary {
-    @apply bg-aqui-dark hover:bg-aqui-blue text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200;
+    @apply bg-uniko-blue hover:bg-[#0033A0]/90 text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200;
   }
   .btn-outline {
-    @apply border-2 border-aqui-dark text-aqui-dark hover:bg-aqui-dark hover:text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200;
+    @apply border-2 border-uniko-blue text-uniko-blue hover:bg-uniko-blue hover:text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200;
   }
   .input-field {
-    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-aqui-blue focus:border-transparent outline-none transition-all duration-200;
+    @apply w-full px-4 py-3 border border-uniko-blue rounded-lg focus:ring-2 focus:ring-uniko-red focus:border-transparent outline-none transition-all duration-200 text-uniko-blue placeholder:text-uniko-blue/50;
   }
   .card {
-    @apply bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden;
+    @apply bg-white rounded-xl border border-uniko-blue/10 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden;
   }
   .badge {
     @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold;

@@ -270,7 +270,7 @@ export default function VendorProductEdit() {
       <div className="flex items-center justify-between mb-6">
         <button
           onClick={() => navigate("/vendor/dashboard")}
-          className="flex items-center gap-2 text-aqui-blue hover:text-blue-700"
+          className="flex items-center gap-2 text-uniko-blue hover:text-[#002280]"
         >
           <FiArrowLeft /> Volver
         </button>
@@ -281,7 +281,7 @@ export default function VendorProductEdit() {
         <button
           onClick={() => setActiveTab("info")}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition ${
-            activeTab === "info" ? "bg-aqui-blue text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            activeTab === "info" ? "bg-uniko-blue text-white" : "bg-white text-uniko-blue hover:bg-white"
           }`}
         >
           <FiPackage size={16} /> Información
@@ -289,7 +289,7 @@ export default function VendorProductEdit() {
         <button
           onClick={() => setActiveTab("inventory")}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition ${
-            activeTab === "inventory" ? "bg-aqui-blue text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            activeTab === "inventory" ? "bg-uniko-blue text-white" : "bg-white text-uniko-blue hover:bg-white"
           }`}
         >
           <FiBarChart2 size={16} /> Inventario
@@ -300,13 +300,13 @@ export default function VendorProductEdit() {
         <div className="bg-white rounded-xl shadow-md p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Multimedia */}
-            <div className="border-b border-gray-200 pb-6">
+            <div className="border-b border-uniko-blue/20 pb-6">
               <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <FiImage size={18} /> Multimedia ({form.images.length}/10)
               </h2>
-              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-aqui-blue hover:bg-blue-50 transition mb-3">
-                <FiUpload size={22} className="text-gray-400 mb-1" />
-                <span className="text-sm text-gray-500">Clic para subir fotos</span>
+              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-uniko-blue/30 rounded-xl cursor-pointer hover:border-uniko-blue hover:bg-blue-50 transition mb-3">
+                <FiUpload size={22} className="text-white/80 mb-1" />
+                <span className="text-sm text-uniko-blue/70">Clic para subir fotos</span>
                 <input type="file" accept="image/*" multiple className="hidden" onChange={handleFileUpload} />
               </label>
               {form.images.length > 0 && (
@@ -314,10 +314,10 @@ export default function VendorProductEdit() {
                   {form.images.map((img, i) => (
                     <div key={i} className="relative group">
                       <img src={img} alt={`Foto ${i + 1}`} className="w-full h-24 object-cover rounded-lg border" />
-                      {i === 0 && <span className="absolute top-1 left-1 bg-aqui-blue text-white text-[10px] px-1.5 py-0.5 rounded">Principal</span>}
+                      {i === 0 && <span className="absolute top-1 left-1 bg-uniko-blue text-white text-[10px] px-1.5 py-0.5 rounded">Principal</span>}
                       <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition">
-                        {i > 0 && <button type="button" onClick={() => moveImage(i, i - 1)} className="w-5 h-5 bg-blue-500 text-white rounded-full text-[10px]">←</button>}
-                        {i < form.images.length - 1 && <button type="button" onClick={() => moveImage(i, i + 1)} className="w-5 h-5 bg-blue-500 text-white rounded-full text-[10px]">→</button>}
+                        {i > 0 && <button type="button" onClick={() => moveImage(i, i - 1)} className="w-5 h-5 bg-uniko-blue text-white rounded-full text-[10px]">←</button>}
+                        {i < form.images.length - 1 && <button type="button" onClick={() => moveImage(i, i + 1)} className="w-5 h-5 bg-uniko-blue text-white rounded-full text-[10px]">→</button>}
                         <button type="button" onClick={() => removeImage(i)} className="w-5 h-5 bg-red-500 text-white rounded-full"><FiTrash2 size={10} /></button>
                       </div>
                     </div>
@@ -325,9 +325,9 @@ export default function VendorProductEdit() {
                 </div>
               )}
               <div className="mt-3">
-                <label className="flex items-center gap-2 text-sm text-gray-500 mb-1"><FiVideo size={14} /> Video (opcional)</label>
-                <label className="flex items-center justify-center w-full h-20 border-2 border-dashed border-gray-200 rounded-lg cursor-pointer hover:border-aqui-blue transition">
-                  <span className="text-xs text-gray-500">{form.videoUrl ? "Video cargado ✓" : "Subir video"}</span>
+                <label className="flex items-center gap-2 text-sm text-uniko-blue/70 mb-1"><FiVideo size={14} /> Video (opcional)</label>
+                <label className="flex items-center justify-center w-full h-20 border-2 border-dashed border-uniko-blue/20 rounded-lg cursor-pointer hover:border-uniko-blue transition">
+                  <span className="text-xs text-uniko-blue/70">{form.videoUrl ? "Video cargado ✓" : "Subir video"}</span>
                   <input type="file" accept="video/*" className="hidden" onChange={handleVideoUpload} />
                 </label>
                 {form.videoUrl && <button type="button" onClick={() => setForm((p) => ({ ...p, videoUrl: "" }))} className="mt-1 text-xs text-red-500 hover:underline">Eliminar video</button>}
@@ -335,36 +335,36 @@ export default function VendorProductEdit() {
             </div>
 
             {/* Información */}
-            <div className="border-b border-gray-200 pb-6">
+            <div className="border-b border-uniko-blue/20 pb-6">
               <h2 className="text-lg font-semibold mb-4">Información Principal</h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Título *</label>
-                  <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-aqui-blue" required maxLength={120} />
+                  <label className="block text-sm font-medium text-uniko-blue mb-1">Título *</label>
+                  <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue" required maxLength={120} />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Precio (RD$) *</label>
-                    <input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-aqui-blue" min="0" step="0.01" required />
+                    <label className="block text-sm font-medium text-uniko-blue mb-1">Precio (RD$) *</label>
+                    <input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue" min="0" step="0.01" required />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Precio Anterior</label>
-                    <input type="number" value={form.compareAtPrice} onChange={(e) => setForm({ ...form, compareAtPrice: e.target.value })} className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-aqui-blue" min="0" step="0.01" />
+                    <label className="block text-sm font-medium text-uniko-blue mb-1">Precio Anterior</label>
+                    <input type="number" value={form.compareAtPrice} onChange={(e) => setForm({ ...form, compareAtPrice: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue" min="0" step="0.01" />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
-                  <select value={form.categoryId || ""} onChange={(e) => setForm({ ...form, categoryId: e.target.value } as any)} className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-aqui-blue">
+                  <label className="block text-sm font-medium text-uniko-blue mb-1">Categoría</label>
+                  <select value={form.categoryId || ""} onChange={(e) => setForm({ ...form, categoryId: e.target.value } as any)} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue">
                     <option value="">Seleccionar</option>
                     {renderCategoryOptions()}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Condición</label>
+                  <label className="block text-sm font-medium text-uniko-blue mb-2">Condición</label>
                   <div className="grid grid-cols-2 gap-2">
                     {CONDITION_OPTIONS.map((opt) => (
                       <button key={opt.value} type="button" onClick={() => setForm({ ...form, condition: opt.value })}
-                        className={`px-3 py-2 rounded-lg text-sm font-medium border transition ${form.condition === opt.value ? "bg-aqui-blue text-white border-aqui-blue" : "bg-white text-gray-700 border-gray-300 hover:border-aqui-blue"}`}>
+                        className={`px-3 py-2 rounded-lg text-sm font-medium border transition ${form.condition === opt.value ? "bg-uniko-blue text-white border-uniko-blue" : "bg-white text-uniko-blue border-uniko-blue/30 hover:border-uniko-blue"}`}>
                         {opt.label}
                       </button>
                     ))}
@@ -374,38 +374,38 @@ export default function VendorProductEdit() {
             </div>
 
             {/* Descripción */}
-            <div className="border-b border-gray-200 pb-6">
+            <div className="border-b border-uniko-blue/20 pb-6">
               <h2 className="text-lg font-semibold mb-4">Descripción</h2>
-              <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-aqui-blue" rows={4} maxLength={2000} />
+              <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue" rows={4} maxLength={2000} />
             </div>
 
             {/* Más detalles */}
-            <div className="border-b border-gray-200 pb-6">
+            <div className="border-b border-uniko-blue/20 pb-6">
               <h2 className="text-lg font-semibold mb-4 flex items-center gap-2"><FiTag size={18} /> Más Detalles</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Marca</label>
-                  <input type="text" value={form.brand} onChange={(e) => setForm({ ...form, brand: e.target.value })} className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-aqui-blue" placeholder="Samsung, Apple..." />
+                  <label className="block text-sm font-medium text-uniko-blue mb-1">Marca</label>
+                  <input type="text" value={form.brand} onChange={(e) => setForm({ ...form, brand: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue" placeholder="Samsung, Apple..." />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Color</label>
-                  <input type="text" value={form.color} onChange={(e) => setForm({ ...form, color: e.target.value })} className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-aqui-blue" placeholder="Negro, Azul..." />
+                  <label className="block text-sm font-medium text-uniko-blue mb-1">Color</label>
+                  <input type="text" value={form.color} onChange={(e) => setForm({ ...form, color: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue" placeholder="Negro, Azul..." />
                 </div>
               </div>
               <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">SKU</label>
-                <input type="text" value={autoSku} readOnly className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm bg-gray-50 text-gray-500" />
+                <label className="block text-sm font-medium text-uniko-blue mb-1">SKU</label>
+                <input type="text" value={autoSku} readOnly className="w-full border border-uniko-blue/20 rounded-lg px-4 py-2.5 text-sm bg-white text-uniko-blue/70" />
               </div>
               <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Etiquetas</label>
+                <label className="block text-sm font-medium text-uniko-blue mb-1">Etiquetas</label>
                 <div className="flex gap-2">
-                  <input type="text" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag(); } }} className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-aqui-blue" placeholder="Escribe y presiona Enter" />
-                  <button type="button" onClick={addTag} className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-sm font-medium rounded-lg">+ Agregar</button>
+                  <input type="text" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag(); } }} className="flex-1 border border-uniko-blue/30 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-uniko-blue" placeholder="Escribe y presiona Enter" />
+                  <button type="button" onClick={addTag} className="px-4 py-2 bg-white hover:bg-white text-sm font-medium rounded-lg">+ Agregar</button>
                 </div>
                 {form.tags.length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-2">
                     {form.tags.map((tag) => (
-                      <span key={tag} className="inline-flex items-center gap-1 px-3 py-1 bg-aqui-blue/10 text-aqui-blue rounded-full text-sm">
+                      <span key={tag} className="inline-flex items-center gap-1 px-3 py-1 bg-uniko-blue/10 text-uniko-blue rounded-full text-sm">
                         {tag}
                         <button type="button" onClick={() => removeTag(tag)} className="hover:text-red-500">✕</button>
                       </span>
@@ -418,42 +418,42 @@ export default function VendorProductEdit() {
             {/* Ubicación */}
             <div className="pb-6">
               <h2 className="text-lg font-semibold mb-4 flex items-center gap-2"><FiMapPin size={18} /> Ubicación</h2>
-              <input type="text" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-aqui-blue" placeholder="Santo Domingo, Distrito Nacional" />
+              <input type="text" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue" placeholder="Santo Domingo, Distrito Nacional" />
             </div>
 
             {/* WhatsApp */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">WhatsApp</label>
-              <input type="tel" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-aqui-blue" placeholder="809-555-0000" />
+              <label className="block text-sm font-medium text-uniko-blue mb-1">WhatsApp</label>
+              <input type="tel" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue" placeholder="809-555-0000" />
             </div>
 
             {/* Campos personalizados del admin */}
             {adminFields.length > 0 && (
-              <div className="border-t border-gray-200 pt-6">
+              <div className="border-t border-uniko-blue/20 pt-6">
                 <h2 className="text-lg font-semibold mb-4">Campos Adicionales</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {adminFields.map((field) => (
                     <div key={field.name} className={field.type === "textarea" ? "sm:col-span-2" : ""}>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-uniko-blue mb-1">
                         {field.label} {field.required && <span className="text-red-500">*</span>}
                       </label>
                       {field.type === "text" && (
-                        <input type="text" value={customFields[field.name] || ""} onChange={(e) => setCustomFields({ ...customFields, [field.name]: e.target.value })} className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-aqui-blue" placeholder={field.placeholder || ""} />
+                        <input type="text" value={customFields[field.name] || ""} onChange={(e) => setCustomFields({ ...customFields, [field.name]: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue" placeholder={field.placeholder || ""} />
                       )}
                       {field.type === "textarea" && (
-                        <textarea value={customFields[field.name] || ""} onChange={(e) => setCustomFields({ ...customFields, [field.name]: e.target.value })} className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-aqui-blue" rows={3} />
+                        <textarea value={customFields[field.name] || ""} onChange={(e) => setCustomFields({ ...customFields, [field.name]: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue" rows={3} />
                       )}
                       {field.type === "number" && (
-                        <input type="number" value={customFields[field.name] || ""} onChange={(e) => setCustomFields({ ...customFields, [field.name]: e.target.value })} className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-aqui-blue" min="0" />
+                        <input type="number" value={customFields[field.name] || ""} onChange={(e) => setCustomFields({ ...customFields, [field.name]: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue" min="0" />
                       )}
                       {field.type === "select" && (
-                        <select value={customFields[field.name] || ""} onChange={(e) => setCustomFields({ ...customFields, [field.name]: e.target.value })} className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-aqui-blue">
+                        <select value={customFields[field.name] || ""} onChange={(e) => setCustomFields({ ...customFields, [field.name]: e.target.value })} className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue">
                           <option value="">Seleccionar</option>
                           {(field.options || []).map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
                         </select>
                       )}
                       {field.type === "toggle" && (
-                        <button type="button" onClick={() => setCustomFields({ ...customFields, [field.name]: customFields[field.name] ? "" : "yes" })} className={`w-12 h-6 rounded-full transition-colors relative ${customFields[field.name] ? "bg-aqui-blue" : "bg-gray-300"}`}>
+                        <button type="button" onClick={() => setCustomFields({ ...customFields, [field.name]: customFields[field.name] ? "" : "yes" })} className={`w-12 h-6 rounded-full transition-colors relative ${customFields[field.name] ? "bg-uniko-blue" : "bg-gray-300"}`}>
                           <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${customFields[field.name] ? "translate-x-6" : "translate-x-0.5"}`} />
                         </button>
                       )}
@@ -463,7 +463,7 @@ export default function VendorProductEdit() {
               </div>
             )}
 
-            <button type="submit" disabled={loading} className="w-full bg-aqui-orange hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-lg transition-colors disabled:opacity-50">
+            <button type="submit" disabled={loading} className="w-full bg-uniko-red hover:bg-uniko-red text-white font-semibold px-6 py-3 rounded-lg transition-colors disabled:opacity-50">
               {loading ? "Guardando..." : <><FiSave className="inline mr-2" /> Guardar Cambios</>}
             </button>
           </form>
@@ -473,41 +473,41 @@ export default function VendorProductEdit() {
       {activeTab === "inventory" && (
         <div className="bg-white rounded-xl shadow-md p-6 space-y-6">
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 bg-aqui-orange/10 rounded-full flex items-center justify-center">
-              <FiShoppingBag size={24} className="text-aqui-orange" />
+            <div className="w-16 h-16 bg-uniko-red/10 rounded-full flex items-center justify-center">
+              <FiShoppingBag size={24} className="text-uniko-red" />
             </div>
             <div>
               <h2 className="text-xl font-bold">Gestión de Inventario</h2>
-              <p className="text-gray-500">Actualiza el stock de este producto</p>
+              <p className="text-uniko-blue/70">Actualiza el stock de este producto</p>
             </div>
           </div>
 
-          <div className="bg-gray-50 rounded-xl p-6">
+          <div className="bg-white rounded-xl p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <p className="text-sm text-gray-500 mb-1">Stock Actual</p>
-                <p className="text-3xl font-bold text-aqui-dark">{product.stock.toLocaleString()}</p>
+                <p className="text-sm text-uniko-blue/70 mb-1">Stock Actual</p>
+                <p className="text-3xl font-bold text-uniko-dark">{product.stock.toLocaleString()}</p>
               </div>
               <div className="text-center">
-                <p className="text-sm text-gray-500 mb-1">Ventas Totales</p>
-                <p className="text-lg font-semibold text-aqui-blue">{product.salesCount.toLocaleString()}</p>
+                <p className="text-sm text-uniko-blue/70 mb-1">Ventas Totales</p>
+                <p className="text-lg font-semibold text-uniko-blue">{product.salesCount.toLocaleString()}</p>
               </div>
             </div>
 
             <div className="mb-4">
-              <div className="flex justify-between text-xs text-gray-500 mb-1">
+              <div className="flex justify-between text-xs text-uniko-blue/70 mb-1">
                 <span>Disponibilidad</span>
                 <span>{stockPercent.toFixed(0)}%</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-3">
-                <div className={`h-3 rounded-full transition-all ${stockPercent > 50 ? "bg-green-400" : stockPercent > 20 ? "bg-yellow-400" : "bg-red-400"}`} style={{ width: `${stockPercent}%` }} />
+              <div className="w-full bg-white rounded-full h-3">
+                <div className={`h-3 rounded-full transition-all ${stockPercent > 50 ? "bg-green-400" : stockPercent > 20 ? "bg-uniko-red" : "bg-red-400"}`} style={{ width: `${stockPercent}%` }} />
               </div>
             </div>
 
             <div className="flex items-center gap-4">
-              <button onClick={() => { const s = parseInt(form.stock) - 1; if (s >= 0) { setForm({ ...form, stock: s.toString() }); handleStockChange(s); } }} disabled={loading || parseInt(form.stock) <= 0} className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 disabled:opacity-50">−</button>
-              <input type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} className="w-20 text-center border border-gray-300 rounded-lg px-2 py-1 text-lg font-bold focus:ring-2 focus:ring-aqui-blue" min="0" />
-              <button onClick={() => { const s = parseInt(form.stock) + 1; setForm({ ...form, stock: s.toString() }); handleStockChange(s); }} disabled={loading} className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 disabled:opacity-50">+</button>
+              <button onClick={() => { const s = parseInt(form.stock) - 1; if (s >= 0) { setForm({ ...form, stock: s.toString() }); handleStockChange(s); } }} disabled={loading || parseInt(form.stock) <= 0} className="w-10 h-10 rounded-full border border-uniko-blue/30 flex items-center justify-center hover:bg-white disabled:opacity-50">−</button>
+              <input type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} className="w-20 text-center border border-uniko-blue/30 rounded-lg px-2 py-1 text-lg font-bold focus:ring-2 focus:ring-uniko-blue" min="0" />
+              <button onClick={() => { const s = parseInt(form.stock) + 1; setForm({ ...form, stock: s.toString() }); handleStockChange(s); }} disabled={loading} className="w-10 h-10 rounded-full border border-uniko-blue/30 flex items-center justify-center hover:bg-white disabled:opacity-50">+</button>
             </div>
 
             <div className="mt-4 grid grid-cols-2 gap-3">
@@ -517,11 +517,11 @@ export default function VendorProductEdit() {
           </div>
 
           {/* Detalles del inventario */}
-          <div className="bg-gray-50 rounded-xl p-4 space-y-2 text-sm">
-            <div className="flex justify-between"><span className="text-gray-500">SKU:</span><span className="font-mono">{autoSku || "Sin SKU"}</span></div>
-            <div className="flex justify-between"><span className="text-gray-500">Condición:</span><span>{CONDITION_OPTIONS.find((c) => c.value === form.condition)?.label || "No definida"}</span></div>
-            <div className="flex justify-between"><span className="text-gray-500">Disponibilidad:</span><span>{form.availability === "SINGLE" ? "Artículo único" : "Múltiples unidades"}</span></div>
-            <div className="flex justify-between"><span className="text-gray-500">Fotos:</span><span>{form.images.length}/10</span></div>
+          <div className="bg-white rounded-xl p-4 space-y-2 text-sm">
+            <div className="flex justify-between"><span className="text-uniko-blue/70">SKU:</span><span className="font-mono">{autoSku || "Sin SKU"}</span></div>
+            <div className="flex justify-between"><span className="text-uniko-blue/70">Condición:</span><span>{CONDITION_OPTIONS.find((c) => c.value === form.condition)?.label || "No definida"}</span></div>
+            <div className="flex justify-between"><span className="text-uniko-blue/70">Disponibilidad:</span><span>{form.availability === "SINGLE" ? "Artículo único" : "Múltiples unidades"}</span></div>
+            <div className="flex justify-between"><span className="text-uniko-blue/70">Fotos:</span><span>{form.images.length}/10</span></div>
           </div>
         </div>
       )}

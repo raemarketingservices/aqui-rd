@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
-import { api } from "../../convex/_generated/api";
+import { api as convexApi } from "../../convex/_generated/api";
+import { api } from "../services/api";
+import { useApiQuery } from "../hooks/useApiQuery";
 import ProductCard from "../components/shared/ProductCard";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
@@ -16,12 +18,15 @@ import {
 export default function VendorStore() {
   const { slug } = useParams();
   const { user, isAuthenticated } = useAuth();
-  const vendor = useQuery(api.vendors.getBySlug, slug ? { slug } : "skip");
-  const reviews = useQuery(
-    api.vendorReviews.getVendorReviews,
-    vendor ? { vendorId: vendor._id } : "skip"
+  const { data: vendor, loading } = useApiQuery(
+    () => api.stores.get(slug || ""),
+    [slug]
   );
-  const createReview = useMutation(api.vendorReviews.create);
+  const reviews = useQuery(
+    convexApi.vendorReviews.getVendorReviews,
+    vendor ? { vendorId: vendor.id } : "skip"
+  );
+  const createReview = useMutation(convexApi.vendorReviews.create);
 
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewRating, setReviewRating] = useState(5);
@@ -29,10 +34,10 @@ export default function VendorStore() {
   const [hoverRating, setHoverRating] = useState(0);
   const [submitting, setSubmitting] = useState(false);
 
-  if (vendor === undefined)
+  if (loading)
     return (
       <div className="max-w-7xl mx-auto px-4 py-8 animate-pulse">
-        <div className="h-48 bg-gray-200 rounded-xl" />
+        <div className="h-48 bg-white rounded-xl" />
       </div>
     );
   if (!vendor)
@@ -57,7 +62,7 @@ export default function VendorStore() {
     setSubmitting(true);
     try {
       await createReview({
-        vendorId: vendor._id,
+        vendorId: vendor.id,
         userId: user._id,
         rating: reviewRating,
         comment: reviewComment || undefined,
@@ -80,7 +85,7 @@ export default function VendorStore() {
           key={i}
           className={
             i < Math.round(rating)
-              ? "text-yellow-400 fill-yellow-400"
+              ? "text-uniko-red fill-uniko-red"
               : "text-gray-300"
           }
           size={size}
@@ -99,25 +104,25 @@ export default function VendorStore() {
   return (
     <div>
       {/* Banner */}
-      <div className="bg-gradient-to-r from-aqui-dark to-aqui-blue text-white">
+      <div className="bg-gradient-to-r from-uniko-dark to-uniko-blue text-white">
         <div className="max-w-7xl mx-auto px-4 py-12">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
             <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center overflow-hidden">
-              {vendor.logo ? (
+              {vendor.imageUrl ? (
                 <img
-                  src={vendor.logo}
+                  src={vendor.imageUrl}
                   alt=""
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-4xl font-bold text-aqui-dark">
-                  {vendor.businessName.charAt(0)}
+                <span className="text-4xl font-bold text-uniko-dark">
+                  {vendor.name.charAt(0)}
                 </span>
               )}
             </div>
             <div className="text-center sm:text-left">
               <h1 className="text-2xl md:text-3xl font-bold">
-                {vendor.businessName}
+                {vendor.name}
               </h1>
               {vendor.description && (
                 <p className="text-gray-300 mt-1">{vendor.description}</p>
@@ -159,11 +164,11 @@ export default function VendorStore() {
           <div className="bg-white rounded-xl shadow-md p-6">
             <h3 className="text-lg font-bold mb-4">Calificación de la tienda</h3>
             <div className="text-center mb-4">
-              <div className="text-5xl font-extrabold text-aqui-dark">
+              <div className="text-5xl font-extrabold text-uniko-dark">
                 {avgRating.toFixed(1)}
               </div>
               {renderStars(avgRating, 22)}
-              <p className="text-gray-500 text-sm mt-1">
+              <p className="text-uniko-blue/70 text-sm mt-1">
                 {reviews?.length || 0} reseñas
               </p>
             </div>
@@ -171,21 +176,21 @@ export default function VendorStore() {
               {ratingDistribution.map((d) => (
                 <div key={d.stars} className="flex items-center gap-2 text-sm">
                   <span className="w-3 text-right">{d.stars}</span>
-                  <FiStar className="text-yellow-400 fill-yellow-400" size={12} />
-                  <div className="flex-1 bg-gray-200 rounded-full h-2">
+                  <FiStar className="text-uniko-red fill-uniko-red" size={12} />
+                  <div className="flex-1 bg-white rounded-full h-2">
                     <div
-                      className="bg-yellow-400 h-2 rounded-full"
+                      className="bg-uniko-red h-2 rounded-full"
                       style={{ width: `${d.percent}%` }}
                     />
                   </div>
-                  <span className="w-8 text-gray-500 text-xs">{d.count}</span>
+                  <span className="w-8 text-uniko-blue/70 text-xs">{d.count}</span>
                 </div>
               ))}
             </div>
             {isAuthenticated && (
               <button
                 onClick={() => setShowReviewForm(!showReviewForm)}
-                className="w-full mt-4 px-4 py-2 bg-aqui-blue text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+                className="w-full mt-4 px-4 py-2 bg-uniko-blue text-white rounded-lg hover:bg-[#002280] transition text-sm font-medium"
               >
                 {showReviewForm ? "Cancelar" : "Escribir una reseña"}
               </button>
@@ -198,7 +203,7 @@ export default function VendorStore() {
               <h3 className="text-lg font-bold mb-4">Tu reseña</h3>
               <form onSubmit={handleSubmitReview} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-uniko-blue mb-2">
                     Calificación
                   </label>
                   <div className="flex items-center gap-1">
@@ -215,37 +220,37 @@ export default function VendorStore() {
                           size={28}
                           className={
                             star <= (hoverRating || reviewRating)
-                              ? "text-yellow-400 fill-yellow-400"
+                              ? "text-uniko-red fill-uniko-red"
                               : "text-gray-300"
                           }
                         />
                       </button>
                     ))}
-                    <span className="ml-2 text-sm text-gray-500">
+                    <span className="ml-2 text-sm text-uniko-blue/70">
                       {reviewRating}/5
                     </span>
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-uniko-blue mb-1">
                     Comentario (opcional)
                   </label>
                   <textarea
                     value={reviewComment}
                     onChange={(e) => setReviewComment(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                    className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
                     rows={3}
                     placeholder="Comparte tu experiencia con esta tienda..."
                     maxLength={500}
                   />
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-white/80 mt-1">
                     {reviewComment.length}/500
                   </p>
                 </div>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-aqui-orange text-white rounded-lg hover:bg-orange-600 transition text-sm font-medium disabled:opacity-50"
+                  className="flex items-center gap-2 px-6 py-2.5 bg-uniko-red text-white rounded-lg hover:bg-uniko-red transition text-sm font-medium disabled:opacity-50"
                 >
                   <FiSend size={14} />{" "}
                   {submitting ? "Publicando..." : "Publicar reseña"}
@@ -264,7 +269,7 @@ export default function VendorStore() {
                   className="bg-white rounded-xl shadow-sm p-4"
                 >
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="w-9 h-9 bg-aqui-blue rounded-full flex items-center justify-center text-white text-sm font-bold">
+                    <div className="w-9 h-9 bg-uniko-blue rounded-full flex items-center justify-center text-white text-sm font-bold">
                       {review.user?.name?.charAt(0) || "?"}
                     </div>
                     <div>
@@ -273,12 +278,12 @@ export default function VendorStore() {
                       </p>
                       {renderStars(review.rating, 14)}
                     </div>
-                    <span className="ml-auto text-xs text-gray-400">
+                    <span className="ml-auto text-xs text-white/80">
                       {new Date(review.createdAt).toLocaleDateString("es-DO")}
                     </span>
                   </div>
                   {review.comment && (
-                    <p className="text-gray-600 text-sm mt-1">
+                    <p className="text-uniko-blue text-sm mt-1">
                       {review.comment}
                     </p>
                   )}
@@ -290,16 +295,16 @@ export default function VendorStore() {
 
         {/* Productos */}
         <h2 className="text-2xl font-bold mb-6">
-          Productos de {vendor.businessName}
+          Productos de {vendor.name}
         </h2>
         {!vendor.products || vendor.products.length === 0 ? (
-          <p className="text-gray-500 text-center py-12">
+          <p className="text-uniko-blue/70 text-center py-12">
             Esta tienda aún no tiene productos
           </p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             {vendor.products.map((p: any) => (
-              <ProductCard key={p._id} product={p} />
+              <ProductCard key={p.id} product={p} />
             ))}
           </div>
         )}

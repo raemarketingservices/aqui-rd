@@ -84,7 +84,7 @@ export const seed = mutation({
       {
         section: "appPreview",
         key: "title",
-        value: "La experiencia de Aquí RD en tu bolsillo",
+        value: "La experiencia de Uniko RD en tu bolsillo",
       },
       {
         section: "appPreview",
@@ -104,7 +104,7 @@ export const seed = mutation({
       {
         section: "features",
         key: "title",
-        value: "¿Por qué elegir AQUÍ RD?",
+        value: "¿Por qué elegir Uniko RD?",
       },
       {
         section: "faq",
@@ -149,7 +149,7 @@ export const seed = mutation({
       {
         section: "cta",
         key: "subtitle",
-        value: "Únete a miles de dominicanos que ya compran y venden en AQUÍ RD",
+        value: "Únete a miles de dominicanos que ya compran y venden en Uniko RD",
       },
       {
         section: "cta",
@@ -174,6 +174,8 @@ export const seed = mutation({
 
       if (!existing) {
         await ctx.db.insert("landingContent", item);
+      } else {
+        await ctx.db.patch(existing._id, { value: item.value });
       }
     }
 

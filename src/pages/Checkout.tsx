@@ -179,7 +179,7 @@ export default function Checkout() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Checkout</h1>
+      <h1 className="text-3xl font-bold text-uniko-blue mb-8">Checkout</h1>
       <form
         onSubmit={handleSubmit}
         className="grid grid-cols-1 lg:grid-cols-3 gap-8"
@@ -192,7 +192,7 @@ export default function Checkout() {
           {/* Provincia y Ciudad */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-uniko-blue mb-1">
                 Provincia *
               </label>
               <select
@@ -212,7 +212,7 @@ export default function Checkout() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-uniko-blue mb-1">
                 Ciudad / Municipio *
               </label>
               <select
@@ -239,7 +239,7 @@ export default function Checkout() {
 
           {/* Sector */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-uniko-blue mb-1">
               Sector / Barrio
             </label>
             <input
@@ -254,7 +254,7 @@ export default function Checkout() {
           {/* Calle y Número */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-uniko-blue mb-1">
                 Calle / Avenida *
               </label>
               <input
@@ -267,7 +267,7 @@ export default function Checkout() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-uniko-blue mb-1">
                 Número
               </label>
               <input
@@ -282,7 +282,7 @@ export default function Checkout() {
 
           {/* Casa / Apartamento */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-uniko-blue mb-1">
               Casa / Apartamento / Edificio
             </label>
             <input
@@ -296,7 +296,7 @@ export default function Checkout() {
 
           {/* Teléfono */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-uniko-blue mb-1">
               Teléfono de contacto *
             </label>
             <input
@@ -311,7 +311,7 @@ export default function Checkout() {
 
           {/* Notas */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-uniko-blue mb-1">
               Notas adicionales
             </label>
             <input
@@ -326,7 +326,7 @@ export default function Checkout() {
           {/* Vista previa de dirección */}
           {fullAddress.length > 10 && (
             <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-xs text-blue-600 font-medium mb-1">
+              <p className="text-xs text-uniko-blue font-medium mb-1">
                 Dirección de envío:
               </p>
               <p className="text-sm text-blue-800">{fullAddress}</p>
@@ -339,24 +339,24 @@ export default function Checkout() {
           <h2 className="text-lg font-bold mb-4">Tu Orden</h2>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-gray-600">Subtotal</span>
+              <span className="text-uniko-blue">Subtotal</span>
               <span>
                 RD${subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
               </span>
             </div>
             {taxLines.length > 0 ? taxLines.map((t, i) => (
               <div key={i} className="flex justify-between">
-                <span className="text-gray-600">{t.name} ({t.rate}%)</span>
+                <span className="text-uniko-blue">{t.name} ({t.rate}%)</span>
                 <span>RD${t.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
               </div>
             )) : (
               <div className="flex justify-between">
-                <span className="text-gray-600">Impuestos</span>
+                <span className="text-uniko-blue">Impuestos</span>
                 <span>No aplica</span>
               </div>
             )}
             <div className="flex justify-between">
-              <span className="text-gray-600">Envío</span>
+              <span className="text-uniko-blue">Envío</span>
               <span>{shipping === 0 ? "Gratis" : `RD$${shipping}`}</span>
             </div>
             <hr />
@@ -374,7 +374,7 @@ export default function Checkout() {
           >
             {loading ? "Procesando..." : "Confirmar Orden"}
           </button>
-          <p className="text-xs text-gray-500 text-center mt-3">
+          <p className="text-xs text-uniko-blue/70 text-center mt-3">
             Pago contra entrega
           </p>
         </div>

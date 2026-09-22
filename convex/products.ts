@@ -112,7 +112,7 @@ export const create = mutation({
     videoUrl: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const sku = args.sku || `AQUI-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    const sku = args.sku || `uniko-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
     return await ctx.db.insert("products", {
       ...args,
       sku,
@@ -164,6 +164,39 @@ export const remove = mutation({
   handler: async (ctx, args) => {
     await ctx.db.delete(args.productId);
     return "ok";
+  },
+});
+
+export const patchImages = mutation({
+  args: {
+    productId: v.id("products"),
+    images: v.array(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.productId, { images: args.images });
+    return "ok";
+  },
+});
+
+export const bulkDeleteByVendor = mutation({
+  args: { vendorId: v.id("vendors") },
+  handler: async (ctx, args) => {
+    let deleted = 0;
+    // Use filter on empty images first (small docs), then handle large ones
+    while (true) {
+      const batch = await ctx.db
+        .query("products")
+        .withIndex("by_vendorId", (q) => q.eq("vendorId", args.vendorId))
+        .filter((q) => q.eq(q.field("images"), []))
+        .take(100);
+      if (batch.length === 0) break;
+      for (const p of batch) {
+        await ctx.db.delete(p._id);
+        deleted++;
+      }
+    }
+    return deleted;
+    return deleted;
   },
 });
 

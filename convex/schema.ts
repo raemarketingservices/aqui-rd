@@ -222,4 +222,63 @@ export default defineSchema({
   })
     .index("by_vendorId", ["vendorId"])
     .index("by_userId", ["userId"]),
+
+  crmConversations: defineTable({
+    platform: v.union(v.literal("whatsapp"), v.literal("instagram"), v.literal("facebook"), v.literal("app")),
+    platformConversationId: v.string(),
+    customerName: v.string(),
+    customerPhone: v.optional(v.string()),
+    customerPlatformId: v.string(),
+    lastMessageAt: v.number(),
+    lastMessagePreview: v.optional(v.string()),
+    status: v.union(v.literal("open"), v.literal("pending"), v.literal("closed")),
+    assignedTo: v.optional(v.id("users")),
+    unreadCount: v.number(),
+    tags: v.array(v.string()),
+    botState: v.optional(v.string()),
+    selectedProductId: v.optional(v.string()),
+    shippingInfo: v.optional(v.any()),
+  })
+    .index("by_platform", ["platform"])
+    .index("by_status", ["status"])
+    .index("by_platformConversationId", ["platformConversationId"])
+    .index("by_lastMessageAt", ["lastMessageAt"]),
+
+  crmMessages: defineTable({
+    conversationId: v.id("crmConversations"),
+    platformMessageId: v.string(),
+    sender: v.union(v.literal("customer"), v.literal("bot"), v.literal("agent")),
+    senderName: v.string(),
+    messageType: v.union(v.literal("text"), v.literal("image"), v.literal("video"), v.literal("audio"), v.literal("file"), v.literal("interactive"), v.literal("location")),
+    content: v.string(),
+    timestamp: v.number(),
+    delivered: v.boolean(),
+    read: v.boolean(),
+    metadata: v.optional(v.any()),
+  })
+    .index("by_conversationId", ["conversationId"])
+    .index("by_platformMessageId", ["platformMessageId"])
+    .index("by_conversationId_timestamp", ["conversationId", "timestamp"]),
+
+  crmAutoResponses: defineTable({
+    trigger: v.string(),
+    response: v.string(),
+    isActive: v.boolean(),
+    priority: v.number(),
+    platform: v.optional(v.union(v.literal("all"), v.literal("whatsapp"), v.literal("instagram"), v.literal("facebook"))),
+  })
+    .index("by_isActive", ["isActive"]),
+
+  crmFAQ: defineTable({
+    question: v.string(),
+    answer: v.string(),
+    keywords: v.array(v.string()),
+    isActive: v.boolean(),
+  })
+    .index("by_isActive", ["isActive"]),
+
+  crmSettings: defineTable({
+    key: v.string(),
+    value: v.string(),
+  }).index("by_key", ["key"]),
 });

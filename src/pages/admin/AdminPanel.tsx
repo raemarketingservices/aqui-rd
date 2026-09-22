@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
@@ -36,8 +36,8 @@ import SupportChat from "../../components/support/SupportChat";
 import TicketsSection from "../../components/support/TicketsSection";
 import { Id } from "../../../convex/_generated/dataModel";
 
-const AUTH_KEY = "aqui_admin_auth";
-const ADMIN_PASSWORD = "aquirdadmin";
+const AUTH_KEY = "uniko_admin_auth";
+const ADMIN_PASSWORD = "unikordadmin";
 
 function LoginPage({ onLogin }: { onLogin: () => void }) {
   const [password, setPassword] = useState("");
@@ -69,7 +69,7 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
       {/* Volver button */}
       <Link
         to="/"
-        className="absolute top-6 left-6 z-10 flex items-center gap-2 text-gray-400 hover:text-white transition-colors group"
+        className="absolute top-6 left-6 z-10 flex items-center gap-2 text-white/80 hover:text-white transition-colors group"
       >
         <FiArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
         <span className="text-sm font-medium">Volver a la web</span>
@@ -77,9 +77,9 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
 
       <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
-          <img src="/logo-aqui-blanco.png" alt="AQUÍ" className="h-16 mx-auto mb-4" />
+          <img src="/logo-uniko-blanco.png" alt="UNIKO" className="h-16 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-white">Panel de Administración</h1>
-          <p className="text-gray-400 mt-1">AQUÍ RD</p>
+          <p className="text-white/80 mt-1">UNIKO RD</p>
         </div>
         <form onSubmit={handleSubmit} className="bg-[#0F2A4A]/90 backdrop-blur-md rounded-2xl p-8 shadow-2xl border border-white/10">
           <label className="block text-sm font-medium text-gray-300 mb-2">Contraseña</label>
@@ -94,7 +94,7 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-white/80 hover:text-white"
             >
               {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
             </button>
@@ -161,7 +161,7 @@ function GeneralTab() {
             value={siteName}
             onChange={(e) => setSiteName(e.target.value)}
             className="w-full bg-[#0A1929] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#FF6B35]"
-            placeholder="AQUÍ RD"
+            placeholder="UNIKO RD"
           />
         </div>
         <div>
@@ -280,7 +280,7 @@ function ContenidoTab() {
             onChange={(e) => setFooterText(e.target.value)}
             rows={3}
             className="w-full bg-[#0A1929] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#FF6B35] resize-none"
-            placeholder="© 2024 AQUÍ RD..."
+            placeholder="© 2026 UNIKO RD..."
           />
         </div>
       </div>
@@ -302,9 +302,9 @@ function VendedoresTab() {
       <h2 className="text-xl font-bold text-white">Gestionar Vendedores</h2>
 
       {!vendors ? (
-        <div className="text-center py-12 text-gray-400">Cargando vendedores...</div>
+        <div className="text-center py-12 text-white/80">Cargando vendedores...</div>
       ) : vendors.length === 0 ? (
-        <div className="text-center py-12 text-gray-400">No hay vendedores registrados</div>
+        <div className="text-center py-12 text-white/80">No hay vendedores registrados</div>
       ) : (
         <div className="space-y-3">
           {vendors.map((v: any) => (
@@ -319,13 +319,13 @@ function VendedoresTab() {
                 </div>
                 <div>
                   <p className="font-semibold text-white">{v.businessName}</p>
-                  <p className="text-sm text-gray-400">/{v.slug} · {v.user?.name} · {v.productCount} productos</p>
+                  <p className="text-sm text-white/80">/{v.slug} · {v.user?.name} · {v.productCount} productos</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                   v.status === "APPROVED" ? "bg-green-500/20 text-green-400" :
-                  v.status === "PENDING" ? "bg-yellow-500/20 text-yellow-400" :
+                  v.status === "PENDING" ? "bg-uniko-red/20 text-uniko-red" :
                   "bg-red-500/20 text-red-400"
                 }`}>
                   {v.status === "APPROVED" ? "Aprobado" : v.status === "PENDING" ? "Pendiente" : "Rechazado"}
@@ -393,7 +393,7 @@ function ChatbotTab() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-white">AQUÍ RD Chatbot</h2>
+        <h2 className="text-xl font-bold text-white">UNIKO RD Chatbot</h2>
         <button onClick={handleSave} className="flex items-center gap-2 bg-[#FF6B35] hover:bg-[#E85A28] text-white px-4 py-2 rounded-lg transition-colors">
           <FiSave size={16} /> Guardar
         </button>
@@ -406,7 +406,7 @@ function ChatbotTab() {
             value={welcomeMessage}
             onChange={(e) => setWelcomeMessage(e.target.value)}
             className="w-full bg-[#0A1929] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#FF6B35]"
-            placeholder="¡Hola! Soy AQUÍ, tu asistente virtual..."
+            placeholder="¡Hola! Soy UNIKO, tu asistente virtual..."
           />
         </div>
 
@@ -417,7 +417,7 @@ function ChatbotTab() {
             onChange={(e) => setKnowledgeBase(e.target.value)}
             rows={4}
             className="w-full bg-[#0A1929] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#FF6B35] resize-none"
-            placeholder="Información general sobre AQUÍ RD..."
+            placeholder="Información general sobre UNIKO RD..."
           />
         </div>
 
@@ -432,7 +432,7 @@ function ChatbotTab() {
             {faqs.map((faq, i) => (
               <div key={i} className="bg-[#0A1929] border border-white/5 rounded-lg p-4 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500 font-medium">FAQ #{i + 1}</span>
+                  <span className="text-xs text-uniko-blue/70 font-medium">FAQ #{i + 1}</span>
                   <button onClick={() => removeFaq(i)} className="text-red-400 hover:text-red-300 transition-colors">
                     <FiTrash2 size={14} />
                   </button>
@@ -453,7 +453,7 @@ function ChatbotTab() {
               </div>
             ))}
             {faqs.length === 0 && (
-              <p className="text-center text-gray-500 py-6">No hay FAQs. Agrega una para comenzar.</p>
+              <p className="text-center text-uniko-blue/70 py-6">No hay FAQs. Agrega una para comenzar.</p>
             )}
           </div>
         </div>
@@ -501,11 +501,11 @@ function RedesSocialesTab() {
 
   const fields = [
     { label: "WhatsApp (número)", value: whatsapp, setter: setWhatsapp, placeholder: "+18091234567", color: "text-green-400" },
-    { label: "Instagram", value: instagram, setter: setInstagram, placeholder: "https://instagram.com/aquird", color: "text-pink-400" },
-    { label: "Facebook", value: facebook, setter: setFacebook, placeholder: "https://facebook.com/aquird", color: "text-blue-400" },
-    { label: "X / Twitter", value: twitter, setter: setTwitter, placeholder: "https://x.com/aquird", color: "text-gray-300" },
-    { label: "TikTok", value: tiktok, setter: setTiktok, placeholder: "https://tiktok.com/@aquird", color: "text-cyan-400" },
-    { label: "YouTube", value: youtube, setter: setYoutube, placeholder: "https://youtube.com/@aquird", color: "text-red-400" },
+    { label: "Instagram", value: instagram, setter: setInstagram, placeholder: "https://instagram.com/unikord", color: "text-pink-400" },
+    { label: "Facebook", value: facebook, setter: setFacebook, placeholder: "https://facebook.com/unikord", color: "text-uniko-blue" },
+    { label: "X / Twitter", value: twitter, setter: setTwitter, placeholder: "https://x.com/unikord", color: "text-gray-300" },
+    { label: "TikTok", value: tiktok, setter: setTiktok, placeholder: "https://tiktok.com/@unikord", color: "text-uniko-blue" },
+    { label: "YouTube", value: youtube, setter: setYoutube, placeholder: "https://youtube.com/@unikord", color: "text-red-400" },
   ];
 
   return (
@@ -571,7 +571,7 @@ function ContrasenaTab() {
           <label className="block text-sm font-medium text-gray-300 mb-2">Contraseña Actual</label>
           <div className="relative">
             <input type={showCurrent ? "text" : "password"} value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className="w-full bg-[#0A1929] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#FF6B35] pr-12" placeholder="••••••••" />
-            <button type="button" onClick={() => setShowCurrent(!showCurrent)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white">
+            <button type="button" onClick={() => setShowCurrent(!showCurrent)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/80 hover:text-white">
               {showCurrent ? <FiEyeOff size={18} /> : <FiEye size={18} />}
             </button>
           </div>
@@ -580,7 +580,7 @@ function ContrasenaTab() {
           <label className="block text-sm font-medium text-gray-300 mb-2">Nueva Contraseña</label>
           <div className="relative">
             <input type={showNew ? "text" : "password"} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="w-full bg-[#0A1929] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#FF6B35] pr-12" placeholder="••••••••" />
-            <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white">
+            <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/80 hover:text-white">
               {showNew ? <FiEyeOff size={18} /> : <FiEye size={18} />}
             </button>
           </div>
@@ -622,8 +622,8 @@ function TiendasTab() {
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-bold text-white flex items-center gap-2"><FiShoppingBag /> Gestionar Tiendas</h2>
-      {!vendors ? <div className="text-center py-12 text-gray-400">Cargando...</div> :
-       vendors.length === 0 ? <div className="text-center py-12 text-gray-400">No hay tiendas</div> : (
+      {!vendors ? <div className="text-center py-12 text-white/80">Cargando...</div> :
+       vendors.length === 0 ? <div className="text-center py-12 text-white/80">No hay tiendas</div> : (
         <div className="space-y-3">
           {vendors.map((v: any) => (
             <div key={v._id} className="bg-[#0A1929] border border-white/5 rounded-xl p-4">
@@ -631,7 +631,7 @@ function TiendasTab() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs text-[#FF6B35] font-medium">Editando tienda</span>
-                    <button onClick={() => setEditingId(null)} className="text-gray-400 hover:text-white text-xs"><FiX size={14} /> Cancelar</button>
+                    <button onClick={() => setEditingId(null)} className="text-white/80 hover:text-white text-xs"><FiX size={14} /> Cancelar</button>
                   </div>
                   <input value={editForm.businessName} onChange={(e) => setEditForm({ ...editForm, businessName: e.target.value })} className="w-full bg-[#0F2A4A] border border-white/10 rounded-lg px-3 py-2 text-white text-sm" placeholder="Nombre de la tienda" />
                   <textarea value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} className="w-full bg-[#0F2A4A] border border-white/10 rounded-lg px-3 py-2 text-white text-sm resize-none" rows={2} placeholder="Descripción" />
@@ -646,15 +646,15 @@ function TiendasTab() {
                     </div>
                     <div>
                       <p className="font-semibold text-white">{v.businessName}</p>
-                      <p className="text-sm text-gray-400">/{v.slug} &middot; {v.user?.name} &middot; {v.productCount} productos</p>
-                      {v.description && <p className="text-xs text-gray-500 mt-1 line-clamp-1">{v.description}</p>}
+                      <p className="text-sm text-white/80">/{v.slug} &middot; {v.user?.name} &middot; {v.productCount} productos</p>
+                      {v.description && <p className="text-xs text-uniko-blue/70 mt-1 line-clamp-1">{v.description}</p>}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${v.status === "APPROVED" ? "bg-green-500/20 text-green-400" : v.status === "PENDING" ? "bg-yellow-500/20 text-yellow-400" : "bg-red-500/20 text-red-400"}`}>
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${v.status === "APPROVED" ? "bg-green-500/20 text-green-400" : v.status === "PENDING" ? "bg-uniko-red/20 text-uniko-red" : "bg-red-500/20 text-red-400"}`}>
                       {v.status === "APPROVED" ? "Aprobado" : v.status === "PENDING" ? "Pendiente" : "Rechazado"}
                     </span>
-                    <button onClick={() => startEdit(v)} className="p-2 bg-[#1B4B8A] hover:bg-[#2563EB] text-white rounded-lg transition-colors" title="Editar"><FiEdit2 size={14} /></button>
+                    <button onClick={() => startEdit(v)} className="p-2 bg-[#1B4B8A] hover:bg-[#0033A0] text-white rounded-lg transition-colors" title="Editar"><FiEdit2 size={14} /></button>
                     {v.status === "PENDING" && (
                       <>
                         <button onClick={() => { updateVendorStatus({ vendorId: v._id, status: "APPROVED" }); toast.success("Aprobado"); }} className="p-2 bg-green-600 hover:bg-green-700 text-white rounded-lg" title="Aprobar"><FiCheck size={14} /></button>
@@ -732,14 +732,14 @@ function ImpuestosTab() {
         </div>
 
         {taxes.length === 0 && (
-          <p className="text-center text-gray-500 py-6">No hay impuestos. Agrega uno para comenzar.</p>
+          <p className="text-center text-uniko-blue/70 py-6">No hay impuestos. Agrega uno para comenzar.</p>
         )}
 
         <div className="space-y-3">
           {taxes.map((tax, i) => (
             <div key={i} className="bg-[#0F2A4A] border border-white/5 rounded-lg p-4">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-xs text-gray-500 font-medium">Impuesto #{i + 1}</span>
+                <span className="text-xs text-uniko-blue/70 font-medium">Impuesto #{i + 1}</span>
                 <div className="flex items-center gap-3">
                   <button onClick={() => updateTax(i, "enabled", !tax.enabled)} className={`w-10 h-5 rounded-full transition-colors relative ${tax.enabled ? "bg-green-500" : "bg-gray-600"}`}>
                     <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition-transform ${tax.enabled ? "translate-x-5" : "translate-x-0.5"}`} />
@@ -749,11 +749,11 @@ function ImpuestosTab() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1">Nombre</label>
+                  <label className="block text-xs text-white/80 mb-1">Nombre</label>
                   <input value={tax.name} onChange={(e) => updateTax(i, "name", e.target.value)} className="w-full bg-[#0A1929] border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#FF6B35]" placeholder="Ej: ITBIS, ISR, Municipal" disabled={!tax.enabled} />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1">Tasa (%)</label>
+                  <label className="block text-xs text-white/80 mb-1">Tasa (%)</label>
                   <input type="number" value={tax.rate} onChange={(e) => updateTax(i, "rate", parseFloat(e.target.value) || 0)} className="w-full bg-[#0A1929] border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#FF6B35]" min="0" max="100" step="0.01" disabled={!tax.enabled} />
                 </div>
               </div>
@@ -762,12 +762,12 @@ function ImpuestosTab() {
         </div>
 
         <div className="bg-[#0F2A4A] rounded-lg p-4 mt-4">
-          <p className="text-sm text-gray-400 mb-2">Vista previa en compra de RD${previewTotal.toLocaleString()}:</p>
+          <p className="text-sm text-white/80 mb-2">Vista previa en compra de RD${previewTotal.toLocaleString()}:</p>
           {previewTaxes.length > 0 ? (
             <div className="space-y-1">
               {previewTaxes.map((t, i) => (
                 <div key={i} className="flex justify-between text-sm">
-                  <span className="text-gray-400">{t.name}</span>
+                  <span className="text-white/80">{t.name}</span>
                   <span className="text-[#FF6B35] font-medium">RD${t.amount.toFixed(2)}</span>
                 </div>
               ))}
@@ -777,7 +777,7 @@ function ImpuestosTab() {
               </div>
             </div>
           ) : (
-            <p className="text-gray-500 text-sm">Sin impuestos activos</p>
+            <p className="text-uniko-blue/70 text-sm">Sin impuestos activos</p>
           )}
         </div>
       </div>
@@ -878,22 +878,22 @@ function FormularioProductosTab() {
         </button>
       </div>
 
-      <p className="text-gray-400 text-sm">Estos campos aparecen en el formulario de <strong>todos</strong> los vendedores al crear o editar productos.</p>
+      <p className="text-white/80 text-sm">Estos campos aparecen en el formulario de <strong>todos</strong> los vendedores al crear o editar productos.</p>
 
       {/* Agregar nuevo campo */}
       <div className="bg-[#0A1929] border border-white/5 rounded-xl p-6 space-y-4">
         <h3 className="text-white font-medium">Agregar Nuevo Campo</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div>
-            <label className="block text-xs text-gray-400 mb-1">Nombre interno *</label>
+            <label className="block text-xs text-white/80 mb-1">Nombre interno *</label>
             <input value={newFieldName} onChange={(e) => setNewFieldName(e.target.value)} className="w-full bg-[#0F2A4A] border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#FF6B35]" placeholder="Ej: material" />
           </div>
           <div>
-            <label className="block text-xs text-gray-400 mb-1">Etiqueta visible *</label>
+            <label className="block text-xs text-white/80 mb-1">Etiqueta visible *</label>
             <input value={newFieldLabel} onChange={(e) => setNewFieldLabel(e.target.value)} className="w-full bg-[#0F2A4A] border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#FF6B35]" placeholder="Ej: Material" />
           </div>
           <div>
-            <label className="block text-xs text-gray-400 mb-1">Tipo</label>
+            <label className="block text-xs text-white/80 mb-1">Tipo</label>
             <select value={newFieldType} onChange={(e) => setNewFieldType(e.target.value as any)} className="w-full bg-[#0F2A4A] border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#FF6B35]">
               <option value="text">Texto</option>
               <option value="textarea">Texto largo</option>
@@ -905,12 +905,12 @@ function FormularioProductosTab() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div>
-            <label className="block text-xs text-gray-400 mb-1">Categoría</label>
+            <label className="block text-xs text-white/80 mb-1">Categoría</label>
             <input value={newFieldCategory} onChange={(e) => setNewFieldCategory(e.target.value)} className="w-full bg-[#0F2A4A] border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#FF6B35]" placeholder="Ej: Detalles, Personalizado" />
           </div>
           {newFieldType === "select" && (
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Opciones (separadas por coma)</label>
+              <label className="block text-xs text-white/80 mb-1">Opciones (separadas por coma)</label>
               <input value={newFieldOptions} onChange={(e) => setNewFieldOptions(e.target.value)} className="w-full bg-[#0F2A4A] border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#FF6B35]" placeholder="Opción 1, Opción 2, Opción 3" />
             </div>
           )}
@@ -930,7 +930,7 @@ function FormularioProductosTab() {
       <div className="space-y-4">
         {categories.map((cat) => (
           <div key={cat}>
-            <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">{cat}</h3>
+            <h3 className="text-sm font-medium text-white/80 uppercase tracking-wider mb-3">{cat}</h3>
             <div className="space-y-2">
               {fields.filter((f) => (f.category || "General") === cat).map((field) => (
                 <div key={field.name} className="bg-[#0A1929] border border-white/5 rounded-lg px-4 py-3 flex items-center justify-between">
@@ -940,12 +940,12 @@ function FormularioProductosTab() {
                     </div>
                     <div>
                       <p className="text-white text-sm font-medium">{field.label}</p>
-                      <p className="text-xs text-gray-500">{field.name} &middot; {field.type}{field.options ? ` (${field.options.length} opciones)` : ""}</p>
+                      <p className="text-xs text-uniko-blue/70">{field.name} &middot; {field.type}{field.options ? ` (${field.options.length} opciones)` : ""}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     {field.required && <span className="px-2 py-0.5 bg-[#FF6B35]/20 text-[#FF6B35] rounded text-xs font-medium">Requerido</span>}
-                    <button onClick={() => toggleRequired(field.name)} className="text-gray-400 hover:text-white text-xs transition-colors" title="Toggle requerido">
+                    <button onClick={() => toggleRequired(field.name)} className="text-white/80 hover:text-white text-xs transition-colors" title="Toggle requerido">
                       {field.required ? "Quitar req." : "Hacer req."}
                     </button>
                     <button onClick={() => removeField(field.name)} className="text-red-400 hover:text-red-300 transition-colors" title="Eliminar"><FiTrash2 size={14} /></button>
@@ -1100,7 +1100,7 @@ function LandingContentTab() {
   };
 
   if (landingData === undefined) {
-    return <div className="text-center py-12 text-gray-400">Cargando contenido...</div>;
+    return <div className="text-center py-12 text-white/80">Cargando contenido...</div>;
   }
 
   return (
@@ -1117,7 +1117,7 @@ function LandingContentTab() {
                 className="w-full flex items-center justify-between px-5 py-4 hover:bg-white/5 transition-colors"
               >
                 <span className="font-semibold text-white">{section.label}</span>
-                {isOpen ? <FiChevronDown size={18} className="text-gray-400" /> : <FiChevronRight size={18} className="text-gray-400" />}
+                {isOpen ? <FiChevronDown size={18} className="text-white/80" /> : <FiChevronRight size={18} className="text-white/80" />}
               </button>
 
               {isOpen && (
@@ -1273,18 +1273,18 @@ function BannersTab() {
         <label className="block text-sm font-medium text-gray-300 mb-2">Subir Imagen</label>
         <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-white/20 rounded-lg cursor-pointer hover:border-[#FF6B35] transition-colors">
           {uploading === target ? (
-            <span className="text-gray-400 text-sm">Subiendo...</span>
+            <span className="text-white/80 text-sm">Subiendo...</span>
           ) : imageUrl ? (
             <div className="text-center">
               <FiCheck className="mx-auto text-green-400 mb-1" size={20} />
               <span className="text-white text-sm font-medium">{fileName || "Imagen cargada"}</span>
-              <span className="text-gray-400 text-xs block mt-1">Click para cambiar</span>
+              <span className="text-white/80 text-xs block mt-1">Click para cambiar</span>
             </div>
           ) : (
             <div className="text-center">
-              <FiUpload className="mx-auto text-gray-400 mb-1" size={24} />
-              <span className="text-gray-400 text-sm">Click para subir imagen</span>
-              <span className="text-gray-500 text-xs block mt-1">JPG, PNG — Máx 4MB</span>
+              <FiUpload className="mx-auto text-white/80 mb-1" size={24} />
+              <span className="text-white/80 text-sm">Click para subir imagen</span>
+              <span className="text-uniko-blue/70 text-xs block mt-1">JPG, PNG — Máx 4MB</span>
             </div>
           )}
           <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, target)} />
@@ -1323,12 +1323,12 @@ function BannersTab() {
     </div>
   );
 
-  if (landingData === undefined) return <div className="text-center py-12 text-gray-400">Cargando...</div>;
+  if (landingData === undefined) return <div className="text-center py-12 text-white/80">Cargando...</div>;
 
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-bold text-white flex items-center gap-2"><FiImage /> Banners de la Landing</h2>
-      <p className="text-gray-400 text-sm">Sube imágenes y ajusta cómo se muestran en cada banner.</p>
+      <p className="text-white/80 text-sm">Sube imágenes y ajusta cómo se muestran en cada banner.</p>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {renderImageControls("Hero - Imagen Derecha", heroRightImage, heroRightName, "hero", heroRightFit, setHeroRightFit, heroRightPos, setHeroRightPos, saveHero, "16/9")}
         {renderImageControls("CTA - Imagen de Fondo", ctaBgImage, ctaBgName, "cta", ctaBgFit, setCtaBgFit, ctaBgPos, setCtaBgPos, saveCta, "21/9")}
@@ -1337,9 +1337,449 @@ function BannersTab() {
   );
 }
 
+function CRMTab() {
+  const conversations = useQuery(api.crm.getConversations, { platform: "all", status: "all" });
+  const allSettings = useQuery(api.crm.getAllSettings);
+  const autoResponses = useQuery(api.crm.getAutoResponses);
+  const faqs = useQuery(api.crm.getFAQs);
+  const markAsRead = useMutation(api.crm.markAsRead);
+  const updateStatus = useMutation(api.crm.updateConversationStatus);
+  const setSetting = useMutation(api.crm.setSetting);
+  const seedCRMSettings = useMutation(api.crm.seedCRMSettings);
+  const createAutoResponse = useMutation(api.crm.createAutoResponse);
+  const updateAutoResponse = useMutation(api.crm.updateAutoResponse);
+  const deleteAutoResponse = useMutation(api.crm.deleteAutoResponse);
+  const createFAQ = useMutation(api.crm.createFAQ);
+  const updateFAQ = useMutation(api.crm.updateFAQ);
+  const deleteFAQ = useMutation(api.crm.deleteFAQ);
+
+  const vendorsList = useQuery(api.admin.getAllVendors);
+
+  const [selectedConv, setSelectedConv] = useState<any>(null);
+  const [crmSubTab, setCrmSubTab] = useState<"inbox" | "bot" | "responses" | "faq">("inbox");
+  const [filterPlatform, setFilterPlatform] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [newMsg, setNewMsg] = useState("");
+  const [sending, setSending] = useState(false);
+
+  const messages = useQuery(
+    api.crm.getMessages,
+    selectedConv ? { conversationId: selectedConv._id } : "skip"
+  );
+
+  const settingsMap = useMemo(() => {
+    if (!allSettings) return {};
+    const m: Record<string, string> = {};
+    allSettings.forEach((s: any) => { m[s.key] = s.value; });
+    return m;
+  }, [allSettings]);
+
+  const filteredConversations = useMemo(() => {
+    if (!conversations) return [];
+    return conversations.filter((c: any) => {
+      if (filterPlatform !== "all" && c.platform !== filterPlatform) return false;
+      if (filterStatus !== "all" && c.status !== filterStatus) return false;
+      return true;
+    });
+  }, [conversations, filterPlatform, filterStatus]);
+
+  const handleSelectConv = async (conv: any) => {
+    setSelectedConv(conv);
+    if (conv.unreadCount > 0) {
+      await markAsRead({ conversationId: conv._id });
+    }
+  };
+
+  const handleSend = async () => {
+    if (!newMsg.trim() || !selectedConv || sending) return;
+    setSending(true);
+    try {
+      await fetch("/api/send-message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversationId: selectedConv._id, content: newMsg }),
+      });
+      setNewMsg("");
+    } catch (e) {
+      toast.error("Error al enviar");
+    }
+    setSending(false);
+  };
+
+  const toggleBot = async () => {
+    const current = settingsMap["botEnabled"];
+    await setSetting({ key: "botEnabled", value: current === "true" ? "false" : "true" });
+    toast.success(current === "true" ? "Bot desactivado" : "Bot activado");
+  };
+
+  const [newAR, setNewAR] = useState({ trigger: "", response: "", platform: "all" });
+  const [newFaq, setNewFaq] = useState({ question: "", answer: "", keywords: "" });
+
+  const platformIcon = (p: string) => {
+    if (p === "whatsapp") return "💬";
+    if (p === "instagram") return "📸";
+    return "👤";
+  };
+
+  const statusColor = (s: string) => {
+    if (s === "open") return "bg-green-500";
+    if (s === "pending") return "bg-uniko-red";
+    return "bg-gray-500";
+  };
+
+  if (conversations === undefined) return <div className="text-center py-12 text-white/80">Cargando CRM...</div>;
+
+  return (
+    <div className="space-y-4">
+      <h2 className="text-xl font-bold text-white flex items-center gap-2"><FiMessageCircle /> CRM - Centro de Mensajes</h2>
+      <p className="text-white/80 text-sm">WhatsApp, Instagram y Facebook — Todo en un solo lugar.</p>
+
+      {/* Sub-tabs */}
+      <div className="flex gap-2 border-b border-white/10 pb-2">
+        {[
+          { id: "inbox", label: "📥 Bandeja" },
+          { id: "bot", label: "🤖 Bot" },
+          { id: "responses", label: "⚡ Auto-Respuestas" },
+          { id: "faq", label: "❓ FAQ" },
+        ].map((t) => (
+          <button key={t.id} onClick={() => setCrmSubTab(t.id as any)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${crmSubTab === t.id ? "bg-[#FF6B35] text-white" : "bg-white/5 text-white/80 hover:text-white"}`}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* ═══ BANDEJA ═══ */}
+      {crmSubTab === "inbox" && (
+        <div className="flex gap-4 h-[600px]">
+          {/* Conversation List */}
+          <div className="w-80 bg-[#0A1929] rounded-xl border border-white/5 flex flex-col">
+            <div className="p-3 border-b border-white/5 space-y-2">
+              <div className="flex gap-1">
+                {["all", "whatsapp", "instagram", "facebook"].map((p) => (
+                  <button key={p} onClick={() => setFilterPlatform(p)} className={`px-2 py-1 rounded text-xs font-medium ${filterPlatform === p ? "bg-[#FF6B35] text-white" : "bg-white/5 text-white/80"}`}>
+                    {p === "all" ? "Todos" : p === "whatsapp" ? "💬 WA" : p === "instagram" ? "📸 IG" : "👤 FB"}
+                  </button>
+                ))}
+              </div>
+              <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="w-full bg-[#0F2A4A] border border-white/10 rounded px-2 py-1 text-white text-xs">
+                <option value="all">Todos los estados</option>
+                <option value="open">Abiertos</option>
+                <option value="pending">Pendientes</option>
+                <option value="closed">Cerrados</option>
+              </select>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              {filteredConversations.length === 0 ? (
+                <div className="p-4 text-center text-uniko-blue/70 text-sm">No hay conversaciones</div>
+              ) : (
+                filteredConversations.map((conv: any) => (
+                  <div key={conv._id} onClick={() => handleSelectConv(conv)} className={`p-3 border-b border-white/5 cursor-pointer hover:bg-white/5 transition-colors ${selectedConv?._id === conv._id ? "bg-white/10" : ""}`}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span>{platformIcon(conv.platform)}</span>
+                      <span className="text-white text-sm font-medium truncate flex-1">{conv.customerName}</span>
+                      <span className={`w-2 h-2 rounded-full ${statusColor(conv.status)}`}></span>
+                      {conv.unreadCount > 0 && <span className="bg-[#FF6B35] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">{conv.unreadCount}</span>}
+                    </div>
+                    <p className="text-white/80 text-xs truncate">{conv.lastMessagePreview || "Sin mensajes"}</p>
+                    <p className="text-uniko-blue/70 text-[10px] mt-1">{new Date(conv.lastMessageAt).toLocaleString("es-DO")}</p>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Chat View */}
+          <div className="flex-1 bg-[#0A1929] rounded-xl border border-white/5 flex flex-col">
+            {selectedConv ? (
+              <>
+                <div className="p-4 border-b border-white/5 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">{platformIcon(selectedConv.platform)}</span>
+                    <div>
+                      <h3 className="text-white font-bold">{selectedConv.customerName}</h3>
+                      <p className="text-white/80 text-xs capitalize">{selectedConv.platform} · {selectedConv.status}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <select value={selectedConv.status} onChange={async (e) => { await updateStatus({ conversationId: selectedConv._id, status: e.target.value as any }); setSelectedConv({ ...selectedConv, status: e.target.value }); }} className="bg-[#0F2A4A] border border-white/10 rounded px-2 py-1 text-white text-xs">
+                      <option value="open">Abierto</option>
+                      <option value="pending">Pendiente</option>
+                      <option value="closed">Cerrado</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                  {!messages ? (
+                    <div className="text-center text-uniko-blue/70">Cargando mensajes...</div>
+                  ) : messages.length === 0 ? (
+                    <div className="text-center text-uniko-blue/70">No hay mensajes aún</div>
+                  ) : (
+                    messages.map((msg: any) => (
+                      <div key={msg._id} className={`flex ${msg.sender === "customer" ? "justify-start" : "justify-end"}`}>
+                        <div className={`max-w-[70%] rounded-2xl px-4 py-2 ${msg.sender === "customer" ? "bg-[#0F2A4A] text-white" : "bg-[#FF6B35] text-white"}`}>
+                          {msg.sender !== "customer" && <p className="text-[10px] font-bold opacity-70 mb-1">{msg.senderName}</p>}
+                          <p className="text-sm">{msg.content}</p>
+                          <p className="text-[10px] opacity-50 mt-1 text-right">{new Date(msg.timestamp).toLocaleTimeString("es-DO", { hour: "2-digit", minute: "2-digit" })}</p>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                <div className="p-3 border-t border-white/5 flex gap-2">
+                  <input value={newMsg} onChange={(e) => setNewMsg(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSend()} className="flex-1 bg-[#0F2A4A] border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#FF6B35]" placeholder="Escribe un mensaje..." />
+                  <button onClick={handleSend} disabled={!newMsg.trim() || sending} className="bg-[#FF6B35] hover:bg-[#E85A28] text-white px-4 py-2.5 rounded-xl text-sm font-medium disabled:opacity-50 transition-colors">
+                    {sending ? "..." : "Enviar"}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="flex-1 flex items-center justify-center text-uniko-blue/70">
+                <div className="text-center">
+                  <FiMessageCircle size={48} className="mx-auto mb-4 opacity-30" />
+                  <p>Selecciona una conversación</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ═══ BOT SETTINGS ═══ */}
+      {crmSubTab === "bot" && (
+        <div className="bg-[#0A1929] border border-white/5 rounded-xl p-6 space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-white font-bold text-lg">🤖 Bot Automático</h3>
+              <p className="text-white/80 text-sm">El bot responde automáticamente usando productos y FAQ de la tienda.</p>
+            </div>
+            <button onClick={toggleBot} className={`w-14 h-7 rounded-full transition-colors relative ${settingsMap["botEnabled"] === "true" ? "bg-green-500" : "bg-gray-600"}`}>
+              <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-transform ${settingsMap["botEnabled"] === "true" ? "translate-x-8" : "translate-x-1"}`} />
+            </button>
+          </div>
+
+          {/* Store Selector */}
+          <div className="bg-[#0F2A4A] rounded-lg p-4 border border-white/10">
+            <label className="block text-sm font-medium text-gray-300 mb-2">🏪 Tienda asociada al bot</label>
+            <p className="text-uniko-blue/70 text-xs mb-3">El bot mostrará los productos de la tienda que selecciones. Si no seleccionas ninguna, mostrará productos de todas las tiendas.</p>
+            <select
+              value={settingsMap["selectedStoreId"] || ""}
+              onChange={(e) => setSetting({ key: "selectedStoreId", value: e.target.value })}
+              className="w-full bg-[#0A1929] border border-white/10 rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#FF6B35]"
+            >
+              <option value="">Todas las tiendas</option>
+              {vendorsList?.filter((v: any) => v.status === "APPROVED").map((v: any) => (
+                <option key={v._id} value={v._id}>{v.businessName || v.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-1">Nombre del Bot</label>
+              <input value={settingsMap["botName"] || ""} onChange={(e) => setSetting({ key: "botName", value: e.target.value })} className="w-full bg-[#0F2A4A] border border-white/10 rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#CC0033]" placeholder="UNIKO" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-1">Username (Instagram/social)</label>
+              <input value={settingsMap["socialUsername"] || ""} onChange={(e) => setSetting({ key: "socialUsername", value: e.target.value })} className="w-full bg-[#0F2A4A] border border-white/10 rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#FF6B35]" placeholder="@unikord" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-1">📱 Teléfono del Agente (notificaciones)</label>
+              <input value={settingsMap["agentPhoneNumber"] || ""} onChange={(e) => setSetting({ key: "agentPhoneNumber", value: e.target.value })} className="w-full bg-[#0F2A4A] border border-white/10 rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#FF6B35]" placeholder="+1 809-123-4567" />
+              <p className="text-xs text-uniko-blue/70 mt-1">Recibe notificación cuando un cliente pida un agente</p>
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-300 mb-1">Logo del Bot (imagen)</label>
+              <div className="flex items-center gap-4">
+                <label className="flex-1 flex items-center justify-center gap-2 bg-[#0F2A4A] border-2 border-dashed border-white/10 rounded-lg px-4 py-3 text-white/80 text-sm hover:border-[#FF6B35] hover:text-white cursor-pointer transition-colors">
+                  <FiUpload size={16} /> Subir logo
+                  <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = async () => {
+                      const b64 = (reader.result as string).split(",")[1];
+                      await setSetting({ key: "botLogo", value: b64 });
+                      toast.success("Logo actualizado");
+                    };
+                    reader.readAsDataURL(file);
+                  }} />
+                </label>
+                {settingsMap["botLogo"] && (
+                  <div className="relative">
+                    <img src={`data:image/jpeg;base64,${settingsMap["botLogo"]}`} alt="Logo" className="w-16 h-16 rounded-lg object-contain border border-white/10" />
+                    <button onClick={async () => { await setSetting({ key: "botLogo", value: "" }); toast.success("Logo eliminado"); }} className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs">✕</button>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-1">Mensaje de bienvenida</label>
+              <textarea value={settingsMap["welcomeMessage"] || ""} onChange={(e) => setSetting({ key: "welcomeMessage", value: e.target.value })} className="w-full bg-[#0F2A4A] border border-white/10 rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#CC0033]" rows={3} placeholder="¡Hola! Bienvenido a UNIKO..." />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-1">Mensaje fuera de horario</label>
+              <textarea value={settingsMap["awayMessage"] || ""} onChange={(e) => setSetting({ key: "awayMessage", value: e.target.value })} className="w-full bg-[#0F2A4A] border border-white/10 rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#FF6B35]" rows={3} placeholder="Estamos fuera de horario..." />
+            </div>
+          </div>
+
+          {/* Credenciales Meta */}
+          <div className="bg-[#0F2A4A] rounded-lg p-4 space-y-4">
+            <div className="flex items-center justify-between">
+              <h4 className="text-white font-semibold text-sm">🔑 Credenciales Meta (WhatsApp Cloud API)</h4>
+              <button onClick={async () => { await seedCRMSettings(); toast.success("Credenciales guardadas"); }} className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">
+                Guardar Credenciales
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs text-white/80 mb-1">WhatsApp Phone Number ID</label>
+                <input value={settingsMap["whatsappPhoneNumberId"] || ""} onChange={(e) => setSetting({ key: "whatsappPhoneNumberId", value: e.target.value })} className="w-full bg-[#0A1929] border border-white/10 rounded px-3 py-2 text-white text-xs font-mono focus:outline-none focus:border-[#FF6B35]" placeholder="1296409576886051" />
+              </div>
+              <div>
+                <label className="block text-xs text-white/80 mb-1">WhatsApp Access Token</label>
+                <input value={settingsMap["whatsappAccessToken"] || ""} onChange={(e) => setSetting({ key: "whatsappAccessToken", value: e.target.value })} className="w-full bg-[#0A1929] border border-white/10 rounded px-3 py-2 text-white text-xs font-mono focus:outline-none focus:border-[#FF6B35]" placeholder="EAAO2fsV..." />
+              </div>
+              <div>
+                <label className="block text-xs text-white/80 mb-1">WhatsApp App Secret</label>
+                <input value={settingsMap["whatsappAppSecret"] || ""} onChange={(e) => setSetting({ key: "whatsappAppSecret", value: e.target.value })} className="w-full bg-[#0A1929] border border-white/10 rounded px-3 py-2 text-white text-xs font-mono focus:outline-none focus:border-[#FF6B35]" placeholder="a50e4628..." />
+              </div>
+              <div>
+                <label className="block text-xs text-white/80 mb-1">Page Access Token (IG/FB)</label>
+                <input value={settingsMap["pageAccessToken"] || ""} onChange={(e) => setSetting({ key: "pageAccessToken", value: e.target.value })} className="w-full bg-[#0A1929] border border-white/10 rounded px-3 py-2 text-white text-xs font-mono focus:outline-none focus:border-[#FF6B35]" placeholder="Para Instagram y Facebook Messenger" />
+              </div>
+              <div>
+                <label className="block text-xs text-white/80 mb-1">Webhook Verify Token</label>
+                <input value={settingsMap["webhookVerifyToken"] || "uniko-crm-verify-2026"} onChange={(e) => setSetting({ key: "webhookVerifyToken", value: e.target.value })} className="w-full bg-[#0A1929] border border-white/10 rounded px-3 py-2 text-white text-xs font-mono focus:outline-none focus:border-[#FF6B35]" />
+              </div>
+              <div>
+                <label className="block text-xs text-white/80 mb-1">Webhook URL (configurar en Meta)</label>
+                <div className="bg-[#0A1929] border border-white/10 rounded px-3 py-2 text-[#FF6B35] text-xs font-mono select-all">https://sleek-chicken-512.convex.site/webhook</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-[#0F2A4A] rounded-lg p-4">
+            <h4 className="text-white font-semibold text-sm mb-2">Cómo funciona el bot:</h4>
+            <ul className="text-white/80 text-xs space-y-1">
+              <li>1. Recibe el mensaje del cliente</li>
+              <li>2. Busca en Auto-Respuestas por palabras clave</li>
+              <li>3. Busca en FAQ por keywords</li>
+              <li>4. Busca productos en la tienda por nombre/marca/tags</li>
+              <li>5. Si reconoce saludo → envía mensaje de bienvenida</li>
+              <li>6. Si no entiende → sugiere escribir "agente"</li>
+            </ul>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-[#0F2A4A] rounded-lg p-4 text-center">
+              <p className="text-2xl font-bold text-[#FF6B35]">{autoResponses?.length || 0}</p>
+              <p className="text-white/80 text-xs">Auto-Respuestas</p>
+            </div>
+            <div className="bg-[#0F2A4A] rounded-lg p-4 text-center">
+              <p className="text-2xl font-bold text-[#FF6B35]">{faqs?.length || 0}</p>
+              <p className="text-white/80 text-xs">FAQs</p>
+            </div>
+            <div className="bg-[#0F2A4A] rounded-lg p-4 text-center">
+              <p className="text-2xl font-bold text-[#FF6B35]">{settingsMap["botEnabled"] === "true" ? "ACTIVO" : "INACTIVO"}</p>
+              <p className="text-white/80 text-xs">Estado del Bot</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ AUTO-RESPONSES ═══ */}
+      {crmSubTab === "responses" && (
+        <div className="bg-[#0A1929] border border-white/5 rounded-xl p-6 space-y-4">
+          <h3 className="text-white font-bold text-lg">⚡ Auto-Respuestas</h3>
+          <p className="text-white/80 text-sm">Define respuestas automáticas por palabras clave.</p>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <input value={newAR.trigger} onChange={(e) => setNewAR({ ...newAR, trigger: e.target.value })} className="bg-[#0F2A4A] border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#FF6B35]" placeholder="Trigger (ej: precio, envío)" />
+            <input value={newAR.response} onChange={(e) => setNewAR({ ...newAR, response: e.target.value })} className="bg-[#0F2A4A] border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#FF6B35]" placeholder="Respuesta automática" />
+            <select value={newAR.platform} onChange={(e) => setNewAR({ ...newAR, platform: e.target.value })} className="bg-[#0F2A4A] border border-white/10 rounded-lg px-3 py-2 text-white text-sm">
+              <option value="all">Todas</option>
+              <option value="whatsapp">WhatsApp</option>
+              <option value="instagram">Instagram</option>
+              <option value="facebook">Facebook</option>
+            </select>
+            <button onClick={async () => {
+              if (!newAR.trigger || !newAR.response) return toast.error("Completa los campos");
+              await createAutoResponse({ trigger: newAR.trigger, response: newAR.response, isActive: true, priority: 0, platform: newAR.platform as any });
+              setNewAR({ trigger: "", response: "", platform: "all" });
+              toast.success("Auto-respuesta creada");
+            }} className="bg-[#FF6B35] hover:bg-[#E85A28] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Agregar</button>
+          </div>
+
+          <div className="space-y-2">
+            {autoResponses?.map((ar: any) => (
+              <div key={ar._id} className="flex items-center gap-3 bg-[#0F2A4A] rounded-lg p-3">
+                <button onClick={async () => await updateAutoResponse({ id: ar._id, isActive: !ar.isActive })} className={`w-10 h-5 rounded-full transition-colors relative ${ar.isActive ? "bg-green-500" : "bg-gray-600"}`}>
+                  <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition-transform ${ar.isActive ? "translate-x-5" : "translate-x-0.5"}`} />
+                </button>
+                <span className="text-[#FF6B35] font-mono text-xs bg-[#0A1929] px-2 py-1 rounded">{ar.trigger}</span>
+                <span className="text-white text-sm flex-1">{ar.response}</span>
+                <span className="text-uniko-blue/70 text-xs capitalize">{ar.platform || "all"}</span>
+                <button onClick={async () => await deleteAutoResponse({ id: ar._id })} className="text-red-400 hover:text-red-300"><FiTrash2 size={14} /></button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ═══ FAQ ═══ */}
+      {crmSubTab === "faq" && (
+        <div className="bg-[#0A1929] border border-white/5 rounded-xl p-6 space-y-4">
+          <h3 className="text-white font-bold text-lg">❓ Preguntas Frecuentes (FAQ)</h3>
+          <p className="text-white/80 text-sm">Define preguntas y respuestas que el bot usará automáticamente.</p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <input value={newFaq.question} onChange={(e) => setNewFaq({ ...newFaq, question: e.target.value })} className="bg-[#0F2A4A] border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#FF6B35]" placeholder="Pregunta (ej: ¿Hacen envíos?)" />
+            <input value={newFaq.answer} onChange={(e) => setNewFaq({ ...newFaq, answer: e.target.value })} className="bg-[#0F2A4A] border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#FF6B35]" placeholder="Respuesta" />
+          </div>
+          <div className="flex gap-3">
+            <input value={newFaq.keywords} onChange={(e) => setNewFaq({ ...newFaq, keywords: e.target.value })} className="flex-1 bg-[#0F2A4A] border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#FF6B35]" placeholder="Keywords separadas por coma (envío, envíos, delivery)" />
+            <button onClick={async () => {
+              if (!newFaq.question || !newFaq.answer) return toast.error("Completa los campos");
+              const keywords = newFaq.keywords.split(",").map((k) => k.trim()).filter(Boolean);
+              await createFAQ({ question: newFaq.question, answer: newFaq.answer, keywords, isActive: true });
+              setNewFaq({ question: "", answer: "", keywords: "" });
+              toast.success("FAQ creado");
+            }} className="bg-[#FF6B35] hover:bg-[#E85A28] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Agregar</button>
+          </div>
+
+          <div className="space-y-2">
+            {faqs?.map((faq: any) => (
+              <div key={faq._id} className="bg-[#0F2A4A] rounded-lg p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-white font-medium text-sm">{faq.question}</p>
+                  <div className="flex gap-2">
+                    <button onClick={async () => await updateFAQ({ id: faq._id, isActive: !faq.isActive })} className={`w-10 h-5 rounded-full transition-colors relative ${faq.isActive ? "bg-green-500" : "bg-gray-600"}`}>
+                      <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition-transform ${faq.isActive ? "translate-x-5" : "translate-x-0.5"}`} />
+                    </button>
+                    <button onClick={async () => await deleteFAQ({ id: faq._id })} className="text-red-400 hover:text-red-300"><FiTrash2 size={14} /></button>
+                  </div>
+                </div>
+                <p className="text-white/80 text-xs mb-2">{faq.answer}</p>
+                <div className="flex gap-1 flex-wrap">
+                  {faq.keywords.map((kw: string, i: number) => (
+                    <span key={i} className="bg-[#0A1929] text-[#FF6B35] text-[10px] px-2 py-0.5 rounded-full">{kw}</span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 const tabs = [
   { id: "vendedores", label: "Vendedores", icon: FiUsers },
   { id: "tiendas", label: "Tiendas", icon: FiShoppingBag },
+  { id: "crm", label: "CRM", icon: FiMessageCircle },
   { id: "banners", label: "Banners", icon: FiImage },
   { id: "impuestos", label: "Impuestos", icon: FiDollarSign },
   { id: "formulario", label: "Formulario Productos", icon: FiEdit2 },
@@ -1358,7 +1798,7 @@ export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState("vendedores");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const adminUserId = (localStorage.getItem("aqui_user_id") as Id<"users"> | null) || null;
+  const adminUserId = (localStorage.getItem("uniko_user_id") as Id<"users"> | null) || null;
 
   useEffect(() => {
     setIsAuthed(localStorage.getItem(AUTH_KEY) === "true");
@@ -1383,16 +1823,16 @@ export default function AdminPanel() {
         return adminUserId ? (
           <TicketsSection userId={adminUserId} role="ADMIN" />
         ) : (
-          <div className="bg-[#0F2A4A] border border-white/10 rounded-2xl p-8 text-center text-gray-400">
+          <div className="bg-[#0F2A4A] border border-white/10 rounded-2xl p-8 text-center text-white/80">
             <FiLifeBuoy size={36} className="mx-auto mb-3 opacity-60" />
-            <p className="text-sm">Inicia sesión en la página principal con la cuenta de administrador (admin@aqui.com.do) para usar el Soporte Técnico.</p>
+            <p className="text-sm">Inicia sesión en la página principal con la cuenta de administrador (admin@uniko-rd.com) para usar el Soporte Técnico.</p>
           </div>
         );
       case "mensajes":
         return adminUserId ? (
           <SupportChat userId={adminUserId} role="ADMIN" />
         ) : (
-          <div className="bg-[#0F2A4A] border border-white/10 rounded-2xl p-8 text-center text-gray-400">
+          <div className="bg-[#0F2A4A] border border-white/10 rounded-2xl p-8 text-center text-white/80">
             <FiMessageCircle size={36} className="mx-auto mb-3 opacity-60" />
             <p className="text-sm">Inicia sesión en la página principal con la cuenta de administrador para usar los mensajes.</p>
           </div>
@@ -1404,6 +1844,7 @@ export default function AdminPanel() {
       case "impuestos": return <ImpuestosTab />;
       case "formulario": return <FormularioProductosTab />;
       case "banners": return <BannersTab />;
+      case "crm": return <CRMTab />;
       default: return <VendedoresTab />;
     }
   };
@@ -1421,8 +1862,8 @@ export default function AdminPanel() {
       {/* Sidebar */}
       <aside className={`${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 fixed md:static inset-y-0 left-0 z-40 ${sidebarOpen ? "w-64" : "md:w-20 w-64"} bg-[#0F2A4A] border-r border-white/5 flex flex-col transition-all duration-300 flex-shrink-0`}>
         <div className="p-4 border-b border-white/5 flex items-center gap-3">
-          <img src="/logo-aqui-blanco.png" alt="AQUÍ" className="w-10 h-10 flex-shrink-0" />
-          {sidebarOpen && <span className="font-bold text-white text-lg tracking-tight">AQUÍ Admin</span>}
+          <img src="/logo-uniko-blanco.png" alt="UNIKO" className="w-10 h-10 flex-shrink-0" />
+          {sidebarOpen && <span className="font-bold text-white text-lg tracking-tight">UNIKO Admin</span>}
         </div>
 
         <nav className="flex-1 p-3 space-y-1">
@@ -1436,7 +1877,7 @@ export default function AdminPanel() {
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                   isActive
                     ? "bg-[#FF6B35] text-white"
-                    : "text-gray-400 hover:text-white hover:bg-white/5"
+                    : "text-white/80 hover:text-white hover:bg-white/5"
                 }`}
                 title={tab.label}
               >
@@ -1464,10 +1905,10 @@ export default function AdminPanel() {
         {/* Top Bar */}
         <header className="bg-[#0F2A4A] border-b border-white/5 px-3 sm:px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button onClick={() => setMobileMenuOpen(true)} className="text-gray-400 hover:text-white transition-colors md:hidden">
+            <button onClick={() => setMobileMenuOpen(true)} className="text-white/80 hover:text-white transition-colors md:hidden">
               <FiMenu size={20} />
             </button>
-            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-gray-400 hover:text-white transition-colors hidden md:block">
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-white/80 hover:text-white transition-colors hidden md:block">
               <FiSettings size={20} />
             </button>
           </div>
@@ -1475,7 +1916,7 @@ export default function AdminPanel() {
             {adminUserId && (
               <NotificationsBell userId={adminUserId} variant="inline" />
             )}
-            <span className="text-sm text-gray-400">Administrador</span>
+            <span className="text-sm text-white/80">Administrador</span>
             <div className="w-8 h-8 bg-[#1B4B8A] rounded-full flex items-center justify-center text-white text-sm font-bold">A</div>
           </div>
         </header>

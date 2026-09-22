@@ -8,15 +8,15 @@ export const seed = mutation({
     if (existing) return "already seeded";
 
     const adminId = await ctx.db.insert("users", {
-      name: "Administrador AQUÍ",
-      email: "admin@aqui.com.do",
+      name: "Administrador Uniko RD",
+      email: "admin@uniko-rd.com",
       password: "admin123",
       role: "ADMIN",
     });
 
     const v1UserId = await ctx.db.insert("users", {
       name: "Tech Store RD",
-      email: "vendedor1@aqui.com.do",
+      email: "vendedor1@uniko-rd.com",
       password: "vendor123",
       role: "VENDOR",
       phone: "809-555-0101",
@@ -35,7 +35,7 @@ export const seed = mutation({
 
     const v2UserId = await ctx.db.insert("users", {
       name: "Hogar y Estilo",
-      email: "vendedor2@aqui.com.do",
+      email: "vendedor2@uniko-rd.com",
       password: "vendor123",
       role: "VENDOR",
       phone: "809-555-0202",
@@ -54,7 +54,7 @@ export const seed = mutation({
 
     const v3UserId = await ctx.db.insert("users", {
       name: "Bienestar Total",
-      email: "vendedor3@aqui.com.do",
+      email: "vendedor3@uniko-rd.com",
       password: "vendor123",
       role: "VENDOR",
       phone: "809-555-0303",
@@ -73,7 +73,7 @@ export const seed = mutation({
 
     await ctx.db.insert("users", {
       name: "Juan Pérez",
-      email: "cliente@aqui.com.do",
+      email: "cliente@uniko-rd.com",
       password: "customer123",
       role: "CUSTOMER",
       phone: "809-555-0404",

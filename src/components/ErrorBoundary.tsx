@@ -26,13 +26,13 @@ export default class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="min-h-screen flex items-center justify-center bg-white p-4">
           <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center">
             <div className="text-6xl mb-4">!</div>
-            <h1 className="text-xl font-bold text-gray-900 mb-2">
+            <h1 className="text-xl font-bold text-uniko-blue mb-2">
               Algo salió mal
             </h1>
-            <p className="text-gray-500 mb-6">
+            <p className="text-uniko-blue/70 mb-6">
               {this.state.error?.message || "Ha ocurrido un error inesperado."}
             </p>
             <button

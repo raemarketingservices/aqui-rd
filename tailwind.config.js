@@ -4,19 +4,17 @@ export default {
   theme: {
     extend: {
       colors: {
-        aqui: {
-          dark: '#0F2A4A',
-          blue: '#1B4B8A',
-          lightblue: '#3B82F6',
-          orange: '#FF6B35',
-          green: '#28A745',
-          red: '#E53E3E',
-          gray: '#6B7280',
-          lightgray: '#F3F4F6',
+        uniko: {
+          blue: '#0033A0', // Azul Bandera
+          red: '#CC0033',  // Rojo Bandera
+          white: '#FFFFFF',// Blanco
+          dark: '#0033A0',
+          navy: '#0033A0',
+          gray: '#FFFFFF',
         },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['Montserrat', 'system-ui', '-apple-system', 'sans-serif'],
       },
     },
   },

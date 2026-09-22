@@ -186,14 +186,14 @@ export default function VendorDashboard() {
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-500">
+          <h1 className="text-3xl font-bold text-uniko-blue">Dashboard</h1>
+          <p className="text-uniko-blue/70">
             Bienvenido, {vendorData?.businessName || user.name}
           </p>
         </div>
         <Link
           to="/vendor/nuevo-producto"
-          className="bg-aqui-orange hover:bg-orange-600 text-white font-semibold px-5 py-2.5 rounded-lg transition-colors"
+          className="bg-uniko-red hover:bg-uniko-red text-white font-semibold px-5 py-2.5 rounded-lg transition-colors"
         >
           + Nuevo Producto
         </Link>
@@ -206,13 +206,13 @@ export default function VendorDashboard() {
             icon: <FiPackage size={22} />,
             label: "Productos",
             value: productList.length,
-            color: "bg-aqui-blue",
+            color: "bg-uniko-blue",
           },
           {
             icon: <FiDollarSign size={22} />,
             label: "Ventas Totales",
             value: `$${(totalSales / 100).toLocaleString()}`,
-            color: "bg-aqui-green",
+            color: "bg-uniko-green",
           },
           {
             icon: <FiStar size={22} />,
@@ -231,7 +231,7 @@ export default function VendorDashboard() {
               {stat.icon}
             </div>
             <div>
-              <p className="text-sm text-gray-500">{stat.label}</p>
+              <p className="text-sm text-uniko-blue/70">{stat.label}</p>
               <p className="text-2xl font-bold">{stat.value}</p>
             </div>
           </div>
@@ -246,7 +246,7 @@ export default function VendorDashboard() {
             {!editingInfo && (
               <button
                 onClick={startEditInfo}
-                className="text-aqui-blue hover:text-blue-700 text-sm font-medium"
+                className="text-uniko-blue hover:text-[#002280] text-sm font-medium"
               >
                 Editar
               </button>
@@ -256,7 +256,7 @@ export default function VendorDashboard() {
           {editingInfo ? (
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-uniko-blue mb-1">
                   Nombre del Negocio
                 </label>
                 <input
@@ -265,11 +265,11 @@ export default function VendorDashboard() {
                   onChange={(e) =>
                     setInfoForm({ ...infoForm, businessName: e.target.value })
                   }
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                  className="w-full border border-uniko-blue/30 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-uniko-blue mb-1">
                   Descripción
                 </label>
                 <textarea
@@ -278,11 +278,11 @@ export default function VendorDashboard() {
                     setInfoForm({ ...infoForm, description: e.target.value })
                   }
                   rows={3}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                  className="w-full border border-uniko-blue/30 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-uniko-blue mb-1">
                   Logo (URL)
                 </label>
                 <input
@@ -291,20 +291,20 @@ export default function VendorDashboard() {
                   onChange={(e) =>
                     setInfoForm({ ...infoForm, logo: e.target.value })
                   }
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                  className="w-full border border-uniko-blue/30 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
                   placeholder="https://..."
                 />
               </div>
               <div className="flex gap-2">
                 <button
                   onClick={saveInfo}
-                  className="bg-aqui-blue hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg"
+                  className="bg-uniko-blue hover:bg-[#002280] text-white text-sm font-medium px-4 py-2 rounded-lg"
                 >
                   Guardar
                 </button>
                 <button
                   onClick={() => setEditingInfo(false)}
-                  className="text-gray-500 hover:text-gray-700 text-sm font-medium px-4 py-2"
+                  className="text-uniko-blue/70 hover:text-uniko-blue text-sm font-medium px-4 py-2"
                 >
                   Cancelar
                 </button>
@@ -320,16 +320,16 @@ export default function VendorDashboard() {
                 />
               )}
               <div>
-                <p className="text-xs text-gray-400 uppercase tracking-wide">
+                <p className="text-xs text-white/80 uppercase tracking-wide">
                   Nombre
                 </p>
                 <p className="font-medium">{vendorData?.businessName || "—"}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-400 uppercase tracking-wide">
+                <p className="text-xs text-white/80 uppercase tracking-wide">
                   Descripción
                 </p>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-uniko-blue">
                   {vendorData?.description || "—"}
                 </p>
               </div>
@@ -344,7 +344,7 @@ export default function VendorDashboard() {
             {!editingSocials && (
               <button
                 onClick={startEditSocials}
-                className="text-aqui-blue hover:text-blue-700 text-sm font-medium"
+                className="text-uniko-blue hover:text-[#002280] text-sm font-medium"
               >
                 Editar
               </button>
@@ -354,7 +354,7 @@ export default function VendorDashboard() {
           {editingSocials ? (
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-uniko-blue mb-1">
                   WhatsApp
                 </label>
                 <input
@@ -363,13 +363,13 @@ export default function VendorDashboard() {
                   onChange={(e) =>
                     setSocialsForm({ ...socialsForm, whatsapp: e.target.value })
                   }
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                  className="w-full border border-uniko-blue/30 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
                   placeholder="809-555-0000"
                 />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-uniko-blue mb-1">
                     Instagram
                   </label>
                   <input
@@ -381,12 +381,12 @@ export default function VendorDashboard() {
                         instagram: e.target.value,
                       })
                     }
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                    className="w-full border border-uniko-blue/30 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
                     placeholder="https://instagram.com/tu-tienda"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-uniko-blue mb-1">
                     Facebook
                   </label>
                   <input
@@ -398,12 +398,12 @@ export default function VendorDashboard() {
                         facebook: e.target.value,
                       })
                     }
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                    className="w-full border border-uniko-blue/30 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
                     placeholder="https://facebook.com/tu-pagina"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-uniko-blue mb-1">
                     X / Twitter
                   </label>
                   <input
@@ -415,12 +415,12 @@ export default function VendorDashboard() {
                         twitter: e.target.value,
                       })
                     }
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                    className="w-full border border-uniko-blue/30 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
                     placeholder="https://x.com/tu-cuenta"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-uniko-blue mb-1">
                     TikTok
                   </label>
                   <input
@@ -432,12 +432,12 @@ export default function VendorDashboard() {
                         tiktok: e.target.value,
                       })
                     }
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                    className="w-full border border-uniko-blue/30 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
                     placeholder="https://tiktok.com/@tu-cuenta"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-uniko-blue mb-1">
                     YouTube
                   </label>
                   <input
@@ -449,7 +449,7 @@ export default function VendorDashboard() {
                         youtube: e.target.value,
                       })
                     }
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                    className="w-full border border-uniko-blue/30 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
                     placeholder="https://youtube.com/@tu-canal"
                   />
                 </div>
@@ -457,13 +457,13 @@ export default function VendorDashboard() {
               <div className="flex gap-2 pt-2">
                 <button
                   onClick={saveSocials}
-                  className="bg-aqui-blue hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg"
+                  className="bg-uniko-blue hover:bg-[#002280] text-white text-sm font-medium px-4 py-2 rounded-lg"
                 >
                   Guardar
                 </button>
                 <button
                   onClick={() => setEditingSocials(false)}
-                  className="text-gray-500 hover:text-gray-700 text-sm font-medium px-4 py-2"
+                  className="text-uniko-blue/70 hover:text-uniko-blue text-sm font-medium px-4 py-2"
                 >
                   Cancelar
                 </button>
@@ -472,7 +472,7 @@ export default function VendorDashboard() {
           ) : (
             <div className="flex flex-wrap gap-4">
               {vendorData?.whatsapp && (
-                <div className="flex items-center gap-2 text-gray-700">
+                <div className="flex items-center gap-2 text-uniko-blue">
                   <span className="w-9 h-9 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-bold text-sm">
                     W
                   </span>
@@ -484,7 +484,7 @@ export default function VendorDashboard() {
                   href={vendorData.socials.instagram}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-gray-700 hover:text-pink-600 transition-colors"
+                  className="flex items-center gap-2 text-uniko-blue hover:text-pink-600 transition-colors"
                 >
                   <span className="w-9 h-9 rounded-full bg-pink-100 flex items-center justify-center">
                     <FiInstagram size={16} />
@@ -497,7 +497,7 @@ export default function VendorDashboard() {
                   href={vendorData.socials.facebook}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-gray-700 hover:text-blue-700 transition-colors"
+                  className="flex items-center gap-2 text-uniko-blue hover:text-[#002280] transition-colors"
                 >
                   <span className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center">
                     <FiFacebook size={16} />
@@ -510,7 +510,7 @@ export default function VendorDashboard() {
                   href={vendorData.socials.twitter}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-gray-700 hover:text-blue-400 transition-colors"
+                  className="flex items-center gap-2 text-uniko-blue hover:text-uniko-blue transition-colors"
                 >
                   <span className="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center">
                     <FiTwitter size={16} />
@@ -523,9 +523,9 @@ export default function VendorDashboard() {
                   href={vendorData.socials.tiktok}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-gray-700 hover:text-black transition-colors"
+                  className="flex items-center gap-2 text-uniko-blue hover:text-black transition-colors"
                 >
-                  <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
+                  <span className="w-9 h-9 rounded-full bg-white flex items-center justify-center">
                     <FiExternalLink size={16} />
                   </span>
                   <span className="text-sm">TikTok</span>
@@ -536,7 +536,7 @@ export default function VendorDashboard() {
                   href={vendorData.socials.youtube}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors"
+                  className="flex items-center gap-2 text-uniko-blue hover:text-red-600 transition-colors"
                 >
                   <span className="w-9 h-9 rounded-full bg-red-100 flex items-center justify-center">
                     <FiYoutube size={16} />
@@ -550,7 +550,7 @@ export default function VendorDashboard() {
                 !vendorData?.socials?.twitter &&
                 !vendorData?.socials?.tiktok &&
                 !vendorData?.socials?.youtube && (
-                  <p className="text-gray-400 text-sm">
+                  <p className="text-white/80 text-sm">
                     No hay redes sociales configuradas
                   </p>
                 )}
@@ -568,7 +568,7 @@ export default function VendorDashboard() {
           {!editingPayment && (
             <button
               onClick={startEditPayment}
-              className="text-aqui-blue hover:text-blue-700 text-sm font-medium"
+              className="text-uniko-blue hover:text-[#002280] text-sm font-medium"
             >
               Editar
             </button>
@@ -579,7 +579,7 @@ export default function VendorDashboard() {
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-uniko-blue mb-1">
                   Banco principal
                 </label>
                 <input
@@ -588,12 +588,12 @@ export default function VendorDashboard() {
                   onChange={(e) =>
                     setPaymentForm({ ...paymentForm, banco: e.target.value })
                   }
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                  className="w-full border border-uniko-blue/30 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
                   placeholder="BanReservas, BHD, etc."
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-uniko-blue mb-1">
                   Número de cuenta bancaria
                 </label>
                 <input
@@ -602,12 +602,12 @@ export default function VendorDashboard() {
                   onChange={(e) =>
                     setPaymentForm({ ...paymentForm, cuenta: e.target.value })
                   }
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                  className="w-full border border-uniko-blue/30 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
                   placeholder="000-000000-00"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-uniko-blue mb-1">
                   Tipo de cuenta
                 </label>
                 <select
@@ -615,14 +615,14 @@ export default function VendorDashboard() {
                   onChange={(e) =>
                     setPaymentForm({ ...paymentForm, tipoCuenta: e.target.value })
                   }
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                  className="w-full border border-uniko-blue/30 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
                 >
                   <option value="Ahorro">Ahorro</option>
                   <option value="Corriente">Corriente</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-uniko-blue mb-1">
                   Teléfono para pagos móviles
                 </label>
                 <input
@@ -634,13 +634,13 @@ export default function VendorDashboard() {
                       telefonoPagos: e.target.value,
                     })
                   }
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                  className="w-full border border-uniko-blue/30 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
                   placeholder="809-555-0000"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  PayPal email <span className="text-gray-400">(opcional)</span>
+                <label className="block text-sm font-medium text-uniko-blue mb-1">
+                  PayPal email <span className="text-white/80">(opcional)</span>
                 </label>
                 <input
                   type="email"
@@ -651,12 +651,12 @@ export default function VendorDashboard() {
                       paypalEmail: e.target.value,
                     })
                   }
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                  className="w-full border border-uniko-blue/30 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
                   placeholder="correo@paypal.com"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-uniko-blue mb-1">
                   Link de pago
                 </label>
                 <input
@@ -665,7 +665,7 @@ export default function VendorDashboard() {
                   onChange={(e) =>
                     setPaymentForm({ ...paymentForm, linkPago: e.target.value })
                   }
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent"
+                  className="w-full border border-uniko-blue/30 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent"
                   placeholder="https://..."
                 />
               </div>
@@ -673,13 +673,13 @@ export default function VendorDashboard() {
             <div className="flex gap-2 pt-2">
               <button
                 onClick={savePayment}
-                className="bg-aqui-blue hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg"
+                className="bg-uniko-blue hover:bg-[#002280] text-white text-sm font-medium px-4 py-2 rounded-lg"
               >
                 Guardar Métodos de Pago
               </button>
               <button
                 onClick={() => setEditingPayment(false)}
-                className="text-gray-500 hover:text-gray-700 text-sm font-medium px-4 py-2"
+                className="text-uniko-blue/70 hover:text-uniko-blue text-sm font-medium px-4 py-2"
               >
                 Cancelar
               </button>
@@ -689,13 +689,13 @@ export default function VendorDashboard() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {vendorData?.paymentMethods?.banco && (
               <div>
-                <p className="text-xs text-gray-400 uppercase tracking-wide">Banco</p>
+                <p className="text-xs text-white/80 uppercase tracking-wide">Banco</p>
                 <p className="font-medium">{vendorData.paymentMethods.banco}</p>
               </div>
             )}
             {vendorData?.paymentMethods?.cuenta && (
               <div>
-                <p className="text-xs text-gray-400 uppercase tracking-wide">
+                <p className="text-xs text-white/80 uppercase tracking-wide">
                   Cuenta
                 </p>
                 <p className="font-medium">{vendorData.paymentMethods.cuenta}</p>
@@ -703,7 +703,7 @@ export default function VendorDashboard() {
             )}
             {vendorData?.paymentMethods?.tipoCuenta && (
               <div>
-                <p className="text-xs text-gray-400 uppercase tracking-wide">
+                <p className="text-xs text-white/80 uppercase tracking-wide">
                   Tipo
                 </p>
                 <p className="font-medium">{vendorData.paymentMethods.tipoCuenta}</p>
@@ -711,7 +711,7 @@ export default function VendorDashboard() {
             )}
             {vendorData?.paymentMethods?.telefonoPagos && (
               <div>
-                <p className="text-xs text-gray-400 uppercase tracking-wide">
+                <p className="text-xs text-white/80 uppercase tracking-wide">
                   Pagos móviles
                 </p>
                 <p className="font-medium">{vendorData.paymentMethods.telefonoPagos}</p>
@@ -719,7 +719,7 @@ export default function VendorDashboard() {
             )}
             {vendorData?.paymentMethods?.paypalEmail && (
               <div>
-                <p className="text-xs text-gray-400 uppercase tracking-wide">
+                <p className="text-xs text-white/80 uppercase tracking-wide">
                   PayPal
                 </p>
                 <p className="font-medium">{vendorData.paymentMethods.paypalEmail}</p>
@@ -727,14 +727,14 @@ export default function VendorDashboard() {
             )}
             {vendorData?.paymentMethods?.linkPago && (
               <div>
-                <p className="text-xs text-gray-400 uppercase tracking-wide">
+                <p className="text-xs text-white/80 uppercase tracking-wide">
                   Link de pago
                 </p>
                 <a
                   href={vendorData.paymentMethods.linkPago}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-medium text-aqui-blue hover:underline text-sm"
+                  className="font-medium text-uniko-blue hover:underline text-sm"
                 >
                   {vendorData.paymentMethods.linkPago}
                 </a>
@@ -745,7 +745,7 @@ export default function VendorDashboard() {
               !vendorData?.paymentMethods?.telefonoPagos &&
               !vendorData?.paymentMethods?.paypalEmail &&
               !vendorData?.paymentMethods?.linkPago && (
-                <p className="text-gray-400 text-sm">
+                <p className="text-white/80 text-sm">
                   No hay métodos de pago configurados
                 </p>
               )}
@@ -757,19 +757,19 @@ export default function VendorDashboard() {
       <div className="bg-white rounded-xl shadow-md p-6 mb-8">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-aqui-orange/10 rounded-lg flex items-center justify-center">
-              <FiPackage size={20} className="text-aqui-orange" />
+            <div className="w-10 h-10 bg-uniko-red/10 rounded-lg flex items-center justify-center">
+              <FiPackage size={20} className="text-uniko-red" />
             </div>
             <div>
               <h2 className="text-lg font-bold">Inventario</h2>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-uniko-blue/70">
                 Controla el stock de tus productos
               </p>
             </div>
           </div>
           <Link
             to="/vendor/nuevo-producto"
-            className="bg-aqui-blue hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+            className="bg-uniko-blue hover:bg-[#002280] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
           >
             + Nuevo Producto
           </Link>
@@ -778,10 +778,10 @@ export default function VendorDashboard() {
         {productList.length === 0 ? (
           <div className="text-center py-10">
             <FiPackage size={40} className="mx-auto text-gray-300 mb-3" />
-            <p className="text-gray-500 mb-3">No tienes productos en inventario</p>
+            <p className="text-uniko-blue/70 mb-3">No tienes productos en inventario</p>
             <Link
               to="/vendor/nuevo-producto"
-              className="text-aqui-orange hover:underline text-sm font-medium"
+              className="text-uniko-red hover:underline text-sm font-medium"
             >
               Crear tu primer producto
             </Link>
@@ -790,7 +790,7 @@ export default function VendorDashboard() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-xs text-gray-400 uppercase tracking-wide border-b border-gray-100">
+                <tr className="text-left text-xs text-white/80 uppercase tracking-wide border-b border-uniko-blue/10">
                   <th className="px-3 py-2">Producto</th>
                   <th className="px-3 py-2">Precio</th>
                   <th className="px-3 py-2">Stock</th>
@@ -800,7 +800,7 @@ export default function VendorDashboard() {
               </thead>
               <tbody>
                 {productList.map((p: any) => (
-                  <tr key={p._id} className="border-b border-gray-50 hover:bg-gray-50/50">
+                  <tr key={p._id} className="border-b border-gray-50 hover:bg-white/50">
                     <td className="px-3 py-3">
                       <div className="flex items-center gap-3 min-w-0">
                         {p.images && p.images[0] ? (
@@ -810,19 +810,19 @@ export default function VendorDashboard() {
                             className="w-10 h-10 rounded-lg object-cover border"
                           />
                         ) : (
-                          <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400">
+                          <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center text-white/80">
                             <FiPackage size={16} />
                           </div>
                         )}
                         <Link
                           to={`/vendor/editar-producto/${p._id}`}
-                          className="font-medium text-gray-900 hover:text-aqui-blue truncate"
+                          className="font-medium text-uniko-blue hover:text-uniko-blue truncate"
                         >
                           {p.name}
                         </Link>
                       </div>
                     </td>
-                    <td className="px-3 py-3 text-gray-700">
+                    <td className="px-3 py-3 text-uniko-blue">
                       RD${(p.price / 100).toLocaleString()}
                     </td>
                     <td className="px-3 py-3">
@@ -831,7 +831,7 @@ export default function VendorDashboard() {
                           p.stock <= 0
                             ? "bg-red-50 text-red-600"
                             : p.stock < 10
-                            ? "bg-yellow-50 text-yellow-700"
+                            ? "bg-uniko-red text-[#CC0033]"
                             : "bg-green-50 text-green-600"
                         }`}
                       >
@@ -842,7 +842,7 @@ export default function VendorDashboard() {
                           : `${p.stock} disponibles`}
                       </span>
                     </td>
-                    <td className="px-3 py-3 text-gray-500">
+                    <td className="px-3 py-3 text-uniko-blue/70">
                       {p.salesCount || 0}
                     </td>
                     <td className="px-3 py-3">
@@ -850,7 +850,7 @@ export default function VendorDashboard() {
                         <button
                           onClick={() => handleStockChange(p._id, p.stock, -1)}
                           disabled={stockLoadingId === p._id || p.stock <= 0}
-                          className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-100 disabled:opacity-40"
+                          className="w-8 h-8 rounded-lg border border-uniko-blue/20 flex items-center justify-center hover:bg-white disabled:opacity-40"
                         >
                           −
                         </button>
@@ -860,7 +860,7 @@ export default function VendorDashboard() {
                         <button
                           onClick={() => handleStockChange(p._id, p.stock, 1)}
                           disabled={stockLoadingId === p._id}
-                          className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-100 disabled:opacity-40"
+                          className="w-8 h-8 rounded-lg border border-uniko-blue/20 flex items-center justify-center hover:bg-white disabled:opacity-40"
                         >
                           +
                         </button>
@@ -881,7 +881,7 @@ export default function VendorDashboard() {
           {productList.map((p: any) => (
             <div
               key={p._id}
-              className="border border-gray-100 rounded-lg p-3 hover:shadow-md transition-shadow"
+              className="border border-uniko-blue/10 rounded-lg p-3 hover:shadow-md transition-shadow"
             >
               <div className="flex items-center gap-3 mb-2">
                 {vendorData?.logo ? (
@@ -891,13 +891,13 @@ export default function VendorDashboard() {
                     className="w-10 h-10 rounded-full object-cover border"
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-aqui-blue text-white flex items-center justify-center font-bold text-sm">
+                  <div className="w-10 h-10 rounded-full bg-uniko-blue text-white flex items-center justify-center font-bold text-sm">
                     {(vendorData?.businessName || "V").charAt(0).toUpperCase()}
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-sm truncate">{p.name}</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-uniko-blue/70">
                     RD${(p.price / 100).toLocaleString()} · Stock: {p.stock}
                   </p>
                 </div>
@@ -905,7 +905,7 @@ export default function VendorDashboard() {
               <div className="flex gap-2">
                 <Link
                   to={`/vendor/editar-producto/${p._id}`}
-                  className="flex items-center gap-1 text-xs text-aqui-blue hover:text-blue-700 font-medium bg-blue-50 px-3 py-1.5 rounded-lg flex-1 justify-center"
+                  className="flex items-center gap-1 text-xs text-uniko-blue hover:text-[#002280] font-medium bg-blue-50 px-3 py-1.5 rounded-lg flex-1 justify-center"
                 >
                   <FiEdit2 size={12} /> Editar
                 </Link>
@@ -922,10 +922,10 @@ export default function VendorDashboard() {
         {productList.length === 0 && (
           <div className="text-center py-12">
             <FiPackage size={40} className="mx-auto text-gray-300 mb-3" />
-            <p className="text-gray-500">No tienes productos aún</p>
+            <p className="text-uniko-blue/70">No tienes productos aún</p>
             <Link
               to="/vendor/nuevo-producto"
-              className="text-aqui-orange hover:underline text-sm font-medium"
+              className="text-uniko-red hover:underline text-sm font-medium"
             >
               Crear tu primer producto
             </Link>

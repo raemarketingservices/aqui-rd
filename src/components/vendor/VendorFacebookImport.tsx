@@ -53,26 +53,26 @@ export default function VendorFacebookImport({ onSaved }: { onSaved: () => void 
   return (
     <div className="bg-white rounded-xl shadow-md p-6">
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 bg-blue-600/10 rounded-lg flex items-center justify-center">
-          <FiFacebook size={20} className="text-blue-600" />
+        <div className="w-10 h-10 bg-uniko-blue/10 rounded-lg flex items-center justify-center">
+          <FiFacebook size={20} className="text-uniko-blue" />
         </div>
         <div>
           <h2 className="text-lg font-bold">Importar de Facebook</h2>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-uniko-blue/70">
             Pega los enlaces de tus publicaciones y se crean automáticamente
           </p>
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-uniko-blue mb-2">
           Enlaces de Facebook (uno por línea, máx. 20)
         </label>
         <textarea
           value={linksText}
           onChange={(e) => setLinksText(e.target.value)}
           rows={5}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-aqui-blue focus:border-transparent font-mono"
+          className="w-full border border-uniko-blue/30 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-uniko-blue focus:border-transparent font-mono"
           placeholder={"https://www.facebook.com/marketplace/item/123456789/\nhttps://www.facebook.com/marketplace/item/987654321/"}
           disabled={loading}
         />
@@ -82,7 +82,7 @@ export default function VendorFacebookImport({ onSaved }: { onSaved: () => void 
             <strong>Cómo obtener los enlaces:</strong> abre tu perfil de
             Marketplace en la app de Facebook, entra a cada publicación y
             toca <strong>⋯ → Copiar enlace</strong>. Pega todos los enlaces
-            aquí y pulsa "Importar". Se extraerá la foto, nombre y precio
+            Uniko y pulsa "Importar". Se extraerá la foto, nombre y precio
             de cada publicación.
           </span>
         </div>
@@ -91,7 +91,7 @@ export default function VendorFacebookImport({ onSaved }: { onSaved: () => void 
       <button
         onClick={handleImport}
         disabled={loading || parseLinks().length === 0}
-        className="mt-4 bg-aqui-orange hover:bg-orange-600 text-white font-semibold px-6 py-2.5 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+        className="mt-4 bg-uniko-red hover:bg-uniko-red text-white font-semibold px-6 py-2.5 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
       >
         {loading ? (
           <>

@@ -1,30 +1,32 @@
 import { useState, useRef, useEffect } from "react";
-import { useQuery, useMutation } from "convex/react";
-import { api } from "../../../convex/_generated/api";
 import { FiBell, FiCheck, FiMessageSquare, FiLifeBuoy, FiX } from "react-icons/fi";
-import { Id } from "../../../convex/_generated/dataModel";
 
 const TYPE_ICON: Record<string, any> = {
-  chat: { icon: <FiMessageSquare size={16} />, color: "bg-blue-100 text-blue-600" },
-  ticket: { icon: <FiLifeBuoy size={16} />, color: "bg-orange-100 text-orange-600" },
+  chat: { icon: <FiMessageSquare size={16} />, color: "bg-blue-100 text-uniko-blue" },
+  ticket: { icon: <FiLifeBuoy size={16} />, color: "bg-[#FFE5EA] text-[#CC0033]" },
 };
 
 export default function NotificationsBell({
   userId,
   variant = "floating",
 }: {
-  userId?: Id<"users"> | string | null;
+  userId?: string | null;
   variant?: "floating" | "inline";
 }) {
   const [open, setOpen] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const ref = useRef<HTMLDivElement>(null);
-  const notifications = useQuery(
-    api.support.getNotifications,
-    userId ? { userId: userId as Id<"users"> } : "skip"
-  );
-  const markRead = useMutation(api.support.markNotificationsRead);
 
   const unread = notifications?.filter((n: any) => !n.read)?.length || 0;
+
+  useEffect(() => {
+    if (userId) {
+      // TODO: Implement fetch notifications from API
+      setNotifications([]);
+      setLoading(false);
+    }
+  }, [userId]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -36,9 +38,7 @@ export default function NotificationsBell({
 
   const handleOpen = () => {
     setOpen(!open);
-    if (!open && unread > 0 && userId) {
-      markRead({ userId: userId as Id<"users"> }).catch(() => {});
-    }
+    // TODO: Implement mark read API call
   };
 
   const containerClass =
@@ -62,9 +62,9 @@ export default function NotificationsBell({
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden z-50">
-          <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-100">
-            <h3 className="font-bold text-gray-900 text-sm">Notificaciones</h3>
+        <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-2xl border border-uniko-blue/10 overflow-hidden z-50">
+          <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-uniko-blue/10">
+            <h3 className="font-bold text-uniko-blue text-sm">Notificaciones</h3>
             {unread > 0 && (
               <span className="text-xs font-semibold bg-red-100 text-red-600 px-2 py-0.5 rounded-full">
                 {unread} nuevas
@@ -73,15 +73,14 @@ export default function NotificationsBell({
           </div>
           <div className="max-h-80 overflow-y-auto">
             {!userId ? (
-              <div className="p-6 text-center text-sm text-gray-500">
+              <div className="p-6 text-center text-sm text-uniko-blue/70">
                 <FiBell size={28} className="mx-auto text-gray-300 mb-2" />
-                Inicia sesión como administrador en la página principal para
-                recibir notificaciones.
+                Inicia sesión para recibir notificaciones.
               </div>
-            ) : notifications === undefined ? (
-              <div className="p-6 text-center text-sm text-gray-400">Cargando...</div>
+            ) : loading ? (
+              <div className="p-6 text-center text-sm text-white/80">Cargando...</div>
             ) : notifications.length === 0 ? (
-              <div className="p-6 text-center text-sm text-gray-500">
+              <div className="p-6 text-center text-sm text-uniko-blue/70">
                 <FiBell size={28} className="mx-auto text-gray-300 mb-2" />
                 No tienes notificaciones
               </div>
@@ -90,8 +89,8 @@ export default function NotificationsBell({
                 const style = TYPE_ICON[n.type] || TYPE_ICON.ticket;
                 return (
                   <div
-                    key={n._id}
-                    className={`px-4 py-3 border-b border-gray-50 flex gap-3 hover:bg-gray-50 transition ${
+                    key={n.id || n._id}
+                    className={`px-4 py-3 border-b border-gray-50 flex gap-3 hover:bg-white transition ${
                       !n.read ? "bg-blue-50/50" : ""
                     }`}
                   >
@@ -101,12 +100,12 @@ export default function NotificationsBell({
                       {style.icon}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-gray-900">{n.title}</p>
-                      <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">
+                      <p className="text-sm font-semibold text-uniko-blue">{n.title}</p>
+                      <p className="text-xs text-uniko-blue/70 leading-relaxed line-clamp-2">
                         {n.message}
                       </p>
-                      <p className="text-[10px] text-gray-400 mt-1">
-                        {new Date(n.createdAt).toLocaleString("es-DO", {
+                      <p className="text-[10px] text-white/80 mt-1">
+                        {new Date(n.createdAt || n.created_at || Date.now()).toLocaleString("es-DO", {
                           day: "2-digit",
                           month: "short",
                           hour: "2-digit",
@@ -115,7 +114,7 @@ export default function NotificationsBell({
                       </p>
                     </div>
                     {!n.read && (
-                      <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0 mt-1.5" />
+                      <span className="w-2 h-2 rounded-full bg-uniko-blue flex-shrink-0 mt-1.5" />
                     )}
                   </div>
                 );
@@ -124,8 +123,8 @@ export default function NotificationsBell({
           </div>
           {notifications && notifications.length > 0 && (
             <button
-              onClick={() => userId && markRead({ userId: userId as Id<"users"> }).catch(() => {})}
-              className="w-full py-2.5 text-xs font-semibold text-aqui-blue hover:bg-blue-50 flex items-center justify-center gap-1.5 transition"
+              onClick={() => { /* TODO: mark all read */ }}
+              className="w-full py-2.5 text-xs font-semibold text-uniko-blue hover:bg-blue-50 flex items-center justify-center gap-1.5 transition"
             >
               <FiCheck size={14} /> Marcar todas como leídas
             </button>

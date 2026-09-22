@@ -53,7 +53,7 @@ export const seed = mutation({
       { question: "¿Puedo vender en AQUÍ RD?", answer: "¡Por supuesto! Puedes registrar tu tienda en nuestra plataforma. Solo haz clic en 'Vender en AQUÍ' y completa el formulario. Tu tienda estará activa en menos de 24 horas." },
       { question: "¿Cómo devuelvo un producto?", answer: "Puedes solicitar una devolución dentro de los 7 días posteriores a la recepción del producto. El producto debe estar en buenas condiciones y con su empaque original." },
       { question: "¿Tienen tienda física?", answer: "AQUÍ RD es una plataforma 100% online. Puedes disfrutar de nuestra experiencia de compra desde cualquier dispositivo con acceso a internet." },
-      { question: "¿Cómo contacto soporte?", answer: "Puedes escribirnos por WhatsApp al número que encontrarás en nuestra página, o enviar un email a soporte@aquird.com.do. También puedes usar este chatbot para preguntas frecuentes." },
+      { question: "¿Cómo contacto soporte?", answer: "Puedes escribirnos por WhatsApp al número que encontrarás en nuestra página, o enviar un email a soporte@uniko-rd.com. También puedes usar este chatbot para preguntas frecuentes." },
       { question: "¿Qué métodos de pago aceptan?", answer: "Aceptamos tarjetas de crédito y débito (Visa, MasterCard), transferencias bancarias, y pagos en efectivo mediante pagosmóviles." },
       { question: "¿Los productos son originales?", answer: "Todos los vendedores en AQUÍ RD son verificados. Trabajamos para garantizar la calidad y autenticidad de todos los productos publicados en nuestra plataforma." },
     ];

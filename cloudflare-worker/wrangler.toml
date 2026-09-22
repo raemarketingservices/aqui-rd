@@ -1,0 +1,4 @@
+name = "uniko-rd-api"
+main = "index.js"
+compatibility_date = "2024-01-01"
+account_id = "1795da7327dd96d51cf255eb50bf45ac"
