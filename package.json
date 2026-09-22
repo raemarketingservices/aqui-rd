@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "docker:build": "docker build -t uniko-marketplace .",
+    "docker:run": "docker run -p 80:80 uniko-marketplace"
   },
   "dependencies": {
     "react": "^18.2.0",

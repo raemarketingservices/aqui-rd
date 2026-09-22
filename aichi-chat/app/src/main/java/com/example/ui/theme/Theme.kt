@@ -11,7 +11,7 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun AquiRDTheme(content: @Composable () -> Unit) {
+fun UnikoRDTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = LightColorScheme,
         content = content
