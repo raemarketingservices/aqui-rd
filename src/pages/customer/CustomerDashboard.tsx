@@ -1,4 +1,4 @@
-import { useAuth } from "../hooks/useAuth";
+import { useAuthSupabase } from "../hooks/useAuthSupabase";
 import { supabaseApi } from "../services/supabaseApi";
 import { useApiQuery } from "../hooks/useApiQuery";
 import { Link } from "react-router-dom";
@@ -28,7 +28,7 @@ const statusConfig: Record<string, { bg: string; text: string; label: string; ic
 };
 
 export default function CustomerDashboard() {
-  const { user } = useAuth();
+  const { user } = useAuthSupabase();
   const { data: res } = useApiQuery(
     () => user ? supabaseApi.orders.getUserOrders(user.id || user._id) : "skip"
   );

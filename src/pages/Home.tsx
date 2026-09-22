@@ -10,7 +10,7 @@ export default function Home() {
   const { data: categories } = useApiQuery(() => api.categories.getAll());
   const { data: vendors } = useApiQuery(() => api.stores.getAll());
 
-  const displayProducts = products?.slice(0, 8) || [];
+  const displayProducts = products?.products?.slice(0, 8) || [];
 
   return (
     <div>
@@ -38,7 +38,7 @@ export default function Home() {
       <section className="max-w-7xl mx-auto px-4 py-12">
         <h2 className="text-2xl md:text-3xl font-bold text-uniko-dark text-center mb-8">Categorías</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-          {categories?.map((cat) => <CategoryCard key={cat.id} category={cat} />)}
+          {categories?.categories?.map((cat) => <CategoryCard key={cat.id} category={cat} />)}
         </div>
       </section>
 
@@ -54,11 +54,11 @@ export default function Home() {
         </div>
       </section>
 
-      {vendors && vendors.length > 0 && (
+      {vendors?.stores && vendors.stores.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 py-12">
           <h2 className="text-2xl md:text-3xl font-bold text-uniko-dark text-center mb-8">Tiendas Destacadas</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {vendors.map((v) => (
+            {vendors.stores.map((v: any) => (
               <Link to={`/tienda/${v.slug}`} key={v.id} className="card p-6 text-center hover:shadow-xl transition">
                 <div className="w-16 h-16 mx-auto mb-3 bg-uniko-blue rounded-full flex items-center justify-center text-white text-xl font-bold overflow-hidden">
                   {v.imageUrl ? <img src={v.imageUrl} alt="" className="w-full h-full object-cover rounded-full" /> : v.name.charAt(0)}
